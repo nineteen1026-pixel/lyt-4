@@ -59,6 +59,112 @@
     </div>
 
     <template v-if="activeTab === 'calendar'">
+      <n-card style="margin-bottom: 20px;">
+        <div class="workload-header">
+          <div class="workload-title-row">
+            <span class="section-title">人员当月负荷 ({{ currentYear }}年{{ currentMonth }}月)</span>
+            <div class="workload-legend">
+              <span class="legend-item">
+                <span class="legend-dot legend-normal"></span>
+                正常
+              </span>
+              <span class="legend-item">
+                <span class="legend-dot legend-overload"></span>
+                超负荷
+              </span>
+            </div>
+          </div>
+          <div class="workload-stats-grid">
+            <div
+              v-for="item in staffMonthlyWorkload"
+              :key="item.staff.id"
+              :class="['workload-card', { 'workload-overloaded': item.workload.isOverloaded }]"
+              @click="toggleWorkloadExpand(item.staff.id)"
+            >
+              <div class="workload-card-header">
+                <div class="workload-staff-info">
+                  <span class="workload-staff-name">{{ item.staff.name }}</span>
+                  <n-tag :type="getStaffRoleType(item.staff.role)" size="tiny">
+                    {{ getStaffRoleLabel(item.staff.role) }}
+                  </n-tag>
+                  <n-tag v-if="item.workload.isOverloaded" type="warning" size="tiny" round>
+                    超负荷
+                  </n-tag>
+                </div>
+                <div class="workload-count">
+                  <span class="workload-count-num">{{ item.workload.totalCount }}</span>
+                  <span class="workload-count-max">/ {{ item.workload.maxWorkload }}单</span>
+                </div>
+              </div>
+              <div class="workload-card-body">
+                <div class="workload-progress-bar">
+                  <div
+                    class="workload-progress-fill"
+                    :class="{ 'progress-overload': item.workload.isOverloaded }"
+                    :style="{ width: Math.min(item.workload.overloadPercent, 100) + '%' }"
+                  ></div>
+                </div>
+                <div class="workload-revenue-row">
+                  <span class="revenue-label">关联收入</span>
+                  <span class="revenue-value">¥{{ item.workload.totalRevenue.toLocaleString() }}</span>
+                  <span class="revenue-paid">(已收 ¥{{ item.workload.paidRevenue.toLocaleString() }})</span>
+                </div>
+                <div class="workload-expand-indicator">
+                  <n-icon :size="16" :class="{ 'icon-expanded': expandedWorkloadStaff === item.staff.id }">
+                    <chevron-down-outline />
+                  </n-icon>
+                  <span>{{ expandedWorkloadStaff === item.staff.id ? '收起订单' : '查看订单' }}</span>
+                </div>
+              </div>
+              <div v-if="expandedWorkloadStaff === item.staff.id" class="workload-orders">
+                <div v-if="item.workload.orders.length === 0" class="workload-empty">
+                  当月暂无排班订单
+                </div>
+                <div v-else class="workload-orders-list">
+                  <div
+                    v-for="order in item.workload.orders"
+                    :key="order.assignmentId"
+                    class="workload-order-item"
+                  >
+                    <div class="order-item-left">
+                      <div class="order-item-date">{{ formatDate(order.shootDate, 'MM-DD') }}</div>
+                      <n-tag
+                        :type="getAssignmentRoleType(order.assignmentRole)"
+                        size="tiny"
+                      >
+                        {{ getAssignmentRoleLabel(order.assignmentRole) }}
+                      </n-tag>
+                    </div>
+                    <div class="order-item-middle">
+                      <div class="order-item-customer">{{ getCustomerName(order.customerId) }}</div>
+                      <div class="order-item-package">{{ getPackageName(order.packageId) }}</div>
+                    </div>
+                    <div class="order-item-right">
+                      <div class="order-item-amount">¥{{ order.orderTotal.toLocaleString() }}</div>
+                      <div :class="['order-item-paystatus', `paystatus-${order.paymentStatus}`]">
+                        {{ getPaymentStatusLabel(order.paymentStatus) }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="item.workload.orders.length > 0" class="workload-orders-summary">
+                  <div class="summary-row">
+                    <span>订单数量：{{ item.workload.orders.length }} 单</span>
+                    <span>已完成：{{ item.workload.completedCount }} 单</span>
+                    <span>待执行：{{ item.workload.pendingCount }} 单</span>
+                  </div>
+                  <div class="summary-row summary-revenue">
+                    <span>订单总额：<strong>¥{{ item.workload.totalRevenue.toLocaleString() }}</strong></span>
+                    <span>已收款：<strong>¥{{ item.workload.paidRevenue.toLocaleString() }}</strong></span>
+                    <span>未收款：<strong>¥{{ item.workload.unpaidRevenue.toLocaleString() }}</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </n-card>
+
       <n-card>
         <div class="calendar-header">
           <n-button text size="small" @click="prevMonth">
@@ -614,7 +720,8 @@ import {
   ORDER_STATUS,
   STAFF_ROLE,
   ASSIGNMENT_ROLE,
-  ASSIGNMENT_STATUS
+  ASSIGNMENT_STATUS,
+  PAYMENT_STATUS
 } from '@/utils/format'
 import dayjs from 'dayjs'
 
@@ -656,6 +763,8 @@ const conflictDateRange = ref(null)
 const conflictResults = ref([])
 
 const pendingFilter = ref('all')
+
+const expandedWorkloadStaff = ref('')
 
 const assignForm = reactive({
   date: null,
@@ -794,6 +903,10 @@ const upcomingAssignmentsCount = computed(() => {
   return scheduleStore.upcomingAssignments.filter(a => a.status !== 'cancelled').length
 })
 
+const staffMonthlyWorkload = computed(() => {
+  return scheduleStore.getAllStaffMonthlyWorkload(currentYear.value, currentMonth.value, orderStore)
+})
+
 const staffColumns = [
   { title: '姓名', key: 'name', width: 120 },
   { title: '角色', key: 'role', width: 120 },
@@ -926,6 +1039,18 @@ function getStaffMonthWorkload(staffId) {
 function getStaffWorkloadPercent(staffId) {
   const count = getStaffMonthWorkload(staffId)
   return Math.min(count * 20, 100)
+}
+
+function getPaymentStatusLabel(status) {
+  return PAYMENT_STATUS[status]?.label || status
+}
+
+function toggleWorkloadExpand(staffId) {
+  if (expandedWorkloadStaff.value === staffId) {
+    expandedWorkloadStaff.value = ''
+  } else {
+    expandedWorkloadStaff.value = staffId
+  }
 }
 
 function getAvailableStaffForRole(role) {
@@ -1784,5 +1909,319 @@ onMounted(() => {
 .batch-role-content {
   padding-top: 8px;
   border-top: 1px solid #f5f5f5;
+}
+
+.workload-header {
+  width: 100%;
+}
+
+.workload-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.workload-legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-normal {
+  background: linear-gradient(90deg, #D4A574, #C49564);
+}
+
+.legend-overload {
+  background: linear-gradient(90deg, #f0a020, #e88010);
+}
+
+.workload-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.workload-card {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  background: #fff;
+}
+
+.workload-card:hover {
+  border-color: #D4A574;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.15);
+}
+
+.workload-card.workload-overloaded {
+  background: linear-gradient(135deg, #fffbe6 0%, #fff5d6 100%);
+  border-color: #ffe58f;
+}
+
+.workload-card.workload-overloaded:hover {
+  border-color: #f0a020;
+  box-shadow: 0 2px 8px rgba(240, 160, 32, 0.2);
+}
+
+.workload-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.workload-staff-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.workload-staff-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.workload-count {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.workload-count-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: #333;
+}
+
+.workload-card.workload-overloaded .workload-count-num {
+  color: #f0a020;
+}
+
+.workload-count-max {
+  font-size: 13px;
+  color: #999;
+}
+
+.workload-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.workload-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.workload-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #D4A574, #C49564);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.workload-progress-fill.progress-overload {
+  background: linear-gradient(90deg, #f0a020, #e88010);
+}
+
+.workload-revenue-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+
+.revenue-label {
+  color: #999;
+}
+
+.revenue-value {
+  color: #333;
+  font-weight: 600;
+}
+
+.revenue-paid {
+  color: #18a058;
+  font-size: 11px;
+}
+
+.workload-expand-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #D4A574;
+  padding-top: 4px;
+  border-top: 1px dashed #f0f0f0;
+  margin-top: 4px;
+}
+
+.workload-card.workload-overloaded .workload-expand-indicator {
+  color: #f0a020;
+  border-top-color: #ffe58f;
+}
+
+.icon-expanded {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.workload-expand-indicator .n-icon {
+  transition: transform 0.2s ease;
+}
+
+.workload-orders {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.workload-card.workload-overloaded .workload-orders {
+  border-top-color: #ffe58f;
+}
+
+.workload-empty {
+  text-align: center;
+  padding: 16px;
+  color: #999;
+  font-size: 13px;
+}
+
+.workload-orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.workload-order-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+
+.workload-card.workload-overloaded .workload-order-item {
+  background: #fff;
+}
+
+.order-item-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 56px;
+}
+
+.order-item-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: #D4A574;
+}
+
+.order-item-middle {
+  flex: 1;
+  min-width: 0;
+}
+
+.order-item-customer {
+  font-size: 13px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.order-item-package {
+  font-size: 11px;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.order-item-right {
+  text-align: right;
+  min-width: 90px;
+}
+
+.order-item-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.order-item-paystatus {
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.paystatus-unpaid {
+  color: #e88080;
+}
+
+.paystatus-partial {
+  color: #f0a020;
+}
+
+.paystatus-paid {
+  color: #18a058;
+}
+
+.workload-orders-summary {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e8e8e8;
+}
+
+.workload-card.workload-overloaded .workload-orders-summary {
+  border-top-color: #ffe58f;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 6px;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-revenue {
+  color: #333;
+}
+
+.summary-revenue strong {
+  color: #D4A574;
+  font-weight: 600;
 }
 </style>

@@ -203,6 +203,74 @@ export const useScheduleStore = defineStore('schedule', () => {
     }
   }
 
+  function getStaffMaxWorkload(role) {
+    const maxWorkloadMap = {
+      photographer: 8,
+      assistant: 12,
+      makeup: 10,
+      videographer: 8
+    }
+    return maxWorkloadMap[role] || 8
+  }
+
+  function getStaffMonthlyWorkloadWithOrders(staffId, year, month, orderStore) {
+    const startDate = dayjs(`${year}-${String(month).padStart(2, '0')}-01`).format('YYYY-MM-DD')
+    const endDate = dayjs(startDate).endOf('month').format('YYYY-MM-DD')
+    const staffAssignments = getAssignmentsByStaff(staffId).filter(a => {
+      if (a.status === 'cancelled') return false
+      const d = dayjs(a.date)
+      return d.isAfter(dayjs(startDate).subtract(1, 'day')) &&
+             d.isBefore(dayjs(endDate).add(1, 'day'))
+    })
+
+    const orders = []
+    let totalRevenue = 0
+    let paidRevenue = 0
+
+    staffAssignments.forEach(asn => {
+      const order = orderStore ? orderStore.getOrderById(asn.orderId) : null
+      if (order) {
+        const orderTotal = (order.depositAmount || 0) + (order.finalAmount || 0)
+        const orderPaid = order.paidAmount || 0
+        totalRevenue += orderTotal
+        paidRevenue += orderPaid
+        orders.push({
+          ...order,
+          assignmentId: asn.id,
+          assignmentRole: asn.role,
+          assignmentStatus: asn.status,
+          orderTotal,
+          orderPaid
+        })
+      }
+    })
+
+    const staff = getStaffById(staffId)
+    const maxWorkload = staff ? getStaffMaxWorkload(staff.role) : 8
+    const isOverloaded = staffAssignments.length > maxWorkload
+
+    return {
+      staffId,
+      totalCount: staffAssignments.length,
+      completedCount: staffAssignments.filter(a => a.status === 'completed').length,
+      pendingCount: staffAssignments.filter(a => a.status === 'pending' || a.status === 'confirmed').length,
+      maxWorkload,
+      isOverloaded,
+      overloadPercent: Math.min(Math.round((staffAssignments.length / maxWorkload) * 100), 200),
+      orders,
+      totalRevenue,
+      paidRevenue,
+      unpaidRevenue: totalRevenue - paidRevenue
+    }
+  }
+
+  function getAllStaffMonthlyWorkload(year, month, orderStore) {
+    return activeStaff.value.map(s => ({
+      staff: s,
+      workload: getStaffMonthlyWorkloadWithOrders(s.id, year, month, orderStore)
+    }))
+  }
+
   function getConflictsForDate(date) {
     const dayAssignments = getAssignmentsByDate(date)
     const staffDateMap = {}
@@ -390,6 +458,9 @@ export const useScheduleStore = defineStore('schedule', () => {
     checkOrderFullyStaffed,
     getUnassignedStaffForDate,
     getStaffWorkload,
+    getStaffMaxWorkload,
+    getStaffMonthlyWorkloadWithOrders,
+    getAllStaffMonthlyWorkload,
     getConflictsForDate,
     getAllConflicts,
     getConflictsForStaff,
