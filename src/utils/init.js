@@ -35,17 +35,35 @@ function ensureCustomerSourceFields() {
     }
     if (!customer.followUpRecords || !Array.isArray(customer.followUpRecords)) {
       if (mock?.followUpRecords?.length) {
-        patch.followUpRecords = mock.followUpRecords
+        patch.followUpRecords = mock.followUpRecords.map(r => ({
+          ...r,
+          category: r.category || (r.type === 'status_change' ? 'progress' : 'follow_up')
+        }))
       } else {
         patch.followUpRecords = [{
           id: 'fur_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
           type: 'other',
+          category: 'follow_up',
           content: '客户档案建立',
           status: 'converted',
           createdAt: customer.createdAt || new Date().toISOString()
         }]
       }
       changed = true
+    } else {
+      const updatedRecords = customer.followUpRecords.map(r => {
+        if (!r.category) {
+          changed = true
+          return {
+            ...r,
+            category: r.type === 'status_change' ? 'progress' : 'follow_up'
+          }
+        }
+        return r
+      })
+      if (changed) {
+        patch.followUpRecords = updatedRecords
+      }
     }
 
     return Object.keys(patch).length ? { ...customer, ...patch } : customer
@@ -74,8 +92,25 @@ function ensureLeadFields() {
       changed = true
     }
     if (!lead.followUpRecords || !Array.isArray(lead.followUpRecords)) {
-      patch.followUpRecords = mock?.followUpRecords || []
+      patch.followUpRecords = (mock?.followUpRecords || []).map(r => ({
+        ...r,
+        category: r.category || (r.type === 'status_change' ? 'progress' : 'follow_up')
+      }))
       changed = true
+    } else {
+      const updatedRecords = lead.followUpRecords.map(r => {
+        if (!r.category) {
+          changed = true
+          return {
+            ...r,
+            category: r.type === 'status_change' ? 'progress' : 'follow_up'
+          }
+        }
+        return r
+      })
+      if (changed) {
+        patch.followUpRecords = updatedRecords
+      }
     }
 
     return Object.keys(patch).length ? { ...lead, ...patch } : lead

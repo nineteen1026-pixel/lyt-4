@@ -73,7 +73,13 @@ export const FOLLOW_UP_TYPE = {
   phone: '电话',
   meeting: '面谈',
   video: '视频',
+  status_change: '进度变更',
   other: '其他'
+}
+
+export const RECORD_CATEGORY = {
+  follow_up: '跟进记录',
+  progress: '进度日志'
 }
 
 export const STAFF_ROLE = {

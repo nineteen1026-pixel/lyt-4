@@ -4,6 +4,8 @@ import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage
 import { ensureAllInitialized } from '@/utils/init'
 import { useScheduleStore } from '@/stores/schedule'
 import { usePaymentRecordStore } from '@/stores/paymentRecord'
+import { useCustomerStore } from '@/stores/customer'
+import { ORDER_STATUS } from '@/utils/format'
 import dayjs from 'dayjs'
 
 export const useOrderStore = defineStore('order', () => {
@@ -57,6 +59,20 @@ export const useOrderStore = defineStore('order', () => {
           scheduleStore.updateAssignmentStatusByOrderStatus(id, data.status)
         } catch (e) {
           console.warn('同步排班状态失败:', e)
+        }
+
+        try {
+          const customerStore = useCustomerStore()
+          const oldLabel = ORDER_STATUS[oldStatus]?.label || oldStatus
+          const newLabel = ORDER_STATUS[data.status]?.label || data.status
+          customerStore.addProgressLog(oldOrder.customerId, {
+            content: `拍摄进度从「${oldLabel}」变更为「${newLabel}」`,
+            oldStatus,
+            newStatus: data.status,
+            orderId: id
+          })
+        } catch (e) {
+          console.warn('记录进度日志失败:', e)
         }
       }
 

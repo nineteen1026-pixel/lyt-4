@@ -20,6 +20,10 @@ export const followUpTypeOptions = [
   { value: 'other', label: '其他' }
 ]
 
+export const progressTypeOptions = [
+  { value: 'status_change', label: '进度变更' }
+]
+
 export const useCustomerStore = defineStore('customer', () => {
   const customers = ref([])
 
@@ -71,11 +75,30 @@ export const useCustomerStore = defineStore('customer', () => {
     const newRecord = {
       ...record,
       id: generateId(),
+      category: 'follow_up',
       createdAt: new Date().toISOString()
     }
 
     const followUpRecords = customer.followUpRecords || []
     followUpRecords.unshift(newRecord)
+
+    return updateCustomer(customerId, { followUpRecords })
+  }
+
+  function addProgressLog(customerId, log) {
+    const customer = getCustomerById(customerId)
+    if (!customer) return null
+
+    const newLog = {
+      ...log,
+      id: generateId(),
+      type: 'status_change',
+      category: 'progress',
+      createdAt: new Date().toISOString()
+    }
+
+    const followUpRecords = customer.followUpRecords || []
+    followUpRecords.unshift(newLog)
 
     return updateCustomer(customerId, { followUpRecords })
   }
@@ -112,6 +135,7 @@ export const useCustomerStore = defineStore('customer', () => {
     deleteCustomer,
     getCustomerById,
     addFollowUpRecord,
+    addProgressLog,
     searchCustomers,
     getCustomersBySource
   }

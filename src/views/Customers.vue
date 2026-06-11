@@ -176,23 +176,32 @@
 
           <div class="detail-section">
             <h3 class="section-title">
-              跟进轨迹
+              完整时间线
               <span class="record-count">({{ currentCustomer.followUpRecords?.length || 0 }} 条记录)</span>
             </h3>
             <div v-if="currentCustomer.followUpRecords && currentCustomer.followUpRecords.length > 0" class="timeline">
               <n-timeline>
                 <n-timeline-item
-                  v-for="record in currentCustomer.followUpRecords"
+                  v-for="record in sortedRecords(currentCustomer.followUpRecords)"
                   :key="record.id"
-                  :title="getFollowUpTypeLabel(record.type)"
-                  :time="formatDate(record.createdAt, 'YYYY-MM-DD HH:mm')"
-                  :type="getTimelineType(record.type)"
+                  :type="getTimelineType(record)"
                 >
+                  <template #title>
+                    <div class="timeline-title">
+                      <span class="record-type">{{ getRecordTypeLabel(record) }}</span>
+                      <n-tag :type="getCategoryTagType(record)" size="tiny" class="category-tag">
+                        {{ getRecordCategoryLabel(record) }}
+                      </n-tag>
+                    </div>
+                  </template>
+                  <template #time>
+                    {{ formatDate(record.createdAt, 'YYYY-MM-DD HH:mm') }}
+                  </template>
                   <p class="record-content">{{ record.content }}</p>
                 </n-timeline-item>
               </n-timeline>
             </div>
-            <n-empty v-else description="暂无跟进记录" />
+            <n-empty v-else description="暂无记录" />
           </div>
         </div>
 
@@ -249,7 +258,7 @@ import { ref, computed, reactive, h } from 'vue'
 import { useMessage, useDialog, NTag } from 'naive-ui'
 import { SearchOutline, AddOutline } from '@vicons/ionicons5'
 import { useCustomerStore, sourceOptions, followUpTypeOptions } from '@/stores/customer'
-import { formatDate } from '@/utils/format'
+import { formatDate, ORDER_STATUS } from '@/utils/format'
 import dayjs from 'dayjs'
 
 const message = useMessage()
@@ -386,19 +395,52 @@ function getSourceTagType(source) {
   return typeMap[source] || 'default'
 }
 
-function getFollowUpTypeLabel(type) {
-  const option = followUpTypeOptions.find(o => o.value === type)
+function getRecordTypeLabel(record) {
+  if (record.category === 'progress' || record.type === 'status_change') {
+    return '进度变更'
+  }
+  const option = followUpTypeOptions.find(o => o.value === record.type)
   return option ? option.label : '其他'
 }
 
-function getTimelineType(type) {
+function getTimelineType(record) {
+  if (record.category === 'progress' || record.type === 'status_change') {
+    const statusTypeMap = {
+      pending: 'warning',
+      confirmed: 'info',
+      shooting: 'primary',
+      selecting: 'warning',
+      editing: 'info',
+      delivering: 'warning',
+      completed: 'success'
+    }
+    return statusTypeMap[record.newStatus] || 'primary'
+  }
   const typeMap = {
     phone: 'info',
     wechat: 'success',
     meeting: 'warning',
     other: 'default'
   }
-  return typeMap[type] || 'default'
+  return typeMap[record.type] || 'default'
+}
+
+function getRecordCategoryLabel(record) {
+  if (record.category === 'progress' || record.type === 'status_change') {
+    return '进度日志'
+  }
+  return '跟进记录'
+}
+
+function getCategoryTagType(record) {
+  if (record.category === 'progress' || record.type === 'status_change') {
+    return 'primary'
+  }
+  return 'default'
+}
+
+function sortedRecords(records) {
+  return [...records].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
 }
 
 function openAddModal() {
@@ -590,5 +632,21 @@ function handleDelete(row) {
   font-size: 13px;
   color: #666;
   line-height: 1.5;
+}
+
+.timeline-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.record-type {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.category-tag {
+  flex-shrink: 0;
 }
 </style>
