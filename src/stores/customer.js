@@ -1,25 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
-import { initMockData } from '@/data/mockData'
-
-function ensureInitialized() {
-  const initialized = getStorage(storageKeys.INITIALIZED)
-  if (!initialized) {
-    const mockData = initMockData()
-    setStorage(storageKeys.CUSTOMERS, mockData.customers)
-    setStorage(storageKeys.PACKAGES, mockData.packages)
-    setStorage(storageKeys.ORDERS, mockData.orders)
-    setStorage(storageKeys.COSTS, mockData.costs)
-    setStorage(storageKeys.INITIALIZED, true)
-  }
-}
+import { ensureAllInitialized } from '@/utils/init'
 
 export const useCustomerStore = defineStore('customer', () => {
   const customers = ref([])
 
   function fetchCustomers() {
-    ensureInitialized()
+    ensureAllInitialized()
     customers.value = getStorage(storageKeys.CUSTOMERS) || []
   }
 

@@ -1,32 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
-import { initMockData } from '@/data/mockData'
+import { ensureAllInitialized } from '@/utils/init'
 import dayjs from 'dayjs'
-
-function ensureInitialized() {
-  const leads = getStorage(storageKeys.LEADS)
-  if (!leads || leads.length === 0) {
-    const initialized = getStorage(storageKeys.INITIALIZED)
-    if (!initialized) {
-      const mockData = initMockData()
-      setStorage(storageKeys.CUSTOMERS, mockData.customers)
-      setStorage(storageKeys.PACKAGES, mockData.packages)
-      setStorage(storageKeys.ORDERS, mockData.orders)
-      setStorage(storageKeys.COSTS, mockData.costs)
-      setStorage(storageKeys.LEADS, mockData.leads)
-      setStorage(storageKeys.INITIALIZED, true)
-    } else {
-      setStorage(storageKeys.LEADS, [])
-    }
-  }
-}
 
 export const useLeadStore = defineStore('lead', () => {
   const leads = ref([])
 
   function fetchLeads() {
-    ensureInitialized()
+    ensureAllInitialized()
     leads.value = getStorage(storageKeys.LEADS) || []
   }
 

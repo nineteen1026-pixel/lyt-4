@@ -62,19 +62,6 @@
         size="medium"
         striped
       >
-        <template #status="{ row }">
-          <n-tag :type="getStatusType(row.status)" size="small">
-            {{ getStatusLabel(row.status) }}
-          </n-tag>
-        </template>
-        <template #source="{ row }">
-          {{ getSourceLabel(row.source) }}
-        </template>
-        <template #nextFollowUp="{ row }">
-          <span :class="{ 'overdue': isOverdue(row.nextFollowUp, row.status) }">
-            {{ formatDate(row.nextFollowUp) || '-' }}
-          </span>
-        </template>
         <template #actions="{ row }">
           <n-button text size="small" type="primary" style="margin-right: 8px;" @click="openDetail(row)">
             详情
@@ -258,6 +245,20 @@
             </n-descriptions>
           </div>
 
+          <div v-if="currentLead.status === 'converted' && (currentLead.customerId || currentLead.orderId)" class="detail-section">
+            <div class="section-title">关联信息</div>
+            <n-descriptions :column="1" bordered size="small">
+              <n-descriptions-item label="关联客户">
+                <n-tag v-if="currentLead.customerId" type="success" size="small">已关联</n-tag>
+                <span v-else>-</span>
+              </n-descriptions-item>
+              <n-descriptions-item label="关联订单">
+                <n-tag v-if="currentLead.orderId" type="success" size="small">已创建档期订单</n-tag>
+                <span v-else>-</span>
+              </n-descriptions-item>
+            </n-descriptions>
+          </div>
+
           <div class="detail-section">
             <div class="section-title">
               跟进记录
@@ -291,8 +292,8 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
-import { useMessage, useDialog } from 'naive-ui'
+import { ref, computed, reactive, h } from 'vue'
+import { useMessage, useDialog, NTag } from 'naive-ui'
 import { 
   SearchOutline, 
   AddOutline 
@@ -300,6 +301,7 @@ import {
 import { useLeadStore } from '@/stores/lead'
 import { usePackageStore } from '@/stores/package'
 import { useCustomerStore } from '@/stores/customer'
+import { useOrderStore } from '@/stores/order'
 import { 
   LEAD_STATUS, 
   LEAD_SOURCE, 
@@ -315,6 +317,7 @@ const dialog = useDialog()
 const leadStore = useLeadStore()
 const packageStore = usePackageStore()
 const customerStore = useCustomerStore()
+const orderStore = useOrderStore()
 
 const searchKeyword = ref('')
 const statusFilter = ref(null)
@@ -428,11 +431,32 @@ const pagination = {
 const columns = [
   { title: '客户姓名', key: 'name', width: 180 },
   { title: '联系电话', key: 'phone', width: 140 },
-  { title: '来源', key: 'source', width: 100 },
-  { title: '状态', key: 'status', width: 100 },
+  {
+    title: '来源',
+    key: 'source',
+    width: 100,
+    render: (row) => getSourceLabel(row.source)
+  },
+  {
+    title: '状态',
+    key: 'status',
+    width: 100,
+    render: (row) => h(NTag, { type: getStatusType(row.status), size: 'small' }, () => getStatusLabel(row.status))
+  },
   { title: '婚期', key: 'weddingDate', width: 120, render: (row) => formatDate(row.weddingDate) },
   { title: '预算', key: 'budget', width: 120, render: (row) => row.budget ? '¥' + row.budget.toLocaleString() : '-' },
-  { title: '下次跟进', key: 'nextFollowUp', width: 120 },
+  {
+    title: '下次跟进',
+    key: 'nextFollowUp',
+    width: 120,
+    render: (row) => {
+      const date = formatDate(row.nextFollowUp) || '-'
+      if (isOverdue(row.nextFollowUp, row.status)) {
+        return h('span', { class: 'overdue' }, date)
+      }
+      return date
+    }
+  },
   {
     title: '创建时间',
     key: 'createdAt',
@@ -594,9 +618,25 @@ function handleConvert() {
   const lead = currentLead.value
   if (!lead) return
 
+  const pkg = lead.packageInterest ? packageStore.getPackageById(lead.packageInterest) : null
+  const hasPackage = !!pkg
+  const hasWeddingDate = !!lead.weddingDate
+
+  let content = `确定要将「${lead.name}」转化为正式客户吗？`
+  if (hasPackage || hasWeddingDate) {
+    content += '<br/><br/>转化时将自动创建：'
+    if (hasPackage && hasWeddingDate) {
+      content += `<br/>• 客户档案<br/>• 档期订单（${pkg.name}，${lead.weddingDate}）`
+    } else if (hasWeddingDate) {
+      content += `<br/>• 客户档案<br/>• 档期订单（${lead.weddingDate}）`
+    } else {
+      content += `<br/>• 客户档案<br/>• 档期订单（${pkg.name}）`
+    }
+  }
+
   dialog.warning({
     title: '确认转化',
-    content: `确定要将「${lead.name}」转化为正式客户吗？`,
+    content: () => h('div', { innerHTML: content }),
     positiveText: '确认转化',
     negativeText: '取消',
     onPositiveClick: () => {
@@ -608,8 +648,39 @@ function handleConvert() {
         hotel: lead.hotel,
         remark: lead.remark
       })
-      leadStore.markAsConverted(lead.id, customer.id)
-      message.success('转化成功，已添加到客户档案')
+
+      let orderId = null
+      if (hasPackage || hasWeddingDate) {
+        const packagePrice = pkg ? pkg.price : (lead.budget || 0)
+        const depositAmount = Math.round(packagePrice * 0.3)
+        const finalAmount = packagePrice - depositAmount
+        
+        const order = orderStore.addOrder({
+          customerId: customer.id,
+          packageId: lead.packageInterest || null,
+          shootDate: lead.weddingDate || '',
+          status: 'pending',
+          depositAmount: depositAmount,
+          finalAmount: finalAmount,
+          paidAmount: 0,
+          paymentStatus: 'unpaid',
+          dueDate: lead.weddingDate ? dayjs(lead.weddingDate).subtract(7, 'day').format('YYYY-MM-DD') : '',
+          remark: `由线索转化而来，原线索备注：${lead.remark || ''}`
+        })
+        orderId = order.id
+      }
+
+      leadStore.updateLead(lead.id, {
+        status: 'converted',
+        customerId: customer.id,
+        orderId: orderId
+      })
+
+      let successMsg = '转化成功，已添加到客户档案'
+      if (orderId) {
+        successMsg += '，并已创建档期订单'
+      }
+      message.success(successMsg)
       showDetail.value = false
     }
   })

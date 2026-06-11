@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
+import { ensureAllInitialized } from '@/utils/init'
 
 export const usePackageStore = defineStore('package', () => {
   const packages = ref([])
 
   function fetchPackages() {
+    ensureAllInitialized()
     packages.value = getStorage(storageKeys.PACKAGES) || []
   }
 

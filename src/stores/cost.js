@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
+import { ensureAllInitialized } from '@/utils/init'
 import dayjs from 'dayjs'
 
 export const useCostStore = defineStore('cost', () => {
   const costs = ref([])
 
   function fetchCosts() {
+    ensureAllInitialized()
     costs.value = getStorage(storageKeys.COSTS) || []
   }
 
