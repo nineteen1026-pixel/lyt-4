@@ -83,7 +83,8 @@ import {
   StatsChartOutline,
   CameraOutline,
   DownloadOutline,
-  CloudUploadOutline
+  CloudUploadOutline,
+  AlbumsOutline
 } from '@vicons/ionicons5'
 import { exportAllData, importAllData } from '@/utils/storage'
 import { useCustomerStore } from '@/stores/customer'
@@ -91,6 +92,7 @@ import { usePackageStore } from '@/stores/package'
 import { useOrderStore } from '@/stores/order'
 import { useCostStore } from '@/stores/cost'
 import { useLeadStore } from '@/stores/lead'
+import { useScheduleStore } from '@/stores/schedule'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -104,6 +106,7 @@ const packageStore = usePackageStore()
 const orderStore = useOrderStore()
 const costStore = useCostStore()
 const leadStore = useLeadStore()
+const scheduleStore = useScheduleStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -141,6 +144,11 @@ const menuOptions = [
     label: '档期项目',
     key: 'Schedule',
     icon: iconRender(CalendarOutline)
+  },
+  {
+    label: '拍摄排班',
+    key: 'Dispatch',
+    icon: iconRender(AlbumsOutline)
   },
   {
     label: '套餐报价',
@@ -218,6 +226,8 @@ function reloadAllStores() {
   orderStore.fetchOrders()
   costStore.fetchCosts()
   leadStore.fetchLeads()
+  scheduleStore.fetchStaff()
+  scheduleStore.fetchAssignments()
 }
 
 onMounted(() => {
@@ -226,6 +236,8 @@ onMounted(() => {
   orderStore.fetchOrders()
   costStore.fetchCosts()
   leadStore.fetchLeads()
+  scheduleStore.fetchStaff()
+  scheduleStore.fetchAssignments()
 })
 </script>
 

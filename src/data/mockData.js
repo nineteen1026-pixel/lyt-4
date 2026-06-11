@@ -444,12 +444,214 @@ export const mockLeads = [
   }
 ]
 
+export const mockStaff = [
+  {
+    id: 'staff_001',
+    name: '陈伟',
+    role: 'photographer',
+    phone: '13800001001',
+    active: true,
+    remark: '首席摄影师，擅长纪实风格',
+    createdAt: '2025-11-01T00:00:00.000Z'
+  },
+  {
+    id: 'staff_002',
+    name: '李婷',
+    role: 'photographer',
+    phone: '13800001002',
+    active: true,
+    remark: '女摄影师，擅长中式复古',
+    createdAt: '2025-11-01T00:00:00.000Z'
+  },
+  {
+    id: 'staff_003',
+    name: '王磊',
+    role: 'assistant',
+    phone: '13800001003',
+    active: true,
+    remark: '摄影助理，负责灯光和器材',
+    createdAt: '2025-12-01T00:00:00.000Z'
+  },
+  {
+    id: 'staff_004',
+    name: '赵敏',
+    role: 'makeup',
+    phone: '13800001004',
+    active: true,
+    remark: '首席化妆师，8年经验',
+    createdAt: '2025-11-01T00:00:00.000Z'
+  },
+  {
+    id: 'staff_005',
+    name: '刘洋',
+    role: 'videographer',
+    phone: '13800001005',
+    active: true,
+    remark: '摄像师，负责微电影拍摄',
+    createdAt: '2025-12-15T00:00:00.000Z'
+  },
+  {
+    id: 'staff_006',
+    name: '孙浩',
+    role: 'assistant',
+    phone: '13800001006',
+    active: false,
+    remark: '兼职助理，周末可排班',
+    createdAt: '2026-01-10T00:00:00.000Z'
+  }
+]
+
+export const mockAssignments = [
+  {
+    id: 'asgn_001',
+    orderId: 'ord_001',
+    staffId: 'staff_001',
+    date: '2026-03-08',
+    role: 'chief_photographer',
+    status: 'completed',
+    remark: '',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_002',
+    orderId: 'ord_001',
+    staffId: 'staff_003',
+    date: '2026-03-08',
+    role: 'assistant',
+    status: 'completed',
+    remark: '',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_003',
+    orderId: 'ord_001',
+    staffId: 'staff_004',
+    date: '2026-03-08',
+    role: 'makeup_artist',
+    status: 'completed',
+    remark: '',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_004',
+    orderId: 'ord_002',
+    staffId: 'staff_002',
+    date: '2026-04-25',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '中式复古拍摄',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_005',
+    orderId: 'ord_002',
+    staffId: 'staff_003',
+    date: '2026-04-25',
+    role: 'assistant',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_006',
+    orderId: 'ord_002',
+    staffId: 'staff_004',
+    date: '2026-04-25',
+    role: 'makeup_artist',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_007',
+    orderId: 'ord_003',
+    staffId: 'staff_001',
+    date: '2026-05-20',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '外滩夜景拍摄',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_008',
+    orderId: 'ord_003',
+    staffId: 'staff_005',
+    date: '2026-05-20',
+    role: 'videographer',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_009',
+    orderId: 'ord_004',
+    staffId: 'staff_001',
+    date: '2026-06-18',
+    role: 'chief_photographer',
+    status: 'pending',
+    remark: '尊享套系',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_010',
+    orderId: 'ord_004',
+    staffId: 'staff_003',
+    date: '2026-06-18',
+    role: 'assistant',
+    status: 'pending',
+    remark: '',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_011',
+    orderId: 'ord_004',
+    staffId: 'staff_004',
+    date: '2026-06-18',
+    role: 'makeup_artist',
+    status: 'pending',
+    remark: '',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_012',
+    orderId: 'ord_004',
+    staffId: 'staff_005',
+    date: '2026-06-18',
+    role: 'videographer',
+    status: 'pending',
+    remark: '',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_013',
+    orderId: 'ord_007',
+    staffId: 'staff_002',
+    date: '2026-05-01',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-03-05T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_014',
+    orderId: 'ord_007',
+    staffId: 'staff_003',
+    date: '2026-05-01',
+    role: 'assistant',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-03-05T10:00:00.000Z'
+  }
+]
+
 export function initMockData() {
   return {
     customers: mockCustomers,
     packages: mockPackages,
     orders: mockOrders,
     costs: mockCosts,
-    leads: mockLeads
+    leads: mockLeads,
+    staff: mockStaff,
+    assignments: mockAssignments
   }
 }

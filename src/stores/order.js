@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
+import { useScheduleStore } from '@/stores/schedule'
 import dayjs from 'dayjs'
 
 export const useOrderStore = defineStore('order', () => {
@@ -26,8 +27,19 @@ export const useOrderStore = defineStore('order', () => {
   function updateOrder(id, data) {
     const index = orders.value.findIndex(o => o.id === id)
     if (index !== -1) {
+      const oldStatus = orders.value[index].status
       orders.value[index] = { ...orders.value[index], ...data }
       setStorage(storageKeys.ORDERS, orders.value)
+
+      if (data.status && data.status !== oldStatus) {
+        try {
+          const scheduleStore = useScheduleStore()
+          scheduleStore.updateAssignmentStatusByOrderStatus(id, data.status)
+        } catch (e) {
+          console.warn('同步排班状态失败:', e)
+        }
+      }
+
       return orders.value[index]
     }
     return null
@@ -38,6 +50,14 @@ export const useOrderStore = defineStore('order', () => {
     if (index !== -1) {
       orders.value.splice(index, 1)
       setStorage(storageKeys.ORDERS, orders.value)
+
+      try {
+        const scheduleStore = useScheduleStore()
+        scheduleStore.deleteAssignmentsByOrder(id)
+      } catch (e) {
+        console.warn('删除关联排班失败:', e)
+      }
+
       return true
     }
     return false

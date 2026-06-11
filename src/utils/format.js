@@ -76,6 +76,29 @@ export const FOLLOW_UP_TYPE = {
   other: '其他'
 }
 
+export const STAFF_ROLE = {
+  photographer: { label: '摄影师', color: 'primary' },
+  assistant: { label: '摄影助理', color: 'default' },
+  makeup: { label: '化妆师', color: 'warning' },
+  videographer: { label: '摄像师', color: 'info' }
+}
+
+export const ASSIGNMENT_ROLE = {
+  chief_photographer: { label: '主摄影师', color: 'primary' },
+  photographer: { label: '摄影师', color: 'info' },
+  assistant: { label: '助理', color: 'default' },
+  makeup_artist: { label: '化妆师', color: 'warning' },
+  videographer: { label: '摄像师', color: 'info' }
+}
+
+export const ASSIGNMENT_STATUS = {
+  pending: { label: '待确认', color: 'warning' },
+  confirmed: { label: '已确认', color: 'info' },
+  in_progress: { label: '进行中', color: 'primary' },
+  completed: { label: '已完成', color: 'success' },
+  cancelled: { label: '已取消', color: 'error' }
+}
+
 export function getDaysBetween(date1, date2) {
   return dayjs(date2).diff(dayjs(date1), 'day')
 }

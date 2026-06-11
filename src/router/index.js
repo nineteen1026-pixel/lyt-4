@@ -26,6 +26,12 @@ const routes = [
     meta: { title: '档期项目', icon: 'calendar' }
   },
   {
+    path: '/dispatch',
+    name: 'Dispatch',
+    component: () => import('@/views/Dispatch.vue'),
+    meta: { title: '拍摄排班', icon: 'calendar' }
+  },
+  {
     path: '/packages',
     name: 'Packages',
     component: () => import('@/views/Packages.vue'),
