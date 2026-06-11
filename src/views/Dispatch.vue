@@ -194,13 +194,25 @@
             @click="showDayDetail(day)"
           >
             <div class="day-number">{{ day.date.getDate() }}</div>
-            <div v-if="day.orders.length > 0 || day.assignments.length > 0 || day.pendingOrders.length > 0" class="day-content">
+            <div v-if="day.orders.length > 0 || day.assignments.length > 0 || day.pendingOrders.length > 0 || day.travelShootTasks.length > 0" class="day-content">
               <div
                 v-for="order in day.orders.slice(0, 2)"
                 :key="order.id"
                 :class="['order-chip', `status-${order.status}`]"
               >
                 {{ getCustomerName(order.customerId) }}
+              </div>
+              <div v-if="day.travelShootTasks.length > 0" class="travel-shoot-indicator">
+                <n-tag
+                  v-for="task in day.travelShootTasks.slice(0, 2)"
+                  :key="task.id"
+                  size="tiny"
+                  color="#fef3e2"
+                  text-color="#D4A574"
+                  round
+                >
+                  ✈️ {{ task.name }}
+                </n-tag>
               </div>
               <div v-if="day.pendingOrders.length > 0" class="pending-indicator">
                 <n-tag size="tiny" type="warning" round>{{ day.pendingOrders.length }}单待排</n-tag>
@@ -422,10 +434,26 @@
       :title="`${selectedDayTitle} 档期详情`"
       style="width: 720px;"
     >
-      <div v-if="selectedDayOrders.length === 0 && selectedDayAssignments.length === 0 && selectedDayPendingOrders.length === 0" class="empty-day">
+      <div v-if="selectedDayOrders.length === 0 && selectedDayAssignments.length === 0 && selectedDayPendingOrders.length === 0 && selectedDayTravelTasks.length === 0" class="empty-day">
         当天暂无排班安排
       </div>
       <div v-else class="day-detail-content">
+        <div v-if="selectedDayTravelTasks.length > 0" class="detail-section">
+          <div class="detail-section-title">
+            <n-icon size="16"><AirplaneOutline /></n-icon>
+            异地旅拍 ({{ selectedDayTravelTasks.length }})
+          </div>
+          <div v-for="task in selectedDayTravelTasks" :key="task.id" class="detail-pending-item" style="background:#fef9f3;border-color:#f5dcc0;">
+            <div class="pending-main">
+              <span class="pending-customer" style="color:#D4A574;">✈️ {{ task.name }}</span>
+              <n-tag size="small" color="#fef3e2" text-color="#D4A574">{{ task.destination?.name || '未知' }}</n-tag>
+            </div>
+            <div class="pending-sub">
+              {{ task.travelDates?.departDate }} → {{ task.travelDates?.returnDate }} · {{ task.totalStaffCount || 0 }}人出行
+            </div>
+          </div>
+        </div>
+
         <div v-if="selectedDayPendingOrders.length > 0" class="detail-section">
           <div class="detail-section-title">
             <n-icon size="16"><time-outline /></n-icon>
@@ -715,12 +743,14 @@ import {
   PeopleOutline,
   SearchOutline,
   AlertCircleOutline,
-  TimeOutline
+  TimeOutline,
+  AirplaneOutline
 } from '@vicons/ionicons5'
 import { useScheduleStore } from '@/stores/schedule'
 import { useOrderStore } from '@/stores/order'
 import { useCustomerStore } from '@/stores/customer'
 import { usePackageStore } from '@/stores/package'
+import { useTravelShootStore } from '@/stores/travelShoot'
 import {
   formatDate,
   ORDER_STATUS,
@@ -737,6 +767,7 @@ const scheduleStore = useScheduleStore()
 const orderStore = useOrderStore()
 const customerStore = useCustomerStore()
 const packageStore = usePackageStore()
+const travelShootStore = useTravelShootStore()
 
 const activeTab = ref('calendar')
 const currentYear = ref(dayjs().year())
@@ -750,6 +781,7 @@ const selectedDayOrders = ref([])
 const selectedDayAssignments = ref([])
 const selectedDayConflicts = ref([])
 const selectedDayPendingOrders = ref([])
+const selectedDayTravelTasks = ref([])
 
 const showAssignModal = ref(false)
 const isEditAssignment = ref(false)
@@ -834,10 +866,12 @@ const staffOptionsWithAvailable = computed(() => {
 
   return scheduleStore.activeStaff.map(s => {
     const hasConflict = scheduleStore.checkStaffConflict(s.id, dateStr, assignForm.role)
+    const travelConflicts = hasConflict ? [] : travelShootStore.checkScheduleStaffTravelConflict(s.id, dateStr)
+    const hasTravelConflict = travelConflicts.length > 0
     return {
-      label: `${s.name} (${getStaffRoleLabel(s.role)})${hasConflict ? ' - 已安排' : ' - 空闲'}`,
+      label: `${s.name} (${getStaffRoleLabel(s.role)})${hasConflict ? ' - 已安排' : hasTravelConflict ? ' - 旅拍中' : ' - 空闲'}`,
       value: s.id,
-      disabled: hasConflict
+      disabled: hasConflict || hasTravelConflict
     }
   })
 })
@@ -854,6 +888,12 @@ const staffConflictWarning = computed(() => {
   if (hasConflict) {
     const staffName = getStaffName(assignForm.staffId)
     return `${staffName} 在 ${dateStr} 已有排班任务，存在档期冲突`
+  }
+  const travelConflicts = travelShootStore.checkScheduleStaffTravelConflict(assignForm.staffId, dateStr)
+  if (travelConflicts.length > 0) {
+    const staffName = getStaffName(assignForm.staffId)
+    const projectNames = travelConflicts.map(p => p.name).join('、')
+    return `${staffName} 在 ${dateStr} 有旅拍任务（${projectNames}），存在档期冲突`
   }
   return ''
 })
@@ -958,6 +998,16 @@ const calendarDays = computed(() => {
       return !staffingStatus.isFullyStaffed
     })
 
+    const travelShootTasks = travelShootStore.projects.filter(p => {
+      if (p.status === 'cancelled' || p.status === 'completed') return false
+      const depart = dayjs(p.travelDates?.departDate)
+      const ret = dayjs(p.travelDates?.returnDate)
+      if (!date.isBefore(depart) && !date.isAfter(ret)) {
+        return travelShootStore.staffAssignments.some(sa => sa.projectId === p.id)
+      }
+      return false
+    })
+
     days.push({
       date: date.toDate(),
       dateStr,
@@ -966,7 +1016,8 @@ const calendarDays = computed(() => {
       orders,
       assignments,
       conflicts,
-      pendingOrders: pendingOrdersForDate
+      pendingOrders: pendingOrdersForDate,
+      travelShootTasks
     })
   }
 
@@ -1127,6 +1178,7 @@ function showDayDetail(day) {
   selectedDayAssignments.value = day.assignments
   selectedDayConflicts.value = day.conflicts
   selectedDayPendingOrders.value = day.pendingOrders
+  selectedDayTravelTasks.value = day.travelShootTasks || []
   showDayDetailModal.value = true
 }
 
@@ -1420,6 +1472,7 @@ onMounted(() => {
   orderStore.fetchOrders()
   customerStore.fetchCustomers()
   packageStore.fetchPackages()
+  travelShootStore.fetchAll()
 })
 </script>
 
@@ -1618,6 +1671,13 @@ onMounted(() => {
 
 .conflict-indicator {
   margin-top: 4px;
+}
+
+.travel-shoot-indicator {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
 }
 
 .more-tag {

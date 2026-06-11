@@ -83,7 +83,7 @@
               <div class="budget-bars">
                 <div class="budget-bar-item"><div class="budget-bar-label"><span>交通</span><span>¥{{ budgetUtil.transportUsed.toLocaleString() }} / ¥{{ budgetUtil.transportBudget.toLocaleString() }}</span></div><n-progress type="line" :percentage="Math.min(budgetUtil.transport, 100)" :status="budgetUtil.transport > 100 ? 'error' : 'info'" /></div>
                 <div class="budget-bar-item"><div class="budget-bar-label"><span>住宿</span><span>¥{{ budgetUtil.accommodationUsed.toLocaleString() }} / ¥{{ budgetUtil.accommodationBudget.toLocaleString() }}</span></div><n-progress type="line" :percentage="Math.min(budgetUtil.accommodation, 100)" :status="budgetUtil.accommodation > 100 ? 'error' : 'warning'" /></div>
-                <div class="budget-bar-item"><div class="budget-bar-label"><span>人员补贴</span><span>¥{{ budgetUtil.staff.toLocaleString() }}</span></div><n-progress type="line" :percentage="50" status="default" /></div>
+                <div class="budget-bar-item"><div class="budget-bar-label"><span>人员补贴</span><span>¥{{ budgetUtil.staffUsed.toLocaleString() }} / ¥{{ budgetUtil.staffBudget.toLocaleString() }}</span></div><n-progress type="line" :percentage="Math.min(budgetUtil.staff, 100)" :status="budgetUtil.staff > 100 ? 'error' : 'default'" /></div>
                 <div class="budget-bar-item"><div class="budget-bar-label"><span>额外成本</span><span>¥{{ budgetUtil.extraUsed.toLocaleString() }} / ¥{{ budgetUtil.extraBudget.toLocaleString() }}</span></div><n-progress type="line" :percentage="Math.min(budgetUtil.extra, 100)" :status="budgetUtil.extra > 100 ? 'error' : 'default'" /></div>
                 <div class="budget-bar-item"><div class="budget-bar-label"><span style="font-weight:600;">总预算</span><span style="font-weight:600;">¥{{ budgetUtil.totalUsed.toLocaleString() }} / ¥{{ budgetUtil.totalBudget.toLocaleString() }}</span></div><n-progress type="line" :percentage="Math.min(budgetUtil.total, 100)" :status="budgetUtil.isOverBudget ? 'error' : 'success'" /></div>
               </div>
@@ -130,7 +130,7 @@
               <template #role="{ row }"><n-tag :type="getAssignmentRole(row.role)?.color" size="small">{{ getAssignmentRole(row.role)?.label }}</n-tag></template>
               <template #allowance="{ row }"><div style="font-size:12px;"><div>出差：¥{{ row.dailyAllowance }}/天 × {{ row.travelDays }}天 = ¥{{ (row.dailyAllowance*row.travelDays).toLocaleString() }}</div><div style="color:#666;">餐饮：¥{{ row.mealAllowance*row.travelDays }} | 市内：¥{{ row.transportAllowance*row.travelDays }}</div></div></template>
               <template #totalAllowance="{ row }"><span style="font-weight:600;color:#2080f0;">¥{{ row.totalAllowance.toLocaleString() }}</span></template>
-              <template #conflict="{ row }"><n-tag v-if="hasConflict(row.staffId)" type="error" size="small">行程冲突</n-tag><span v-else style="color:#18a058;">✓ 无冲突</span></template>
+              <template #conflict="{ row }"><n-tag v-if="getConflictInfo(row.staffId).hasConflict" type="error" size="small">{{ getConflictInfo(row.staffId).scheduleConflict ? '排班冲突' : '行程冲突' }}</n-tag><span v-else style="color:#18a058;">✓ 无冲突</span></template>
               <template #actions="{ row }"><n-space><n-button text size="tiny" @click="openStaffModal(row)">编辑</n-button><n-button text size="tiny" type="error" @click="handleDeleteStaff(row)">删除</n-button></n-space></template>
             </n-data-table>
             <n-empty v-else description="暂无人员安排" />
@@ -176,11 +176,15 @@
           <n-form-item label="拍摄天数" path="shootDays"><n-input-number v-model:value="projectForm.shootDays" :min="1" placeholder="天数" style="width:100%;" /></n-form-item>
           <n-form-item label="人员数" path="totalStaffCount"><n-input-number v-model:value="projectForm.totalStaffCount" :min="1" placeholder="人员" style="width:100%;" /></n-form-item>
         </n-grid>
-        <n-grid :cols="3" :x-gap="12">
-          <n-form-item label="交通预算" path="transportBudget"><n-input-number v-model:value="projectForm.transportBudget" :min="0" placeholder="交通" style="width:100%;"><template #prefix>¥</template></n-input-number></n-form-item>
-          <n-form-item label="住宿预算" path="accommodationBudget"><n-input-number v-model:value="projectForm.accommodationBudget" :min="0" placeholder="住宿" style="width:100%;"><template #prefix>¥</template></n-input-number></n-form-item>
-          <n-form-item label="额外预算" path="extraCostBudget"><n-input-number v-model:value="projectForm.extraCostBudget" :min="0" placeholder="其他" style="width:100%;"><template #prefix>¥</template></n-input-number></n-form-item>
+        <n-grid :cols="2" :x-gap="16">
+          <n-form-item label="交通预算" path="transportBudget"><n-input-number v-model:value="projectForm.transportBudget" :min="0" placeholder="交通" style="width:100%;" @update:value="calcTotalBudget"><template #prefix>¥</template></n-input-number></n-form-item>
+          <n-form-item label="住宿预算" path="accommodationBudget"><n-input-number v-model:value="projectForm.accommodationBudget" :min="0" placeholder="住宿" style="width:100%;" @update:value="calcTotalBudget"><template #prefix>¥</template></n-input-number></n-form-item>
         </n-grid>
+        <n-grid :cols="2" :x-gap="16">
+          <n-form-item label="人员补贴预算" path="staffBudget"><n-input-number v-model:value="projectForm.staffBudget" :min="0" placeholder="人员补贴" style="width:100%;" @update:value="calcTotalBudget"><template #prefix>¥</template></n-input-number></n-form-item>
+          <n-form-item label="额外成本预算" path="extraCostBudget"><n-input-number v-model:value="projectForm.extraCostBudget" :min="0" placeholder="其他" style="width:100%;" @update:value="calcTotalBudget"><template #prefix>¥</template></n-input-number></n-form-item>
+        </n-grid>
+        <n-form-item label="总成本预算"><span style="font-size:16px;font-weight:600;color:#D4A574;">¥{{ projectForm.totalBudget.toLocaleString() }}</span><span style="margin-left:12px;font-size:12px;color:#999;">= 交通 + 住宿 + 人员补贴 + 额外成本</span></n-form-item>
         <n-form-item label="项目状态" path="status"><n-select v-model:value="projectForm.status" :options="statusSelectOptions" /></n-form-item>
         <n-form-item label="备注" path="remark"><n-input v-model:value="projectForm.remark" type="textarea" :rows="2" placeholder="请输入项目备注" /></n-form-item>
       </n-form>
@@ -328,7 +332,7 @@ const projectForm = reactive({
   destination: { id: '', name: '', province: '', detailAddress: '' },
   travelDates: { departDate: '', shootStartDate: '', shootEndDate: '', returnDate: '' },
   shootDays: 2, basePackageId: '', basePackagePrice: 0, totalStaffCount: 4,
-  transportBudget: 0, accommodationBudget: 0, extraCostBudget: 0, totalBudget: 0,
+  transportBudget: 0, accommodationBudget: 0, extraCostBudget: 0, staffBudget: 0, totalBudget: 0,
   status: 'planning', remark: ''
 })
 const transportForm = reactive({
@@ -444,7 +448,8 @@ const budgetUtil = computed(() => selectedProject.value ? travelShootStore.getPr
   transport: 0, transportUsed: 0, transportBudget: 0,
   accommodation: 0, accommodationUsed: 0, accommodationBudget: 0,
   extra: 0, extraUsed: 0, extraBudget: 0,
-  staff: 0, total: 0, totalUsed: 0, totalBudget: 0, isOverBudget: false
+  staff: 0, staffUsed: 0, staffBudget: 0,
+  total: 0, totalUsed: 0, totalBudget: 0, isOverBudget: false
 })
 const travelDaysCount = computed(() => {
   if (!selectedProject.value?.travelDates) return 0
@@ -477,7 +482,14 @@ function getExtraCostCategory(category) { return EXTRA_COST_CATEGORY[category] |
 function getAssignmentRole(role) { return ASSIGNMENT_ROLE[role] || { label: role, color: 'default' } }
 function hasConflict(staffId) {
   if (!selectedProject.value) return false
+  return travelShootStore.checkStaffTravelConflict(staffId, selectedProject.value.id).hasConflict
+}
+function getConflictInfo(staffId) {
+  if (!selectedProject.value) return { hasConflict: false, travelConflict: false, scheduleConflict: false }
   return travelShootStore.checkStaffTravelConflict(staffId, selectedProject.value.id)
+}
+function calcTotalBudget() {
+  projectForm.totalBudget = (projectForm.transportBudget || 0) + (projectForm.accommodationBudget || 0) + (projectForm.extraCostBudget || 0) + (projectForm.staffBudget || 0)
 }
 
 function viewProjectDetail(project) { selectedProject.value = project }
@@ -503,7 +515,7 @@ function resetProjectForm() {
     destination: { id: '', name: '', province: '', detailAddress: '' },
     travelDates: { departDate: '', shootStartDate: '', shootEndDate: '', returnDate: '' },
     shootDays: 2, basePackageId: '', basePackagePrice: 0, totalStaffCount: 4,
-    transportBudget: 0, accommodationBudget: 0, extraCostBudget: 0, totalBudget: 0,
+    transportBudget: 0, accommodationBudget: 0, extraCostBudget: 0, staffBudget: 0, totalBudget: 0,
     status: 'planning', remark: ''
   })
   selectedDestId.value = ''
@@ -538,7 +550,6 @@ function handleTravelDateChange(range) {
 function handleProjectSubmit() {
   projectFormRef.value?.validate(errors => {
     if (!errors) {
-      projectForm.totalBudget = (projectForm.basePackagePrice || 0) + (projectForm.transportBudget || 0) + (projectForm.accommodationBudget || 0) + (projectForm.extraCostBudget || 0)
       const data = JSON.parse(JSON.stringify(projectForm))
       if (isProjectEdit.value) {
         travelShootStore.updateProject(editProjectId.value, data)
@@ -705,9 +716,11 @@ function handleStaffSubmit() {
     if (!errors) {
       const data = JSON.parse(JSON.stringify(staffForm))
       data.projectId = selectedProject.value.id
-      if (hasConflict(data.staffId) && (!isStaffEdit.value || data.staffId !== (staffForm.staffId))) {
+      const conflictInfo = getConflictInfo(data.staffId)
+      if (conflictInfo.hasConflict && (!isStaffEdit.value || data.staffId !== (staffForm.staffId))) {
+        const conflictDesc = conflictInfo.scheduleConflict ? '该人员在此行程期间已有拍摄排班任务' : '该人员在此行程时间段内已被安排其他旅拍任务'
         dialog.warning({
-          title: '行程冲突', content: '该人员在此行程时间段内已被安排其他旅拍任务，是否继续添加？',
+          title: '行程冲突', content: `${conflictDesc}，是否继续添加？`,
           positiveText: '继续', negativeText: '取消',
           onPositiveClick: () => { submitStaffAssignment(data) }
         })

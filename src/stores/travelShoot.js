@@ -3,8 +3,55 @@ import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
 import { useScheduleStore } from '@/stores/schedule'
+import { useCostStore } from '@/stores/cost'
 import { TRAVEL_ALLOWANCE_RATE } from '@/utils/format'
 import dayjs from 'dayjs'
+
+const EXTRA_COST_TO_COST_TYPE = {
+  venue_fee: 'other',
+  permit_fee: 'other',
+  props: 'equipment',
+  food: 'food',
+  insurance: 'other',
+  local_staff: 'other',
+  equipment_extra: 'equipment',
+  packing_transport: 'transport',
+  miscellaneous: 'other'
+}
+
+function syncToCostStore(costStore, type, amount, date, orderId, projectId, linkedId, remark) {
+  return costStore.addCost({
+    date: date || dayjs().format('YYYY-MM-DD'),
+    type,
+    amount,
+    orderId: orderId || '',
+    source: 'travel_shoot',
+    travelShootProjectId: projectId,
+    travelShootLinkedId: linkedId,
+    remark: remark || ''
+  })
+}
+
+function updateLinkedCost(costStore, linkedId, updates) {
+  const linked = costStore.costs.find(c => c.travelShootLinkedId === linkedId)
+  if (linked) {
+    costStore.updateCost(linked.id, updates)
+    return linked.id
+  }
+  return null
+}
+
+function deleteLinkedCost(costStore, linkedId) {
+  const linked = costStore.costs.find(c => c.travelShootLinkedId === linkedId)
+  if (linked) {
+    costStore.deleteCost(linked.id)
+  }
+}
+
+function deleteLinkedCostsByProject(costStore, projectId) {
+  const linked = costStore.costs.filter(c => c.travelShootProjectId === projectId)
+  linked.forEach(c => costStore.deleteCost(c.id))
+}
 
 export const useTravelShootStore = defineStore('travelShoot', () => {
   const projects = ref([])
@@ -47,8 +94,10 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   }
 
   function addProject(project) {
+    const costBudget = (project.transportBudget || 0) + (project.accommodationBudget || 0) + (project.extraCostBudget || 0) + (project.staffBudget || 0)
     const newProject = {
       ...project,
+      totalBudget: costBudget,
       id: generateId(),
       createdAt: new Date().toISOString()
     }
@@ -60,7 +109,12 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   function updateProject(id, data) {
     const index = projects.value.findIndex(p => p.id === id)
     if (index !== -1) {
-      projects.value[index] = { ...projects.value[index], ...data }
+      const existing = projects.value[index]
+      const costBudget = ((data.transportBudget !== undefined ? data.transportBudget : existing.transportBudget) || 0) +
+        ((data.accommodationBudget !== undefined ? data.accommodationBudget : existing.accommodationBudget) || 0) +
+        ((data.extraCostBudget !== undefined ? data.extraCostBudget : existing.extraCostBudget) || 0) +
+        ((data.staffBudget !== undefined ? data.staffBudget : existing.staffBudget) || 0)
+      projects.value[index] = { ...projects.value[index], ...data, totalBudget: costBudget }
       setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, projects.value)
       return projects.value[index]
     }
@@ -70,6 +124,8 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   function deleteProject(id) {
     const index = projects.value.findIndex(p => p.id === id)
     if (index !== -1) {
+      const costStore = useCostStore()
+      deleteLinkedCostsByProject(costStore, id)
       projects.value.splice(index, 1)
       setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, projects.value)
       deleteTransportsByProject(id)
@@ -103,6 +159,21 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     })
   }
 
+  function getProjectsByStaffDate(staffId, date) {
+    const d = dayjs(date)
+    return projects.value.filter(p => {
+      if (p.status === 'cancelled' || p.status === 'completed') return false
+      const start = dayjs(p.travelDates?.departDate)
+      const end = dayjs(p.travelDates?.returnDate)
+      if (!d.isAfter(end) && !d.isBefore(start)) {
+        return staffAssignments.value.some(sa =>
+          sa.staffId === staffId && sa.projectId === p.id
+        )
+      }
+      return false
+    })
+  }
+
   function addTransport(transport) {
     const newTransport = {
       ...transport,
@@ -111,6 +182,16 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     }
     transports.value.push(newTransport)
     setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, transports.value)
+
+    const costStore = useCostStore()
+    const project = getProjectById(transport.projectId)
+    syncToCostStore(
+      costStore, 'transport', transport.totalCost || 0,
+      transport.departDateTime ? dayjs(transport.departDateTime).format('YYYY-MM-DD') : '',
+      project?.orderId || '', transport.projectId, newTransport.id,
+      `旅拍交通：${transport.departFrom || ''}→${transport.arriveTo || ''}${transport.isRoundTrip ? '(往返)' : ''}`
+    )
+
     return newTransport
   }
 
@@ -119,6 +200,16 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     if (index !== -1) {
       transports.value[index] = { ...transports.value[index], ...data }
       setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, transports.value)
+
+      const costStore = useCostStore()
+      const project = getProjectById(transports.value[index].projectId)
+      updateLinkedCost(costStore, id, {
+        amount: data.totalCost !== undefined ? data.totalCost : (transports.value[index].totalCost || 0),
+        date: data.departDateTime ? dayjs(data.departDateTime).format('YYYY-MM-DD') : undefined,
+        orderId: project?.orderId || '',
+        remark: `旅拍交通：${data.departFrom || transports.value[index].departFrom || ''}→${data.arriveTo || transports.value[index].arriveTo || ''}${(data.isRoundTrip !== undefined ? data.isRoundTrip : transports.value[index].isRoundTrip) ? '(往返)' : ''}`
+      })
+
       return transports.value[index]
     }
     return null
@@ -127,6 +218,8 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   function deleteTransport(id) {
     const index = transports.value.findIndex(t => t.id === id)
     if (index !== -1) {
+      const costStore = useCostStore()
+      deleteLinkedCost(costStore, id)
       transports.value.splice(index, 1)
       setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, transports.value)
       return true
@@ -135,6 +228,10 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   }
 
   function deleteTransportsByProject(projectId) {
+    const costStore = useCostStore()
+    const projectTransports = transports.value.filter(t => t.projectId === projectId)
+    projectTransports.forEach(t => deleteLinkedCost(costStore, t.id))
+
     const initialLength = transports.value.length
     transports.value = transports.value.filter(t => t.projectId !== projectId)
     if (transports.value.length !== initialLength) {
@@ -156,6 +253,16 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     }
     accommodations.value.push(newAccommodation)
     setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, accommodations.value)
+
+    const costStore = useCostStore()
+    const project = getProjectById(accommodation.projectId)
+    syncToCostStore(
+      costStore, 'accommodation', accommodation.totalCost || 0,
+      accommodation.checkIn || '',
+      project?.orderId || '', accommodation.projectId, newAccommodation.id,
+      `旅拍住宿：${accommodation.hotelName || ''} ${accommodation.roomCount || 0}间${accommodation.nights || 0}晚`
+    )
+
     return newAccommodation
   }
 
@@ -164,6 +271,16 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     if (index !== -1) {
       accommodations.value[index] = { ...accommodations.value[index], ...data }
       setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, accommodations.value)
+
+      const costStore = useCostStore()
+      const project = getProjectById(accommodations.value[index].projectId)
+      updateLinkedCost(costStore, id, {
+        amount: data.totalCost !== undefined ? data.totalCost : (accommodations.value[index].totalCost || 0),
+        date: data.checkIn || accommodations.value[index].checkIn || undefined,
+        orderId: project?.orderId || '',
+        remark: `旅拍住宿：${data.hotelName || accommodations.value[index].hotelName || ''} ${(data.roomCount !== undefined ? data.roomCount : accommodations.value[index].roomCount || 0)}间${(data.nights !== undefined ? data.nights : accommodations.value[index].nights || 0)}晚`
+      })
+
       return accommodations.value[index]
     }
     return null
@@ -172,6 +289,8 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   function deleteAccommodation(id) {
     const index = accommodations.value.findIndex(a => a.id === id)
     if (index !== -1) {
+      const costStore = useCostStore()
+      deleteLinkedCost(costStore, id)
       accommodations.value.splice(index, 1)
       setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, accommodations.value)
       return true
@@ -180,6 +299,10 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   }
 
   function deleteAccommodationsByProject(projectId) {
+    const costStore = useCostStore()
+    const projectAccommodations = accommodations.value.filter(a => a.projectId === projectId)
+    projectAccommodations.forEach(a => deleteLinkedCost(costStore, a.id))
+
     const initialLength = accommodations.value.length
     accommodations.value = accommodations.value.filter(a => a.projectId !== projectId)
     if (accommodations.value.length !== initialLength) {
@@ -201,11 +324,24 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     }
     staffAssignments.value.push(newAssignment)
     setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, staffAssignments.value)
+
+    const costStore = useCostStore()
+    const project = getProjectById(assignment.projectId)
+    if (assignment.totalAllowance > 0) {
+      syncToCostStore(
+        costStore, 'other', assignment.totalAllowance || 0,
+        project?.travelDates?.departDate || '',
+        project?.orderId || '', assignment.projectId, newAssignment.id,
+        `旅拍人员补贴：${assignment.totalAllowance || 0}元`
+      )
+    }
+
     return newAssignment
   }
 
   function batchAddStaffAssignments(assignmentList) {
     const results = []
+    const costStore = useCostStore()
     assignmentList.forEach(item => {
       const newAssignment = {
         ...item,
@@ -214,6 +350,16 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
       }
       staffAssignments.value.push(newAssignment)
       results.push(newAssignment)
+
+      const project = getProjectById(item.projectId)
+      if (item.totalAllowance > 0) {
+        syncToCostStore(
+          costStore, 'other', item.totalAllowance || 0,
+          project?.travelDates?.departDate || '',
+          project?.orderId || '', item.projectId, newAssignment.id,
+          `旅拍人员补贴：${item.totalAllowance || 0}元`
+        )
+      }
     })
     setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, staffAssignments.value)
     return results
@@ -224,6 +370,18 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     if (index !== -1) {
       staffAssignments.value[index] = { ...staffAssignments.value[index], ...data }
       setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, staffAssignments.value)
+
+      const costStore = useCostStore()
+      const project = getProjectById(staffAssignments.value[index].projectId)
+      if (data.totalAllowance !== undefined) {
+        updateLinkedCost(costStore, id, {
+          amount: data.totalAllowance,
+          date: project?.travelDates?.departDate || undefined,
+          orderId: project?.orderId || '',
+          remark: `旅拍人员补贴：${data.totalAllowance}元`
+        })
+      }
+
       return staffAssignments.value[index]
     }
     return null
@@ -232,6 +390,8 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   function deleteStaffAssignment(id) {
     const index = staffAssignments.value.findIndex(s => s.id === id)
     if (index !== -1) {
+      const costStore = useCostStore()
+      deleteLinkedCost(costStore, id)
       staffAssignments.value.splice(index, 1)
       setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, staffAssignments.value)
       return true
@@ -240,6 +400,10 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   }
 
   function deleteStaffAssignmentsByProject(projectId) {
+    const costStore = useCostStore()
+    const projectStaff = staffAssignments.value.filter(s => s.projectId === projectId)
+    projectStaff.forEach(s => deleteLinkedCost(costStore, s.id))
+
     const initialLength = staffAssignments.value.length
     staffAssignments.value = staffAssignments.value.filter(s => s.projectId !== projectId)
     if (staffAssignments.value.length !== initialLength) {
@@ -314,22 +478,65 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
 
   function checkStaffTravelConflict(staffId, projectId) {
     const project = getProjectById(projectId)
-    if (!project?.travelDates) return false
+    if (!project?.travelDates) return { travelConflict: false, scheduleConflict: false, conflictDetails: [] }
 
     const projectStart = dayjs(project.travelDates.departDate)
     const projectEnd = dayjs(project.travelDates.returnDate)
+    const details = []
 
     const otherAssignments = staffAssignments.value.filter(s =>
       s.staffId === staffId && s.projectId !== projectId
     )
 
-    return otherAssignments.some(sa => {
+    const travelConflict = otherAssignments.some(sa => {
       const otherProject = getProjectById(sa.projectId)
       if (!otherProject?.travelDates) return false
       const otherStart = dayjs(otherProject.travelDates.departDate)
       const otherEnd = dayjs(otherProject.travelDates.returnDate)
-      return projectStart.isBefore(otherEnd.add(1, 'day')) &&
+      const hasOverlap = projectStart.isBefore(otherEnd.add(1, 'day')) &&
              projectEnd.isAfter(otherStart.subtract(1, 'day'))
+      if (hasOverlap) {
+        details.push({ type: 'travel', project: otherProject.name, start: otherStart.format('YYYY-MM-DD'), end: otherEnd.format('YYYY-MM-DD') })
+      }
+      return hasOverlap
+    })
+
+    const scheduleStore = useScheduleStore()
+    let scheduleConflict = false
+    let current = projectStart
+    while (current.isBefore(projectEnd) || current.isSame(projectEnd, 'day')) {
+      const dateStr = current.format('YYYY-MM-DD')
+      const hasScheduleConflict = scheduleStore.checkStaffConflict(staffId, dateStr)
+      if (hasScheduleConflict) {
+        scheduleConflict = true
+        const dayAssignments = scheduleStore.getAssignmentsByDate(dateStr).filter(a => a.staffId === staffId)
+        dayAssignments.forEach(a => {
+          details.push({ type: 'schedule', date: dateStr, orderId: a.orderId })
+        })
+      }
+      current = current.add(1, 'day')
+    }
+
+    return {
+      travelConflict,
+      scheduleConflict,
+      hasConflict: travelConflict || scheduleConflict,
+      conflictDetails: details
+    }
+  }
+
+  function checkScheduleStaffTravelConflict(staffId, date) {
+    const d = dayjs(date)
+    return projects.value.filter(p => {
+      if (p.status === 'cancelled' || p.status === 'completed') return false
+      const start = dayjs(p.travelDates?.departDate)
+      const end = dayjs(p.travelDates?.returnDate)
+      if (!d.isAfter(end) && !d.isBefore(start)) {
+        return staffAssignments.value.some(sa =>
+          sa.staffId === staffId && sa.projectId === p.id
+        )
+      }
+      return false
     })
   }
 
@@ -341,6 +548,17 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     }
     extraCosts.value.push(newCost)
     setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, extraCosts.value)
+
+    const costStore = useCostStore()
+    const project = getProjectById(cost.projectId)
+    const costType = EXTRA_COST_TO_COST_TYPE[cost.category] || 'other'
+    syncToCostStore(
+      costStore, costType, cost.amount || 0,
+      cost.date || '',
+      project?.orderId || '', cost.projectId, newCost.id,
+      `旅拍额外：${cost.name || ''}`
+    )
+
     return newCost
   }
 
@@ -349,6 +567,19 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     if (index !== -1) {
       extraCosts.value[index] = { ...extraCosts.value[index], ...data }
       setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, extraCosts.value)
+
+      const costStore = useCostStore()
+      const project = getProjectById(extraCosts.value[index].projectId)
+      const category = data.category || extraCosts.value[index].category
+      const costType = EXTRA_COST_TO_COST_TYPE[category] || 'other'
+      updateLinkedCost(costStore, id, {
+        type: costType,
+        amount: data.amount !== undefined ? data.amount : (extraCosts.value[index].amount || 0),
+        date: data.date || extraCosts.value[index].date || undefined,
+        orderId: project?.orderId || '',
+        remark: `旅拍额外：${data.name || extraCosts.value[index].name || ''}`
+      })
+
       return extraCosts.value[index]
     }
     return null
@@ -357,6 +588,8 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   function deleteExtraCost(id) {
     const index = extraCosts.value.findIndex(c => c.id === id)
     if (index !== -1) {
+      const costStore = useCostStore()
+      deleteLinkedCost(costStore, id)
       extraCosts.value.splice(index, 1)
       setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, extraCosts.value)
       return true
@@ -365,6 +598,10 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
   }
 
   function deleteExtraCostsByProject(projectId) {
+    const costStore = useCostStore()
+    const projectCosts = extraCosts.value.filter(c => c.projectId === projectId)
+    projectCosts.forEach(c => deleteLinkedCost(costStore, c.id))
+
     const initialLength = extraCosts.value.length
     extraCosts.value = extraCosts.value.filter(c => c.projectId !== projectId)
     if (extraCosts.value.length !== initialLength) {
@@ -407,12 +644,13 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
 
   function getProjectBudgetUtilization(projectId) {
     const project = getProjectById(projectId)
-    if (!project) return { transport: 0, accommodation: 0, extra: 0, total: 0 }
+    if (!project) return { transport: 0, accommodation: 0, extra: 0, staff: 0, total: 0 }
 
     const transportBudget = project.transportBudget || 0
     const accommodationBudget = project.accommodationBudget || 0
     const extraBudget = project.extraCostBudget || 0
-    const totalBudget = project.totalBudget || 0
+    const staffBudget = project.staffBudget || 0
+    const totalBudget = transportBudget + accommodationBudget + extraBudget + staffBudget
 
     const transportUsed = getProjectTotalTransportCost(projectId)
     const accommodationUsed = getProjectTotalAccommodationCost(projectId)
@@ -430,11 +668,13 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
       extra: extraBudget > 0 ? Math.round((extraUsed / extraBudget) * 100) : 0,
       extraUsed,
       extraBudget,
-      staff: staffUsed,
+      staff: staffBudget > 0 ? Math.round((staffUsed / staffBudget) * 100) : 0,
+      staffUsed,
+      staffBudget,
       total: totalBudget > 0 ? Math.round((totalUsed / totalBudget) * 100) : 0,
       totalUsed,
       totalBudget,
-      isOverBudget: totalUsed > totalBudget
+      isOverBudget: totalUsed > totalBudget && totalBudget > 0
     }
   }
 
@@ -479,7 +719,7 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
       totalCost: costs.totalUsed,
       transportCost: costs.transportUsed,
       accommodationCost: costs.accommodationUsed,
-      staffCost: costs.staff,
+      staffCost: costs.staffUsed,
       extraCost: costs.extraUsed,
       grossProfit,
       grossProfitRate: revenue.total > 0 ? Math.round((grossProfit / revenue.total) * 100) : 0,
@@ -636,6 +876,7 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     getProjectsByStatus,
     getProjectsByCustomer,
     getProjectsByDateRange,
+    getProjectsByStaffDate,
     addTransport,
     updateTransport,
     deleteTransport,
@@ -657,6 +898,7 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     syncToSchedule,
     getShootDateRange,
     checkStaffTravelConflict,
+    checkScheduleStaffTravelConflict,
     addExtraCost,
     updateExtraCost,
     deleteExtraCost,

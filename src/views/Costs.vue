@@ -140,7 +140,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, h } from 'vue'
 import { useMessage, useDialog } from 'naive-ui'
 import { AddOutline } from '@vicons/ionicons5'
 import { useCostStore } from '@/stores/cost'
@@ -208,6 +208,14 @@ const columns = [
     key: 'amount',
     width: 120,
     render: (row) => `¥${row.amount.toLocaleString()}`
+  },
+  {
+    title: '来源',
+    key: 'source',
+    width: 100,
+    render: (row) => row.source === 'travel_shoot'
+      ? h('span', { style: 'color: #D4A574; font-size: 12px; font-weight: 500;' }, '✈️ 旅拍')
+      : h('span', { style: 'color: #999; font-size: 12px;' }, '手动录入')
   },
   { title: '备注', key: 'remark' },
   { title: '操作', key: 'actions', width: 140 }
