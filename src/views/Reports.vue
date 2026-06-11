@@ -75,6 +75,40 @@
 
     <n-card style="margin-top: 20px;">
       <template #header>
+        <span style="font-weight: 600;">线索来源分析</span>
+      </template>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <div>
+          <div style="font-size: 14px; font-weight: 500; color: #333; margin-bottom: 12px;">线索转化对比</div>
+          <div ref="sourceConversionChartRef" class="chart-container" style="height: 280px;"></div>
+        </div>
+        <div>
+          <div style="font-size: 14px; font-weight: 500; color: #333; margin-bottom: 12px;">渠道价值分析</div>
+          <div ref="sourceValueChartRef" class="chart-container" style="height: 280px;"></div>
+        </div>
+      </div>
+      <n-data-table
+        :columns="sourceColumns"
+        :data="sourceStats"
+        :bordered="false"
+        size="small"
+      >
+        <template #conversionRate="{ row }">
+          <span :style="{ color: parseFloat(row.conversionRate) >= 30 ? '#18a058' : parseFloat(row.conversionRate) >= 15 ? '#f0a020' : '#d03050' }">
+            {{ row.conversionRate }}%
+          </span>
+        </template>
+        <template #totalRevenue="{ row }">
+          ¥{{ row.totalRevenue.toLocaleString() }}
+        </template>
+        <template #avgOrderValue="{ row }">
+          <span style="font-weight: 500;">¥{{ row.avgOrderValue.toLocaleString() }}</span>
+        </template>
+      </n-data-table>
+    </n-card>
+
+    <n-card style="margin-top: 20px;">
+      <template #header>
         <span style="font-weight: 600;">订单明细</span>
       </template>
       <n-data-table
@@ -101,22 +135,28 @@ import { useOrderStore } from '@/stores/order'
 import { usePackageStore } from '@/stores/package'
 import { useCostStore } from '@/stores/cost'
 import { useCustomerStore } from '@/stores/customer'
-import { COST_TYPES } from '@/utils/format'
+import { useLeadStore } from '@/stores/lead'
+import { COST_TYPES, LEAD_SOURCE } from '@/utils/format'
 import dayjs from 'dayjs'
 
 const orderStore = useOrderStore()
 const packageStore = usePackageStore()
 const costStore = useCostStore()
 const customerStore = useCustomerStore()
+const leadStore = useLeadStore()
 
 const periodType = ref('month')
 const revenueChartRef = ref(null)
 const packageChartRef = ref(null)
 const costChartRef = ref(null)
+const sourceConversionChartRef = ref(null)
+const sourceValueChartRef = ref(null)
 
 let revenueChart = null
 let packageChart = null
 let costChart = null
+let sourceConversionChart = null
+let sourceValueChart = null
 
 const pagination = {
   pageSize: 10,
@@ -140,6 +180,46 @@ const columns = [
     render: (row) => `¥${row.cost.toLocaleString()}`
   },
   { title: '利润', key: 'profit', width: 120 }
+]
+
+const sourceColumns = [
+  { title: '来源渠道', key: 'label', width: 120 },
+  { 
+    title: '线索数', 
+    key: 'leadCount', 
+    width: 90,
+    align: 'center'
+  },
+  { 
+    title: '转化数', 
+    key: 'convertedCount', 
+    width: 90,
+    align: 'center'
+  },
+  { 
+    title: '转化率', 
+    key: 'conversionRate', 
+    width: 100,
+    align: 'center'
+  },
+  { 
+    title: '订单数', 
+    key: 'orderCount', 
+    width: 90,
+    align: 'center'
+  },
+  { 
+    title: '总收入', 
+    key: 'totalRevenue', 
+    width: 140,
+    align: 'right'
+  },
+  { 
+    title: '客单价', 
+    key: 'avgOrderValue', 
+    width: 120,
+    align: 'right'
+  }
 ]
 
 const periodOrders = computed(() => {
@@ -251,6 +331,73 @@ const costByTypeList = computed(() => {
     percent: ((typeMap[type] / total) * 100).toFixed(1),
     color: colors[type] || '#8c8c8c'
   })).sort((a, b) => b.amount - a.amount)
+})
+
+const sourceStats = computed(() => {
+  const sourceMap = {}
+
+  Object.keys(LEAD_SOURCE).forEach(source => {
+    sourceMap[source] = {
+      source,
+      label: LEAD_SOURCE[source],
+      leadCount: 0,
+      convertedCount: 0,
+      orderCount: 0,
+      totalRevenue: 0
+    }
+  })
+
+  leadStore.leads.forEach(lead => {
+    const source = lead.source || 'other'
+    if (!sourceMap[source]) {
+      sourceMap[source] = {
+        source,
+        label: LEAD_SOURCE[source] || source,
+        leadCount: 0,
+        convertedCount: 0,
+        orderCount: 0,
+        totalRevenue: 0
+      }
+    }
+    sourceMap[source].leadCount++
+    if (lead.status === 'converted') {
+      sourceMap[source].convertedCount++
+    }
+  })
+
+  customerStore.customers.forEach(customer => {
+    const customerSource = customer.source || 'other'
+    const customerOrders = orderStore.orders.filter(o => o.customerId === customer.id)
+    
+    customerOrders.forEach(order => {
+      const source = customerSource
+      if (!sourceMap[source]) {
+        sourceMap[source] = {
+          source,
+          label: LEAD_SOURCE[source] || source,
+          leadCount: 0,
+          convertedCount: 0,
+          orderCount: 0,
+          totalRevenue: 0
+        }
+      }
+      sourceMap[source].orderCount++
+      sourceMap[source].totalRevenue += order.paidAmount || 0
+    })
+  })
+
+  return Object.values(sourceMap)
+    .map(item => ({
+      ...item,
+      conversionRate: item.leadCount > 0 
+        ? ((item.convertedCount / item.leadCount) * 100).toFixed(1) 
+        : '0.0',
+      avgOrderValue: item.orderCount > 0 
+        ? Math.round(item.totalRevenue / item.orderCount) 
+        : 0
+    }))
+    .filter(item => item.leadCount > 0 || item.orderCount > 0)
+    .sort((a, b) => b.totalRevenue - a.totalRevenue)
 })
 
 function getRevenueChartData() {
@@ -445,16 +592,161 @@ function initCostChart() {
   costChart.setOption(option, true)
 }
 
+function initSourceConversionChart() {
+  if (!sourceConversionChartRef.value) return
+  
+  if (!sourceConversionChart) {
+    sourceConversionChart = echarts.init(sourceConversionChartRef.value)
+  }
+  
+  const data = sourceStats.value
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: params => {
+        const item = data[params[0].dataIndex]
+        return `${item.label}<br/>
+          线索数: ${item.leadCount}<br/>
+          转化数: ${item.convertedCount}<br/>
+          转化率: ${item.conversionRate}%`
+      }
+    },
+    legend: {
+      data: ['线索数', '转化数'],
+      bottom: 0
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map(item => item.label),
+      axisLabel: {
+        rotate: 30,
+        fontSize: 11
+      }
+    },
+    yAxis: {
+      type: 'value',
+      name: '数量'
+    },
+    series: [
+      {
+        name: '线索数',
+        type: 'bar',
+        data: data.map(item => item.leadCount),
+        itemStyle: { color: '#2080f0' },
+        barWidth: '30%'
+      },
+      {
+        name: '转化数',
+        type: 'bar',
+        data: data.map(item => item.convertedCount),
+        itemStyle: { color: '#18a058' },
+        barWidth: '30%'
+      }
+    ]
+  }
+  
+  sourceConversionChart.setOption(option, true)
+}
+
+function initSourceValueChart() {
+  if (!sourceValueChartRef.value) return
+  
+  if (!sourceValueChart) {
+    sourceValueChart = echarts.init(sourceValueChartRef.value)
+  }
+  
+  const data = sourceStats.value
+  
+  const option = {
+    tooltip: {
+      trigger: 'axis',
+      formatter: params => {
+        const item = data[params[0].dataIndex]
+        return `${item.label}<br/>
+          订单数: ${item.orderCount}<br/>
+          总收入: ¥${item.totalRevenue.toLocaleString()}<br/>
+          客单价: ¥${item.avgOrderValue.toLocaleString()}`
+      }
+    },
+    legend: {
+      data: ['总收入', '客单价'],
+      bottom: 0
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '15%',
+      top: '10%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: data.map(item => item.label),
+      axisLabel: {
+        rotate: 30,
+        fontSize: 11
+      }
+    },
+    yAxis: [
+      {
+        type: 'value',
+        name: '总收入(元)',
+        position: 'left'
+      },
+      {
+        type: 'value',
+        name: '客单价(元)',
+        position: 'right'
+      }
+    ],
+    series: [
+      {
+        name: '总收入',
+        type: 'bar',
+        data: data.map(item => item.totalRevenue),
+        itemStyle: { color: '#D4A574' },
+        barWidth: '30%',
+        yAxisIndex: 0
+      },
+      {
+        name: '客单价',
+        type: 'line',
+        data: data.map(item => item.avgOrderValue),
+        itemStyle: { color: '#722ed1' },
+        lineStyle: { width: 3 },
+        symbol: 'circle',
+        symbolSize: 8,
+        yAxisIndex: 1
+      }
+    ]
+  }
+  
+  sourceValueChart.setOption(option, true)
+}
+
 function handleResize() {
   revenueChart?.resize()
   packageChart?.resize()
   costChart?.resize()
+  sourceConversionChart?.resize()
+  sourceValueChart?.resize()
 }
 
 function initCharts() {
   initRevenueChart()
   initPackageChart()
   initCostChart()
+  initSourceConversionChart()
+  initSourceValueChart()
 }
 
 watch(periodType, () => {
@@ -464,7 +756,7 @@ watch(periodType, () => {
 })
 
 watch(
-  () => [orderStore.orders.length, costStore.costs.length],
+  () => [orderStore.orders.length, costStore.costs.length, leadStore.leads.length, customerStore.customers.length],
   () => {
     initCharts()
   },
@@ -483,6 +775,8 @@ onUnmounted(() => {
   revenueChart?.dispose()
   packageChart?.dispose()
   costChart?.dispose()
+  sourceConversionChart?.dispose()
+  sourceValueChart?.dispose()
 })
 </script>
 
