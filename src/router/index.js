@@ -56,6 +56,12 @@ const routes = [
     meta: { title: '交通成本', icon: 'car' }
   },
   {
+    path: '/retouch',
+    name: 'RetouchBoard',
+    component: () => import('@/views/RetouchBoard.vue'),
+    meta: { title: '精修交付', icon: 'images' }
+  },
+  {
     path: '/reports',
     name: 'Reports',
     component: () => import('@/views/Reports.vue'),

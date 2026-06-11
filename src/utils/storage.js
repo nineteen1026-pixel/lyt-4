@@ -8,6 +8,8 @@ export const storageKeys = {
   LEADS: 'leads',
   STAFF: 'staff',
   ASSIGNMENTS: 'assignments',
+  RETOUCH_BATCHES: 'retouch_batches',
+  RETOUCH_FEEDBACKS: 'retouch_feedbacks',
   INITIALIZED: 'initialized'
 }
 
@@ -54,6 +56,8 @@ export function exportAllData() {
     leads: getStorage(storageKeys.LEADS) || [],
     staff: getStorage(storageKeys.STAFF) || [],
     assignments: getStorage(storageKeys.ASSIGNMENTS) || [],
+    retouchBatches: getStorage(storageKeys.RETOUCH_BATCHES) || [],
+    retouchFeedbacks: getStorage(storageKeys.RETOUCH_FEEDBACKS) || [],
     exportAt: new Date().toISOString()
   }
   
@@ -79,6 +83,8 @@ export function importAllData(jsonData) {
     if (data.leads) setStorage(storageKeys.LEADS, data.leads)
     if (data.staff) setStorage(storageKeys.STAFF, data.staff)
     if (data.assignments) setStorage(storageKeys.ASSIGNMENTS, data.assignments)
+    if (data.retouchBatches) setStorage(storageKeys.RETOUCH_BATCHES, data.retouchBatches)
+    if (data.retouchFeedbacks) setStorage(storageKeys.RETOUCH_FEEDBACKS, data.retouchFeedbacks)
     
     return true
   } catch (e) {

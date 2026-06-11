@@ -107,3 +107,39 @@ export function isOverdue(dueDate) {
   if (!dueDate) return false
   return dayjs().isAfter(dayjs(dueDate), 'day')
 }
+
+export const RETOUCH_STATUS = {
+  waiting: { label: '待分配', color: 'default' },
+  assigned: { label: '精修中', color: 'primary' },
+  reviewing: { label: '待审核', color: 'warning' },
+  feedback: { label: '客户反馈', color: 'error' },
+  rework: { label: '返工中', color: 'warning' },
+  approved: { label: '已验收', color: 'success' },
+  delivered: { label: '已交付', color: 'success' }
+}
+
+export const RETOUCH_STEPS = [
+  { key: 'waiting', label: '待分配', description: '待分配给修图师' },
+  { key: 'assigned', label: '精修中', description: '修图师正在精修' },
+  { key: 'reviewing', label: '待审核', description: '内部质量审核' },
+  { key: 'feedback', label: '客户反馈', description: '等待客户反馈意见' },
+  { key: 'rework', label: '返工中', description: '根据反馈进行修改' },
+  { key: 'approved', label: '已验收', description: '客户已验收通过' },
+  { key: 'delivered', label: '已交付', description: '原片已交付客户' }
+]
+
+export const RETOUCH_PRIORITY = {
+  normal: { label: '普通', color: 'default' },
+  urgent: { label: '加急', color: 'warning' },
+  super_urgent: { label: '特急', color: 'error' }
+}
+
+export const FEEDBACK_TYPE = {
+  color: '色调调整',
+  skin: '皮肤美化',
+  body: '体型修饰',
+  background: '背景处理',
+  composition: '构图调整',
+  detail: '细节修复',
+  other: '其他问题'
+}

@@ -84,7 +84,8 @@ import {
   CameraOutline,
   DownloadOutline,
   CloudUploadOutline,
-  AlbumsOutline
+  AlbumsOutline,
+  ImagesOutline
 } from '@vicons/ionicons5'
 import { exportAllData, importAllData } from '@/utils/storage'
 import { useCustomerStore } from '@/stores/customer'
@@ -93,6 +94,7 @@ import { useOrderStore } from '@/stores/order'
 import { useCostStore } from '@/stores/cost'
 import { useLeadStore } from '@/stores/lead'
 import { useScheduleStore } from '@/stores/schedule'
+import { useRetouchStore } from '@/stores/retouch'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -107,6 +109,7 @@ const orderStore = useOrderStore()
 const costStore = useCostStore()
 const leadStore = useLeadStore()
 const scheduleStore = useScheduleStore()
+const retouchStore = useRetouchStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -159,6 +162,11 @@ const menuOptions = [
     label: '拍摄进度',
     key: 'Progress',
     icon: iconRender(TimeOutline)
+  },
+  {
+    label: '精修交付',
+    key: 'RetouchBoard',
+    icon: iconRender(ImagesOutline)
   },
   {
     label: '尾款提醒',
@@ -228,6 +236,7 @@ function reloadAllStores() {
   leadStore.fetchLeads()
   scheduleStore.fetchStaff()
   scheduleStore.fetchAssignments()
+  retouchStore.fetchBatches()
 }
 
 onMounted(() => {
@@ -238,6 +247,7 @@ onMounted(() => {
   leadStore.fetchLeads()
   scheduleStore.fetchStaff()
   scheduleStore.fetchAssignments()
+  retouchStore.fetchBatches()
 })
 </script>
 
