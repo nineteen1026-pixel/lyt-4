@@ -15,6 +15,7 @@ export const storageKeys = {
   TRAVEL_SHOOT_ACCOMMODATIONS: 'travel_shoot_accommodations',
   TRAVEL_SHOOT_STAFF_ASSIGNMENTS: 'travel_shoot_staff_assignments',
   TRAVEL_SHOOT_EXTRA_COSTS: 'travel_shoot_extra_costs',
+  PAYMENT_RECORDS: 'payment_records',
   INITIALIZED: 'initialized'
 }
 
@@ -68,6 +69,7 @@ export function exportAllData() {
     travelShootAccommodations: getStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS) || [],
     travelShootStaffAssignments: getStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS) || [],
     travelShootExtraCosts: getStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS) || [],
+    paymentRecords: getStorage(storageKeys.PAYMENT_RECORDS) || [],
     exportAt: new Date().toISOString()
   }
   
@@ -100,6 +102,7 @@ export function importAllData(jsonData) {
     if (data.travelShootAccommodations) setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, data.travelShootAccommodations)
     if (data.travelShootStaffAssignments) setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, data.travelShootStaffAssignments)
     if (data.travelShootExtraCosts) setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, data.travelShootExtraCosts)
+    if (data.paymentRecords) setStorage(storageKeys.PAYMENT_RECORDS, data.paymentRecords)
     
     return true
   } catch (e) {

@@ -102,6 +102,7 @@ export function ensureAllInitialized() {
     setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, mockData.travelShootAccommodations)
     setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, mockData.travelShootStaffAssignments)
     setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, mockData.travelShootExtraCosts)
+    setStorage(storageKeys.PAYMENT_RECORDS, mockData.paymentRecords)
     setStorage(storageKeys.INITIALIZED, true)
     return
   }
@@ -133,6 +134,12 @@ export function ensureAllInitialized() {
     setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, mockData.travelShootAccommodations)
     setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, mockData.travelShootStaffAssignments)
     setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, mockData.travelShootExtraCosts)
+  }
+
+  const paymentRecords = getStorage(storageKeys.PAYMENT_RECORDS)
+  if (!paymentRecords || paymentRecords.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.PAYMENT_RECORDS, mockData.paymentRecords)
   }
 
   ensureCustomerSourceFields()

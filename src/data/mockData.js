@@ -1314,6 +1314,180 @@ export const mockTravelShootStaffAssignments = [
   }
 ]
 
+export const mockPaymentRecords = [
+  {
+    id: 'pay_001',
+    orderId: 'ord_001',
+    amount: 3000,
+    payDate: '2025-12-20',
+    paymentMethod: 'wechat',
+    remark: '定金',
+    createdAt: '2025-12-20T11:00:00.000Z'
+  },
+  {
+    id: 'pay_002',
+    orderId: 'ord_001',
+    amount: 5888,
+    payDate: '2026-03-05',
+    paymentMethod: 'bank',
+    remark: '尾款',
+    createdAt: '2026-03-05T14:30:00.000Z'
+  },
+  {
+    id: 'pay_003',
+    orderId: 'ord_002',
+    amount: 5000,
+    payDate: '2026-01-20',
+    paymentMethod: 'alipay',
+    remark: '定金',
+    createdAt: '2026-01-20T09:15:00.000Z'
+  },
+  {
+    id: 'pay_004',
+    orderId: 'ord_003',
+    amount: 5000,
+    payDate: '2026-01-15',
+    paymentMethod: 'wechat',
+    remark: '定金',
+    createdAt: '2026-01-15T10:30:00.000Z'
+  },
+  {
+    id: 'pay_005',
+    orderId: 'ord_004',
+    amount: 10000,
+    payDate: '2026-02-01',
+    paymentMethod: 'bank',
+    remark: '定金',
+    createdAt: '2026-02-01T14:20:00.000Z'
+  },
+  {
+    id: 'pay_006',
+    orderId: 'ord_006',
+    amount: 3000,
+    payDate: '2026-01-25',
+    paymentMethod: 'cash',
+    remark: '定金',
+    createdAt: '2026-01-25T10:00:00.000Z'
+  },
+  {
+    id: 'pay_007',
+    orderId: 'ord_006',
+    amount: 5888,
+    payDate: '2026-02-25',
+    paymentMethod: 'wechat',
+    remark: '尾款结清',
+    createdAt: '2026-02-25T16:00:00.000Z'
+  },
+  {
+    id: 'pay_008',
+    orderId: 'ord_007',
+    amount: 10000,
+    payDate: '2026-03-01',
+    paymentMethod: 'alipay',
+    remark: '定金',
+    createdAt: '2026-03-01T09:00:00.000Z'
+  },
+  {
+    id: 'pay_009',
+    orderId: 'ord_008',
+    amount: 5000,
+    payDate: '2026-04-10',
+    paymentMethod: 'wechat',
+    remark: '定金',
+    createdAt: '2026-04-10T10:00:00.000Z'
+  },
+  {
+    id: 'pay_010',
+    orderId: 'ord_009',
+    amount: 5000,
+    payDate: '2026-04-15',
+    paymentMethod: 'bank',
+    remark: '定金',
+    createdAt: '2026-04-15T11:00:00.000Z'
+  },
+  {
+    id: 'pay_011',
+    orderId: 'ord_009',
+    amount: 5888,
+    payDate: '2026-06-05',
+    paymentMethod: 'wechat',
+    remark: '尾款',
+    createdAt: '2026-06-05T15:30:00.000Z'
+  },
+  {
+    id: 'pay_012',
+    orderId: 'ord_010',
+    amount: 3000,
+    payDate: '2026-05-02',
+    paymentMethod: 'alipay',
+    remark: '定金',
+    createdAt: '2026-05-02T09:30:00.000Z'
+  },
+  {
+    id: 'pay_013',
+    orderId: 'ord_010',
+    amount: 5888,
+    payDate: '2026-06-10',
+    paymentMethod: 'bank',
+    remark: '尾款，老客户优惠免去888元零头',
+    createdAt: '2026-06-10T10:00:00.000Z'
+  },
+  {
+    id: 'pay_014',
+    orderId: 'ord_011',
+    amount: 10000,
+    payDate: '2026-05-08',
+    paymentMethod: 'wechat',
+    remark: '定金',
+    createdAt: '2026-05-08T14:00:00.000Z'
+  },
+  {
+    id: 'pay_015',
+    orderId: 'ord_012',
+    amount: 3000,
+    payDate: '2026-05-10',
+    paymentMethod: 'cash',
+    remark: '定金',
+    createdAt: '2026-05-10T10:00:00.000Z'
+  },
+  {
+    id: 'pay_016',
+    orderId: 'ord_013',
+    amount: 5000,
+    payDate: '2026-05-12',
+    paymentMethod: 'alipay',
+    remark: '定金',
+    createdAt: '2026-05-12T11:00:00.000Z'
+  },
+  {
+    id: 'pay_017',
+    orderId: 'ord_014',
+    amount: 3000,
+    payDate: '2026-05-15',
+    paymentMethod: 'wechat',
+    remark: '定金',
+    createdAt: '2026-05-15T09:00:00.000Z'
+  },
+  {
+    id: 'pay_018',
+    orderId: 'ord_015',
+    amount: 10000,
+    payDate: '2026-04-20',
+    paymentMethod: 'bank',
+    remark: '定金',
+    createdAt: '2026-04-20T10:00:00.000Z'
+  },
+  {
+    id: 'pay_019',
+    orderId: 'ord_015',
+    amount: 18888,
+    payDate: '2026-06-05',
+    paymentMethod: 'wechat',
+    remark: '高端定制，尾款一次性付清',
+    createdAt: '2026-06-05T14:00:00.000Z'
+  }
+]
+
 export const mockTravelShootExtraCosts = [
   {
     id: 'tsec_001',
@@ -1396,6 +1570,7 @@ export function initMockData() {
     travelShootTransports: mockTravelShootTransports,
     travelShootAccommodations: mockTravelShootAccommodations,
     travelShootStaffAssignments: mockTravelShootStaffAssignments,
-    travelShootExtraCosts: mockTravelShootExtraCosts
+    travelShootExtraCosts: mockTravelShootExtraCosts,
+    paymentRecords: mockPaymentRecords
   }
 }

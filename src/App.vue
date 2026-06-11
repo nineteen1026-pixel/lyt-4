@@ -97,6 +97,7 @@ import { useLeadStore } from '@/stores/lead'
 import { useScheduleStore } from '@/stores/schedule'
 import { useRetouchStore } from '@/stores/retouch'
 import { useTravelShootStore } from '@/stores/travelShoot'
+import { usePaymentRecordStore } from '@/stores/paymentRecord'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -113,6 +114,7 @@ const leadStore = useLeadStore()
 const scheduleStore = useScheduleStore()
 const retouchStore = useRetouchStore()
 const travelShootStore = useTravelShootStore()
+const paymentRecordStore = usePaymentRecordStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -246,6 +248,7 @@ function reloadAllStores() {
   scheduleStore.fetchAssignments()
   retouchStore.fetchBatches()
   travelShootStore.fetchAll()
+  paymentRecordStore.fetchPaymentRecords()
 }
 
 onMounted(() => {
@@ -258,6 +261,7 @@ onMounted(() => {
   scheduleStore.fetchAssignments()
   retouchStore.fetchBatches()
   travelShootStore.fetchAll()
+  paymentRecordStore.fetchPaymentRecords()
 })
 </script>
 

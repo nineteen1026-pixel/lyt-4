@@ -216,3 +216,11 @@ export const TRAVEL_ALLOWANCE_RATE = {
   videographer: { daily: 300, meal: 80, transport: 50 },
   other: { daily: 200, meal: 60, transport: 40 }
 }
+
+export const PAYMENT_METHOD = {
+  wechat: { label: '微信', color: 'success' },
+  alipay: { label: '支付宝', color: 'info' },
+  bank: { label: '银行转账', color: 'primary' },
+  cash: { label: '现金', color: 'warning' },
+  other: { label: '其他', color: 'default' }
+}

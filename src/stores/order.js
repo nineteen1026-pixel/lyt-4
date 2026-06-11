@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
 import { useScheduleStore } from '@/stores/schedule'
+import { usePaymentRecordStore } from '@/stores/paymentRecord'
 import dayjs from 'dayjs'
 
 export const useOrderStore = defineStore('order', () => {
@@ -11,6 +12,12 @@ export const useOrderStore = defineStore('order', () => {
   function fetchOrders() {
     ensureAllInitialized()
     orders.value = getStorage(storageKeys.ORDERS) || []
+    try {
+      const paymentRecordStore = usePaymentRecordStore()
+      paymentRecordStore.fetchPaymentRecords()
+    } catch (e) {
+      console.warn('加载收款记录失败:', e)
+    }
   }
 
   function addOrder(order) {
@@ -75,6 +82,13 @@ export const useOrderStore = defineStore('order', () => {
         scheduleStore.deleteAssignmentsByOrder(id)
       } catch (e) {
         console.warn('删除关联排班失败:', e)
+      }
+
+      try {
+        const paymentRecordStore = usePaymentRecordStore()
+        paymentRecordStore.deletePaymentRecordsByOrder(id)
+      } catch (e) {
+        console.warn('删除关联收款记录失败:', e)
       }
 
       return true
