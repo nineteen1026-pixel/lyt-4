@@ -198,15 +198,18 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed } from 'vue'
+import { ref, reactive, computed, onMounted, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { AddOutline } from '@vicons/ionicons5'
+import { useRoute, useRouter } from 'vue-router'
 import { useOrderStore } from '@/stores/order'
 import { useCustomerStore } from '@/stores/customer'
 import { PAYMENT_STATUS, formatDate } from '@/utils/format'
 import dayjs from 'dayjs'
 
 const message = useMessage()
+const route = useRoute()
+const router = useRouter()
 const orderStore = useOrderStore()
 const customerStore = useCustomerStore()
 
@@ -435,6 +438,40 @@ function handleEditSubmit() {
     message.error(result.message)
   }
 }
+
+function checkAndOpenRegisterModal() {
+  const orderId = route.query.orderId
+  const action = route.query.action
+  if (orderId && action === 'register') {
+    const order = orderStore.getOrderById(orderId)
+    if (order && order.paymentStatus !== 'paid') {
+      openPayModal(order)
+    }
+  }
+}
+
+function clearRouteQuery() {
+  if (route.query.orderId || route.query.action) {
+    router.replace({ path: '/payments', query: {} })
+  }
+}
+
+watch(
+  () => route.query,
+  () => {
+    checkAndOpenRegisterModal()
+  }
+)
+
+onMounted(() => {
+  checkAndOpenRegisterModal()
+})
+
+watch(showModal, (newVal) => {
+  if (!newVal) {
+    clearRouteQuery()
+  }
+})
 </script>
 
 <style scoped>

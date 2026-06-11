@@ -92,18 +92,29 @@
         <template #header>
           <div class="card-header">
             <span>尾款提醒</span>
-            <n-tag type="error" size="small">{{ overdueCount }}笔逾期</n-tag>
+            <div class="header-tags">
+              <n-tag v-if="severelyOverdueCount > 0" type="error" size="small" style="margin-right: 4px;">
+                {{ severelyOverdueCount }}笔超7天
+              </n-tag>
+              <n-tag type="error" size="small">{{ overdueCount }}笔逾期</n-tag>
+            </div>
           </div>
         </template>
         <div class="reminder-list">
           <div
-            v-for="order in overdueOrders"
+            v-for="order in sortedOverdueOrders"
             :key="order.id"
             class="reminder-item"
-            @click="goToPayments"
+            :class="{ 'severely-overdue': isSeverelyOverdue(order) }"
+            @click="goToPaymentRegister(order)"
           >
             <div class="reminder-info">
-              <div class="reminder-customer">{{ getCustomerName(order.customerId) }}</div>
+              <div class="reminder-customer">
+                {{ getCustomerName(order.customerId) }}
+                <n-tag v-if="isSeverelyOverdue(order)" type="error" size="tiny" style="margin-left: 6px;">
+                  超{{ getOverdueDays(order) }}天
+                </n-tag>
+              </div>
               <div class="reminder-date">到期日：{{ formatDate(order.dueDate) }}</div>
             </div>
             <div class="reminder-amount">
@@ -210,11 +221,35 @@ const overdueOrders = computed(() => {
       if ((o.paidAmount || 0) >= total) return false
       return o.dueDate && dayjs().isAfter(dayjs(o.dueDate), 'day')
     })
-    .sort((a, b) => dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf())
+})
+
+const sortedOverdueOrders = computed(() => {
+  return [...overdueOrders.value]
+    .sort((a, b) => {
+      const aSevere = isSeverelyOverdue(a)
+      const bSevere = isSeverelyOverdue(b)
+      if (aSevere && !bSevere) return -1
+      if (!aSevere && bSevere) return 1
+      return dayjs(a.dueDate).valueOf() - dayjs(b.dueDate).valueOf()
+    })
     .slice(0, 5)
 })
 
 const overdueCount = computed(() => overdueOrders.value.length)
+
+const severelyOverdueCount = computed(() => {
+  return overdueOrders.value.filter(o => isSeverelyOverdue(o)).length
+})
+
+function isSeverelyOverdue(order) {
+  if (!order.dueDate) return false
+  return dayjs().diff(dayjs(order.dueDate), 'day') > 7
+}
+
+function getOverdueDays(order) {
+  if (!order.dueDate) return 0
+  return dayjs().diff(dayjs(order.dueDate), 'day')
+}
 
 function getDay(date) {
   return dayjs(date).format('DD')
@@ -251,8 +286,8 @@ function goToSchedule() {
   router.push('/schedule')
 }
 
-function goToPayments() {
-  router.push('/payments')
+function goToPaymentRegister(order) {
+  router.push({ path: '/payments', query: { orderId: order.id, action: 'register' } })
 }
 
 function goToLeads() {
@@ -578,6 +613,32 @@ onUnmounted(() => {
   font-size: 18px;
   font-weight: 600;
   color: #d03050;
+}
+
+.reminder-item.severely-overdue {
+  background: #fff1f0;
+  border-radius: 8px;
+  padding: 12px 10px;
+  margin: 4px 0;
+}
+
+.reminder-item.severely-overdue:hover {
+  background: #ffccc7;
+}
+
+.reminder-item.severely-overdue .reminder-customer {
+  color: #cf1322;
+  font-weight: 600;
+}
+
+.reminder-item.severely-overdue .reminder-amount {
+  color: #cf1322;
+  font-size: 20px;
+}
+
+.header-tags {
+  display: flex;
+  align-items: center;
 }
 
 .empty-list {
