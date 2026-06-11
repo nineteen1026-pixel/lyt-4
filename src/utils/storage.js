@@ -10,6 +10,11 @@ export const storageKeys = {
   ASSIGNMENTS: 'assignments',
   RETOUCH_BATCHES: 'retouch_batches',
   RETOUCH_FEEDBACKS: 'retouch_feedbacks',
+  TRAVEL_SHOOT_PROJECTS: 'travel_shoot_projects',
+  TRAVEL_SHOOT_TRANSPORTS: 'travel_shoot_transports',
+  TRAVEL_SHOOT_ACCOMMODATIONS: 'travel_shoot_accommodations',
+  TRAVEL_SHOOT_STAFF_ASSIGNMENTS: 'travel_shoot_staff_assignments',
+  TRAVEL_SHOOT_EXTRA_COSTS: 'travel_shoot_extra_costs',
   INITIALIZED: 'initialized'
 }
 
@@ -58,6 +63,11 @@ export function exportAllData() {
     assignments: getStorage(storageKeys.ASSIGNMENTS) || [],
     retouchBatches: getStorage(storageKeys.RETOUCH_BATCHES) || [],
     retouchFeedbacks: getStorage(storageKeys.RETOUCH_FEEDBACKS) || [],
+    travelShootProjects: getStorage(storageKeys.TRAVEL_SHOOT_PROJECTS) || [],
+    travelShootTransports: getStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS) || [],
+    travelShootAccommodations: getStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS) || [],
+    travelShootStaffAssignments: getStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS) || [],
+    travelShootExtraCosts: getStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS) || [],
     exportAt: new Date().toISOString()
   }
   
@@ -85,6 +95,11 @@ export function importAllData(jsonData) {
     if (data.assignments) setStorage(storageKeys.ASSIGNMENTS, data.assignments)
     if (data.retouchBatches) setStorage(storageKeys.RETOUCH_BATCHES, data.retouchBatches)
     if (data.retouchFeedbacks) setStorage(storageKeys.RETOUCH_FEEDBACKS, data.retouchFeedbacks)
+    if (data.travelShootProjects) setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, data.travelShootProjects)
+    if (data.travelShootTransports) setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, data.travelShootTransports)
+    if (data.travelShootAccommodations) setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, data.travelShootAccommodations)
+    if (data.travelShootStaffAssignments) setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, data.travelShootStaffAssignments)
+    if (data.travelShootExtraCosts) setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, data.travelShootExtraCosts)
     
     return true
   } catch (e) {

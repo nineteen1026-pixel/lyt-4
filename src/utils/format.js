@@ -143,3 +143,76 @@ export const FEEDBACK_TYPE = {
   detail: '细节修复',
   other: '其他问题'
 }
+
+export const TRAVEL_SHOOT_STATUS = {
+  planning: { label: '筹备中', color: 'warning' },
+  confirmed: { label: '已确认', color: 'info' },
+  traveling: { label: '出行中', color: 'primary' },
+  shooting: { label: '拍摄中', color: 'primary' },
+  returning: { label: '返程中', color: 'warning' },
+  completed: { label: '已完成', color: 'success' },
+  cancelled: { label: '已取消', color: 'error' }
+}
+
+export const TRAVEL_SHOOT_STEPS = [
+  { key: 'planning', label: '筹备中', description: '行程规划与确认' },
+  { key: 'confirmed', label: '已确认', description: '行程已最终确认' },
+  { key: 'traveling', label: '出行中', description: '前往拍摄地' },
+  { key: 'shooting', label: '拍摄中', description: '正式拍摄阶段' },
+  { key: 'returning', label: '返程中', description: '拍摄完成返程' },
+  { key: 'completed', label: '已完成', description: '旅拍全部完成' }
+]
+
+export const TRANSPORT_TYPE = {
+  flight: { label: '飞机', color: 'primary', icon: 'airplane' },
+  high_speed_rail: { label: '高铁', color: 'info', icon: 'train' },
+  train: { label: '火车', color: 'default', icon: 'train' },
+  car_rental: { label: '租车', color: 'warning', icon: 'car' },
+  taxi: { label: '打车', color: 'success', icon: 'car' },
+  bus: { label: '大巴', color: 'default', icon: 'bus' },
+  other: { label: '其他', color: 'default', icon: 'navigate' }
+}
+
+export const ACCOMMODATION_TYPE = {
+  hotel_5star: { label: '五星级酒店', color: 'primary' },
+  hotel_4star: { label: '四星级酒店', color: 'info' },
+  hotel_boutique: { label: '精品民宿', color: 'warning' },
+  hotel_standard: { label: '普通酒店', color: 'default' },
+  apartment: { label: '公寓', color: 'success' },
+  other: { label: '其他', color: 'default' }
+}
+
+export const EXTRA_COST_CATEGORY = {
+  venue_fee: { label: '场地费', color: 'primary' },
+  permit_fee: { label: '拍摄许可', color: 'info' },
+  props: { label: '道具采购', color: 'warning' },
+  food: { label: '餐饮', color: 'success' },
+  insurance: { label: '保险', color: 'default' },
+  local_staff: { label: '当地人员', color: 'info' },
+  equipment_extra: { label: '额外器材', color: 'warning' },
+  packing_transport: { label: '器材托运', color: 'primary' },
+  miscellaneous: { label: '杂项', color: 'default' }
+}
+
+export const POPULAR_DESTINATIONS = [
+  { id: 'sanya', name: '三亚', province: '海南', distance: '远途', baseCostLevel: 3 },
+  { id: 'dali', name: '大理', province: '云南', distance: '远途', baseCostLevel: 2 },
+  { id: 'lijiang', name: '丽江', province: '云南', distance: '远途', baseCostLevel: 2 },
+  { id: 'xiamen', name: '厦门', province: '福建', distance: '中程', baseCostLevel: 2 },
+  { id: 'qingdao', name: '青岛', province: '山东', distance: '中程', baseCostLevel: 1 },
+  { id: 'hangzhou', name: '杭州', province: '浙江', distance: '近程', baseCostLevel: 1 },
+  { id: 'suzhou', name: '苏州', province: '江苏', distance: '近程', baseCostLevel: 1 },
+  { id: 'chengdu', name: '成都', province: '四川', distance: '远途', baseCostLevel: 2 },
+  { id: 'guilin', name: '桂林', province: '广西', distance: '远途', baseCostLevel: 2 },
+  { id: 'shanghai', name: '上海', province: '上海', distance: '近程', baseCostLevel: 2 },
+  { id: 'beijing', name: '北京', province: '北京', distance: '中程', baseCostLevel: 3 },
+  { id: 'chongqing', name: '重庆', province: '重庆', distance: '远途', baseCostLevel: 2 }
+]
+
+export const TRAVEL_ALLOWANCE_RATE = {
+  photographer: { daily: 300, meal: 80, transport: 50 },
+  makeup: { daily: 300, meal: 80, transport: 50 },
+  assistant: { daily: 200, meal: 60, transport: 40 },
+  videographer: { daily: 300, meal: 80, transport: 50 },
+  other: { daily: 200, meal: 60, transport: 40 }
+}

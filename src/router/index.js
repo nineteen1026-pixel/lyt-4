@@ -56,6 +56,12 @@ const routes = [
     meta: { title: '交通成本', icon: 'car' }
   },
   {
+    path: '/travel-shoot',
+    name: 'TravelShoot',
+    component: () => import('@/views/TravelShoot.vue'),
+    meta: { title: '异地旅拍', icon: 'airplane' }
+  },
+  {
     path: '/retouch',
     name: 'RetouchBoard',
     component: () => import('@/views/RetouchBoard.vue'),

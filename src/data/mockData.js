@@ -1036,6 +1036,353 @@ export const mockAssignments = [
   }
 ]
 
+export const mockTravelShootProjects = [
+  {
+    id: 'ts_001',
+    name: '三亚海景旅拍 - 张先生 & 李女士',
+    orderId: 'ord_003',
+    customerId: 'cust_001',
+    destination: {
+      id: 'sanya',
+      name: '三亚',
+      province: '海南',
+      detailAddress: '三亚海棠湾、亚龙湾、天涯海角',
+      latitude: 18.2528,
+      longitude: 109.5120
+    },
+    status: 'confirmed',
+    travelDates: {
+      departDate: '2026-05-18',
+      shootStartDate: '2026-05-19',
+      shootEndDate: '2026-05-20',
+      returnDate: '2026-05-21'
+    },
+    shootDays: 2,
+    basePackageId: 'pkg_004',
+    basePackagePrice: 36888,
+    totalStaffCount: 4,
+    transportBudget: 6000,
+    accommodationBudget: 4000,
+    extraCostBudget: 3000,
+    totalBudget: 49888,
+    remark: '客户指定海景+教堂+椰林三个场景',
+    createdAt: '2026-02-01T10:00:00.000Z'
+  },
+  {
+    id: 'ts_002',
+    name: '大理风花雪月旅拍 - 王先生 & 陈小姐',
+    orderId: 'ord_004',
+    customerId: 'cust_002',
+    destination: {
+      id: 'dali',
+      name: '大理',
+      province: '云南',
+      detailAddress: '洱海、双廊、喜洲古镇、苍山',
+      latitude: 25.6068,
+      longitude: 100.2679
+    },
+    status: 'planning',
+    travelDates: {
+      departDate: '2026-06-16',
+      shootStartDate: '2026-06-17',
+      shootEndDate: '2026-06-18',
+      returnDate: '2026-06-19'
+    },
+    shootDays: 2,
+    basePackageId: 'pkg_003',
+    basePackagePrice: 28888,
+    totalStaffCount: 4,
+    transportBudget: 5000,
+    accommodationBudget: 3500,
+    extraCostBudget: 2500,
+    totalBudget: 39888,
+    remark: '客户要求拍摄日出和星空',
+    createdAt: '2026-03-01T14:00:00.000Z'
+  }
+]
+
+export const mockTravelShootTransports = [
+  {
+    id: 'tst_001',
+    projectId: 'ts_001',
+    type: 'flight',
+    airline: '南方航空',
+    flightNo: 'CZ3835',
+    departFrom: '上海虹桥',
+    arriveTo: '三亚凤凰',
+    departDateTime: '2026-05-18 08:30',
+    arriveDateTime: '2026-05-18 11:45',
+    passengerCount: 4,
+    costPerPerson: 1200,
+    totalCost: 4800,
+    isRoundTrip: true,
+    bookingStatus: 'confirmed',
+    remark: '陈伟、赵敏、王磊、刘洋 4人',
+    createdAt: '2026-03-05T10:00:00.000Z'
+  },
+  {
+    id: 'tst_002',
+    projectId: 'ts_001',
+    type: 'car_rental',
+    company: '三亚海汽租车',
+    carType: 'SUV',
+    pickupDateTime: '2026-05-18 12:30',
+    returnDateTime: '2026-05-21 14:00',
+    totalCost: 1200,
+    bookingStatus: 'confirmed',
+    remark: '含保险，4天租期',
+    createdAt: '2026-03-06T10:00:00.000Z'
+  },
+  {
+    id: 'tst_003',
+    projectId: 'ts_002',
+    type: 'high_speed_rail',
+    line: 'G403',
+    departFrom: '北京西',
+    arriveTo: '昆明南',
+    departDateTime: '2026-06-16 07:05',
+    arriveDateTime: '2026-06-16 17:14',
+    passengerCount: 4,
+    costPerPerson: 1147,
+    totalCost: 4588,
+    isRoundTrip: true,
+    bookingStatus: 'pending',
+    remark: '需在昆明转车到大理',
+    createdAt: '2026-04-10T14:00:00.000Z'
+  }
+]
+
+export const mockTravelShootAccommodations = [
+  {
+    id: 'tsa_001',
+    projectId: 'ts_001',
+    type: 'hotel_4star',
+    hotelName: '三亚海棠湾喜来登度假酒店',
+    address: '三亚海棠湾海棠北路8号',
+    checkIn: '2026-05-18',
+    checkOut: '2026-05-21',
+    roomCount: 2,
+    nights: 3,
+    costPerRoomPerNight: 680,
+    totalCost: 4080,
+    bookingStatus: 'confirmed',
+    contactName: '酒店前台',
+    contactPhone: '0898-88888888',
+    remark: '两间海景大床房，含早餐',
+    createdAt: '2026-03-05T10:00:00.000Z'
+  },
+  {
+    id: 'tsa_002',
+    projectId: 'ts_002',
+    type: 'hotel_boutique',
+    hotelName: '大理双廊海景民宿',
+    address: '大理市双廊镇大建旁村',
+    checkIn: '2026-06-16',
+    checkOut: '2026-06-19',
+    roomCount: 2,
+    nights: 3,
+    costPerRoomPerNight: 580,
+    totalCost: 3480,
+    bookingStatus: 'pending',
+    contactName: '民宿管家',
+    contactPhone: '13912345678',
+    remark: '洱海海景房，可拍日出',
+    createdAt: '2026-04-10T14:00:00.000Z'
+  }
+]
+
+export const mockTravelShootStaffAssignments = [
+  {
+    id: 'tss_001',
+    projectId: 'ts_001',
+    staffId: 'staff_001',
+    role: 'chief_photographer',
+    travelDays: 4,
+    dailyAllowance: 300,
+    mealAllowance: 80,
+    transportAllowance: 50,
+    totalAllowance: 1720,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '主摄影师，负责全部拍摄',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'tss_002',
+    projectId: 'ts_001',
+    staffId: 'staff_004',
+    role: 'makeup_artist',
+    travelDays: 4,
+    dailyAllowance: 300,
+    mealAllowance: 80,
+    transportAllowance: 50,
+    totalAllowance: 1720,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '化妆师，全程跟妆',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'tss_003',
+    projectId: 'ts_001',
+    staffId: 'staff_003',
+    role: 'assistant',
+    travelDays: 4,
+    dailyAllowance: 200,
+    mealAllowance: 60,
+    transportAllowance: 40,
+    totalAllowance: 1200,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '摄影助理，灯光器材',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'tss_004',
+    projectId: 'ts_001',
+    staffId: 'staff_005',
+    role: 'videographer',
+    travelDays: 4,
+    dailyAllowance: 300,
+    mealAllowance: 80,
+    transportAllowance: 50,
+    totalAllowance: 1720,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '摄像师，微电影拍摄',
+    createdAt: '2026-03-01T10:00:00.000Z'
+  },
+  {
+    id: 'tss_005',
+    projectId: 'ts_002',
+    staffId: 'staff_001',
+    role: 'chief_photographer',
+    travelDays: 4,
+    dailyAllowance: 300,
+    mealAllowance: 80,
+    transportAllowance: 50,
+    totalAllowance: 1720,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '主摄影师',
+    createdAt: '2026-04-01T14:00:00.000Z'
+  },
+  {
+    id: 'tss_006',
+    projectId: 'ts_002',
+    staffId: 'staff_004',
+    role: 'makeup_artist',
+    travelDays: 4,
+    dailyAllowance: 300,
+    mealAllowance: 80,
+    transportAllowance: 50,
+    totalAllowance: 1720,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '化妆师',
+    createdAt: '2026-04-01T14:00:00.000Z'
+  },
+  {
+    id: 'tss_007',
+    projectId: 'ts_002',
+    staffId: 'staff_003',
+    role: 'assistant',
+    travelDays: 4,
+    dailyAllowance: 200,
+    mealAllowance: 60,
+    transportAllowance: 40,
+    totalAllowance: 1200,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '摄影助理',
+    createdAt: '2026-04-01T14:00:00.000Z'
+  },
+  {
+    id: 'tss_008',
+    projectId: 'ts_002',
+    staffId: 'staff_005',
+    role: 'videographer',
+    travelDays: 4,
+    dailyAllowance: 300,
+    mealAllowance: 80,
+    transportAllowance: 50,
+    totalAllowance: 1720,
+    isTraveling: true,
+    requiresAccommodation: true,
+    remark: '摄像师',
+    createdAt: '2026-04-01T14:00:00.000Z'
+  }
+]
+
+export const mockTravelShootExtraCosts = [
+  {
+    id: 'tsec_001',
+    projectId: 'ts_001',
+    category: 'venue_fee',
+    name: '海棠湾私人沙滩场地费',
+    date: '2026-05-19',
+    amount: 800,
+    paymentStatus: 'paid',
+    remark: '2小时私人沙滩拍摄许可',
+    createdAt: '2026-04-20T10:00:00.000Z'
+  },
+  {
+    id: 'tsec_002',
+    projectId: 'ts_001',
+    category: 'props',
+    name: '婚礼道具购买',
+    date: '2026-05-10',
+    amount: 600,
+    paymentStatus: 'paid',
+    remark: '鲜花拱门、纱幔、气球等',
+    createdAt: '2026-04-25T10:00:00.000Z'
+  },
+  {
+    id: 'tsec_003',
+    projectId: 'ts_001',
+    category: 'food',
+    name: '拍摄期间工作餐',
+    date: '2026-05-20',
+    amount: 480,
+    paymentStatus: 'paid',
+    remark: '4人2天8餐',
+    createdAt: '2026-05-22T10:00:00.000Z'
+  },
+  {
+    id: 'tsec_004',
+    projectId: 'ts_001',
+    category: 'insurance',
+    name: '人员及器材保险',
+    date: '2026-05-15',
+    amount: 320,
+    paymentStatus: 'paid',
+    remark: '4人意外险 + 器材险，共5天',
+    createdAt: '2026-04-28T10:00:00.000Z'
+  },
+  {
+    id: 'tsec_005',
+    projectId: 'ts_002',
+    category: 'permit_fee',
+    name: '洱海湿地公园拍摄许可',
+    date: '2026-06-15',
+    amount: 500,
+    paymentStatus: 'pending',
+    remark: '3天拍摄许可费',
+    createdAt: '2026-05-01T14:00:00.000Z'
+  },
+  {
+    id: 'tsec_006',
+    projectId: 'ts_002',
+    category: 'packing_transport',
+    name: '摄影器材托运',
+    date: '2026-06-10',
+    amount: 680,
+    paymentStatus: 'pending',
+    remark: '器材物流托运往返',
+    createdAt: '2026-05-10T14:00:00.000Z'
+  }
+]
+
 export function initMockData() {
   return {
     customers: mockCustomers,
@@ -1044,6 +1391,11 @@ export function initMockData() {
     costs: mockCosts,
     leads: mockLeads,
     staff: mockStaff,
-    assignments: mockAssignments
+    assignments: mockAssignments,
+    travelShootProjects: mockTravelShootProjects,
+    travelShootTransports: mockTravelShootTransports,
+    travelShootAccommodations: mockTravelShootAccommodations,
+    travelShootStaffAssignments: mockTravelShootStaffAssignments,
+    travelShootExtraCosts: mockTravelShootExtraCosts
   }
 }

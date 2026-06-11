@@ -97,6 +97,11 @@ export function ensureAllInitialized() {
     setStorage(storageKeys.LEADS, mockData.leads)
     setStorage(storageKeys.STAFF, mockData.staff)
     setStorage(storageKeys.ASSIGNMENTS, mockData.assignments)
+    setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, mockData.travelShootProjects)
+    setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, mockData.travelShootTransports)
+    setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, mockData.travelShootAccommodations)
+    setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, mockData.travelShootStaffAssignments)
+    setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, mockData.travelShootExtraCosts)
     setStorage(storageKeys.INITIALIZED, true)
     return
   }
@@ -118,6 +123,16 @@ export function ensureAllInitialized() {
     const mockData = initMockData()
     setStorage(storageKeys.STAFF, mockData.staff)
     setStorage(storageKeys.ASSIGNMENTS, mockData.assignments)
+  }
+
+  const travelShootProjects = getStorage(storageKeys.TRAVEL_SHOOT_PROJECTS)
+  if (!travelShootProjects || travelShootProjects.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, mockData.travelShootProjects)
+    setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, mockData.travelShootTransports)
+    setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, mockData.travelShootAccommodations)
+    setStorage(storageKeys.TRAVEL_SHOOT_STAFF_ASSIGNMENTS, mockData.travelShootStaffAssignments)
+    setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, mockData.travelShootExtraCosts)
   }
 
   ensureCustomerSourceFields()

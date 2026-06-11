@@ -85,7 +85,8 @@ import {
   DownloadOutline,
   CloudUploadOutline,
   AlbumsOutline,
-  ImagesOutline
+  ImagesOutline,
+  AirplaneOutline
 } from '@vicons/ionicons5'
 import { exportAllData, importAllData } from '@/utils/storage'
 import { useCustomerStore } from '@/stores/customer'
@@ -95,6 +96,7 @@ import { useCostStore } from '@/stores/cost'
 import { useLeadStore } from '@/stores/lead'
 import { useScheduleStore } from '@/stores/schedule'
 import { useRetouchStore } from '@/stores/retouch'
+import { useTravelShootStore } from '@/stores/travelShoot'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -110,6 +112,7 @@ const costStore = useCostStore()
 const leadStore = useLeadStore()
 const scheduleStore = useScheduleStore()
 const retouchStore = useRetouchStore()
+const travelShootStore = useTravelShootStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -179,6 +182,11 @@ const menuOptions = [
     icon: iconRender(CarOutline)
   },
   {
+    label: '异地旅拍',
+    key: 'TravelShoot',
+    icon: iconRender(AirplaneOutline)
+  },
+  {
     label: '收入报表',
     key: 'Reports',
     icon: iconRender(StatsChartOutline)
@@ -237,6 +245,7 @@ function reloadAllStores() {
   scheduleStore.fetchStaff()
   scheduleStore.fetchAssignments()
   retouchStore.fetchBatches()
+  travelShootStore.fetchAll()
 }
 
 onMounted(() => {
@@ -248,6 +257,7 @@ onMounted(() => {
   scheduleStore.fetchStaff()
   scheduleStore.fetchAssignments()
   retouchStore.fetchBatches()
+  travelShootStore.fetchAll()
 })
 </script>
 
