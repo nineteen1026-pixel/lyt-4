@@ -91,6 +91,20 @@ export const useOrderStore = defineStore('order', () => {
     )
   }
 
+  function isFinalPaymentPaid(order) {
+    if (!order) return false
+    const totalAmount = (order.depositAmount || 0) + (order.finalAmount || 0)
+    const paidAmount = order.paidAmount || 0
+    return paidAmount >= totalAmount || order.paymentStatus === 'paid'
+  }
+
+  function getRemainingAmount(order) {
+    if (!order) return 0
+    const totalAmount = (order.depositAmount || 0) + (order.finalAmount || 0)
+    const paidAmount = order.paidAmount || 0
+    return Math.max(0, totalAmount - paidAmount)
+  }
+
   const orderCount = computed(() => orders.value.length)
 
   const pendingOrders = computed(() => 
@@ -148,6 +162,8 @@ export const useOrderStore = defineStore('order', () => {
     getOrdersByDate,
     getOrdersByMonth,
     getOrdersByDateRange,
-    checkDateConflict
+    checkDateConflict,
+    isFinalPaymentPaid,
+    getRemainingAmount
   }
 })

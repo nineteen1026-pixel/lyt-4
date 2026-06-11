@@ -25,10 +25,19 @@
             v-for="order in getOrdersByStatus(step.key)"
             :key="order.id"
             class="order-card"
+            :class="{ 'payment-overdue': step.key === 'selecting' && !orderStore.isFinalPaymentPaid(order) }"
             @click="showOrderDetail(order)"
           >
             <div class="card-header">
               <span class="customer-name">{{ getCustomerName(order.customerId) }}</span>
+              <n-tag
+                v-if="step.key === 'selecting' && !orderStore.isFinalPaymentPaid(order)"
+                type="error"
+                size="tiny"
+                style="margin-left: 8px;"
+              >
+                尾款未清
+              </n-tag>
             </div>
             <div class="card-body">
               <div class="order-info">
@@ -38,6 +47,10 @@
               <div class="order-info">
                 <n-icon size="14" style="margin-right: 4px;"><pricetags-outline /></n-icon>
                 <span>{{ getPackageName(order.packageId) }}</span>
+              </div>
+              <div v-if="step.key === 'selecting' && !orderStore.isFinalPaymentPaid(order)" class="order-info payment-warning">
+                <n-icon size="14" style="margin-right: 4px;"><alert-circle-outline /></n-icon>
+                <span>剩余 ¥{{ orderStore.getRemainingAmount(order).toLocaleString() }}</span>
               </div>
             </div>
             <div class="card-actions" @click.stop>
@@ -133,7 +146,8 @@ import {
   CalendarOutline,
   PricetagsOutline,
   ChevronBackOutline,
-  ChevronForwardOutline
+  ChevronForwardOutline,
+  AlertCircleOutline
 } from '@vicons/ionicons5'
 import { useOrderStore } from '@/stores/order'
 import { useCustomerStore } from '@/stores/customer'
@@ -199,6 +213,15 @@ function moveNext(order) {
   const currentIndex = getStepIndex(order.status)
   if (currentIndex < progressSteps.length - 1) {
     const newStatus = progressSteps[currentIndex + 1].key
+    
+    if (newStatus === 'editing') {
+      if (!orderStore.isFinalPaymentPaid(order)) {
+        const remaining = orderStore.getRemainingAmount(order)
+        message.error(`尾款未结清，剩余 ¥${remaining.toLocaleString()}，请先确认收款后再推进到精修环节`)
+        return
+      }
+    }
+    
     orderStore.updateOrder(order.id, { status: newStatus })
     message.success(`已移至「${progressSteps[currentIndex + 1].label}」`)
   }
@@ -301,6 +324,20 @@ function showOrderDetail(order) {
 .order-card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-1px);
+}
+
+.order-card.payment-overdue {
+  border: 2px solid #d03050;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffffff 100%);
+}
+
+.order-card.payment-overdue:hover {
+  box-shadow: 0 4px 12px rgba(208, 48, 80, 0.2);
+}
+
+.payment-warning {
+  color: #d03050;
+  font-weight: 500;
 }
 
 .card-header {
