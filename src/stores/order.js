@@ -27,8 +27,21 @@ export const useOrderStore = defineStore('order', () => {
   function updateOrder(id, data) {
     const index = orders.value.findIndex(o => o.id === id)
     if (index !== -1) {
-      const oldStatus = orders.value[index].status
-      orders.value[index] = { ...orders.value[index], ...data }
+      const oldOrder = orders.value[index]
+      const oldStatus = oldOrder.status
+
+      if (data.status && data.status === 'editing' && data.status !== oldStatus) {
+        const mergedOrder = { ...oldOrder, ...data }
+        if (!isFinalPaymentPaid(mergedOrder)) {
+          const remaining = getRemainingAmount(mergedOrder)
+          return {
+            success: false,
+            message: `尾款未结清，剩余 ¥${remaining.toLocaleString()}，请先确认收款后再推进到精修环节`
+          }
+        }
+      }
+
+      orders.value[index] = { ...oldOrder, ...data }
       setStorage(storageKeys.ORDERS, orders.value)
 
       if (data.status && data.status !== oldStatus) {
@@ -40,9 +53,15 @@ export const useOrderStore = defineStore('order', () => {
         }
       }
 
-      return orders.value[index]
+      return {
+        success: true,
+        order: orders.value[index]
+      }
     }
-    return null
+    return {
+      success: false,
+      message: '订单不存在'
+    }
   }
 
   function deleteOrder(id) {

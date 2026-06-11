@@ -401,12 +401,16 @@ function handleSubmit() {
       if (newPaidAmount >= totalAmount) paymentStatus = 'paid'
       else if (newPaidAmount <= 0) paymentStatus = 'unpaid'
 
-      orderStore.updateOrder(formData.customerId, {
+      const result = orderStore.updateOrder(formData.customerId, {
         paidAmount: newPaidAmount,
         paymentStatus
       })
-      message.success('收款登记成功')
-      showModal.value = false
+      if (result.success) {
+        message.success('收款登记成功')
+        showModal.value = false
+      } else {
+        message.error(result.message)
+      }
     }
   })
 }
@@ -417,15 +421,19 @@ function handleEditSubmit() {
   if (editFormData.paidAmount >= total) paymentStatus = 'paid'
   else if (editFormData.paidAmount <= 0) paymentStatus = 'unpaid'
 
-  orderStore.updateOrder(editId.value, {
+  const result = orderStore.updateOrder(editId.value, {
     depositAmount: editFormData.depositAmount,
     finalAmount: editFormData.finalAmount,
     paidAmount: editFormData.paidAmount,
     dueDate: editFormData.dueDate ? dayjs(editFormData.dueDate).format('YYYY-MM-DD') : '',
     paymentStatus
   })
-  message.success('更新成功')
-  showEditModal.value = false
+  if (result.success) {
+    message.success('更新成功')
+    showEditModal.value = false
+  } else {
+    message.error(result.message)
+  }
 }
 </script>
 

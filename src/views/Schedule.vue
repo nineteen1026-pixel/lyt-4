@@ -472,8 +472,14 @@ function handleSubmit() {
       }
 
       if (isEdit.value) {
-        orderStore.updateOrder(editId.value, data)
-        message.success('更新成功')
+        const result = orderStore.updateOrder(editId.value, data)
+        if (result.success) {
+          message.success('更新成功')
+          showModal.value = false
+        } else {
+          message.error(result.message)
+        }
+        return
       } else {
         if (orderStore.checkDateConflict(data.shootDate)) {
           dialog.warning({

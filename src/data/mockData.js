@@ -222,13 +222,13 @@ export const mockOrders = [
     customerId: 'cust_003',
     packageId: 'pkg_002',
     shootDate: '2026-04-25',
-    status: 'editing',
+    status: 'selecting',
     depositAmount: 5000,
     finalAmount: 10888,
     paidAmount: 5000,
     paymentStatus: 'partial',
     dueDate: '2026-04-20',
-    remark: '中式+西式两套造型',
+    remark: '中式+西式两套造型，待客户结清尾款后进入精修',
     createdAt: '2026-01-20T09:15:00.000Z'
   },
   {

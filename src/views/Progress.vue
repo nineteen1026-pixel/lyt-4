@@ -68,6 +68,7 @@
                 text
                 size="tiny"
                 type="primary"
+                :disabled="step.key === 'selecting' && !orderStore.isFinalPaymentPaid(order)"
                 @click="moveNext(order)"
               >
                 下一步
@@ -204,8 +205,12 @@ function movePrev(order) {
   const currentIndex = getStepIndex(order.status)
   if (currentIndex > 0) {
     const newStatus = progressSteps[currentIndex - 1].key
-    orderStore.updateOrder(order.id, { status: newStatus })
-    message.success(`已移至「${progressSteps[currentIndex - 1].label}」`)
+    const result = orderStore.updateOrder(order.id, { status: newStatus })
+    if (result.success) {
+      message.success(`已移至「${progressSteps[currentIndex - 1].label}」`)
+    } else {
+      message.error(result.message)
+    }
   }
 }
 
@@ -213,17 +218,12 @@ function moveNext(order) {
   const currentIndex = getStepIndex(order.status)
   if (currentIndex < progressSteps.length - 1) {
     const newStatus = progressSteps[currentIndex + 1].key
-    
-    if (newStatus === 'editing') {
-      if (!orderStore.isFinalPaymentPaid(order)) {
-        const remaining = orderStore.getRemainingAmount(order)
-        message.error(`尾款未结清，剩余 ¥${remaining.toLocaleString()}，请先确认收款后再推进到精修环节`)
-        return
-      }
+    const result = orderStore.updateOrder(order.id, { status: newStatus })
+    if (result.success) {
+      message.success(`已移至「${progressSteps[currentIndex + 1].label}」`)
+    } else {
+      message.error(result.message)
     }
-    
-    orderStore.updateOrder(order.id, { status: newStatus })
-    message.success(`已移至「${progressSteps[currentIndex + 1].label}」`)
   }
 }
 
