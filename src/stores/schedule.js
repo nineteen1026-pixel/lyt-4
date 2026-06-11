@@ -223,27 +223,40 @@ export const useScheduleStore = defineStore('schedule', () => {
              d.isBefore(dayjs(endDate).add(1, 'day'))
     })
 
-    const orders = []
+    const orderMap = new Map()
     let totalRevenue = 0
     let paidRevenue = 0
 
     staffAssignments.forEach(asn => {
       const order = orderStore ? orderStore.getOrderById(asn.orderId) : null
       if (order) {
-        const orderTotal = (order.depositAmount || 0) + (order.finalAmount || 0)
-        const orderPaid = order.paidAmount || 0
-        totalRevenue += orderTotal
-        paidRevenue += orderPaid
-        orders.push({
-          ...order,
+        if (!orderMap.has(order.id)) {
+          const orderTotal = (order.depositAmount || 0) + (order.finalAmount || 0)
+          const orderPaid = order.paidAmount || 0
+          totalRevenue += orderTotal
+          paidRevenue += orderPaid
+          orderMap.set(order.id, {
+            ...order,
+            orderTotal,
+            orderPaid,
+            assignments: []
+          })
+        }
+        orderMap.get(order.id).assignments.push({
           assignmentId: asn.id,
           assignmentRole: asn.role,
-          assignmentStatus: asn.status,
-          orderTotal,
-          orderPaid
+          assignmentStatus: asn.status
         })
       }
     })
+
+    const orders = Array.from(orderMap.values()).map(order => ({
+      ...order,
+      assignmentId: order.assignments[0]?.assignmentId || '',
+      assignmentRole: order.assignments[0]?.assignmentRole || '',
+      assignmentStatus: order.assignments[0]?.assignmentStatus || '',
+      roles: order.assignments.map(a => a.assignmentRole)
+    }))
 
     const staff = getStaffById(staffId)
     const maxWorkload = staff ? getStaffMaxWorkload(staff.role) : 8
@@ -252,6 +265,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     return {
       staffId,
       totalCount: staffAssignments.length,
+      orderCount: orders.length,
       completedCount: staffAssignments.filter(a => a.status === 'completed').length,
       pendingCount: staffAssignments.filter(a => a.status === 'pending' || a.status === 'confirmed').length,
       maxWorkload,

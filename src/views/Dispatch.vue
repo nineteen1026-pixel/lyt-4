@@ -19,7 +19,7 @@
       </div>
     </div>
 
-    <div v-if="activeTab === 'calendar'" class="stats-row">
+    <div class="stats-row">
       <n-card class="stat-card">
         <div class="stat-icon stat-icon-blue">
           <n-icon size="20"><calendar-outline /></n-icon>
@@ -58,113 +58,113 @@
       </n-card>
     </div>
 
-    <template v-if="activeTab === 'calendar'">
-      <n-card style="margin-bottom: 20px;">
-        <div class="workload-header">
-          <div class="workload-title-row">
-            <span class="section-title">人员当月负荷 ({{ currentYear }}年{{ currentMonth }}月)</span>
-            <div class="workload-legend">
-              <span class="legend-item">
-                <span class="legend-dot legend-normal"></span>
-                正常
-              </span>
-              <span class="legend-item">
-                <span class="legend-dot legend-overload"></span>
-                超负荷
-              </span>
-            </div>
+    <n-card style="margin-bottom: 20px;">
+      <div class="workload-header">
+        <div class="workload-title-row">
+          <span class="section-title">人员当月负荷 ({{ currentYear }}年{{ currentMonth }}月)</span>
+          <div class="workload-legend">
+            <span class="legend-item">
+              <span class="legend-dot legend-normal"></span>
+              正常
+            </span>
+            <span class="legend-item">
+              <span class="legend-dot legend-overload"></span>
+              超负荷
+            </span>
           </div>
-          <div class="workload-stats-grid">
-            <div
-              v-for="item in staffMonthlyWorkload"
-              :key="item.staff.id"
-              :class="['workload-card', { 'workload-overloaded': item.workload.isOverloaded }]"
-              @click="toggleWorkloadExpand(item.staff.id)"
-            >
-              <div class="workload-card-header">
-                <div class="workload-staff-info">
-                  <span class="workload-staff-name">{{ item.staff.name }}</span>
-                  <n-tag :type="getStaffRoleType(item.staff.role)" size="tiny">
-                    {{ getStaffRoleLabel(item.staff.role) }}
-                  </n-tag>
-                  <n-tag v-if="item.workload.isOverloaded" type="warning" size="tiny" round>
-                    超负荷
-                  </n-tag>
-                </div>
-                <div class="workload-count">
-                  <span class="workload-count-num">{{ item.workload.totalCount }}</span>
-                  <span class="workload-count-max">/ {{ item.workload.maxWorkload }}单</span>
+        </div>
+        <div class="workload-stats-grid">
+          <div
+            v-for="item in staffMonthlyWorkload"
+            :key="item.staff.id"
+            :class="['workload-card', { 'workload-overloaded': item.workload.isOverloaded }]"
+            @click="toggleWorkloadExpand(item.staff.id)"
+          >
+            <div class="workload-card-header">
+              <div class="workload-staff-info">
+                <span class="workload-staff-name">{{ item.staff.name }}</span>
+                <n-tag :type="getStaffRoleType(item.staff.role)" size="tiny">
+                  {{ getStaffRoleLabel(item.staff.role) }}
+                </n-tag>
+                <n-tag v-if="item.workload.isOverloaded" type="warning" size="tiny" round>
+                  超负荷
+                </n-tag>
+              </div>
+              <div class="workload-count">
+                <span class="workload-count-num">{{ item.workload.orderCount }}</span>
+                <span class="workload-count-max">单/{{ item.workload.maxWorkload }}单</span>
+              </div>
+            </div>
+            <div class="workload-card-body">
+              <div class="workload-progress-bar">
+                <div
+                  class="workload-progress-fill"
+                  :class="{ 'progress-overload': item.workload.isOverloaded }"
+                  :style="{ width: Math.min(item.workload.overloadPercent, 100) + '%' }"
+                ></div>
+              </div>
+              <div class="workload-revenue-row">
+                <span class="revenue-label">关联收入</span>
+                <span class="revenue-value">¥{{ item.workload.totalRevenue.toLocaleString() }}</span>
+                <span class="revenue-paid">(已收 ¥{{ item.workload.paidRevenue.toLocaleString() }})</span>
+              </div>
+              <div class="workload-expand-indicator">
+                <n-icon :size="16" :class="{ 'icon-expanded': expandedWorkloadStaff === item.staff.id }">
+                  <chevron-down-outline />
+                </n-icon>
+                <span>{{ expandedWorkloadStaff === item.staff.id ? '收起订单' : '展开订单' }}</span>
+              </div>
+            </div>
+            <div v-if="expandedWorkloadStaff === item.staff.id" class="workload-orders">
+              <div v-if="item.workload.orders.length === 0" class="workload-empty">
+                当月暂无排班订单
+              </div>
+              <div v-else class="workload-orders-list">
+                <div
+                  v-for="order in item.workload.orders"
+                  :key="order.id"
+                  class="workload-order-item"
+                >
+                  <div class="order-item-left">
+                    <div class="order-item-date">{{ formatDate(order.shootDate, 'MM-DD') }}</div>
+                    <n-tag
+                      :type="getAssignmentRoleType(order.assignmentRole)"
+                      size="tiny"
+                    >
+                      {{ getAssignmentRoleLabel(order.assignmentRole) }}
+                    </n-tag>
+                  </div>
+                  <div class="order-item-middle">
+                    <div class="order-item-customer">{{ getCustomerName(order.customerId) }}</div>
+                    <div class="order-item-package">{{ getPackageName(order.packageId) }}</div>
+                  </div>
+                  <div class="order-item-right">
+                    <div class="order-item-amount">¥{{ order.orderTotal.toLocaleString() }}</div>
+                    <div :class="['order-item-paystatus', `paystatus-${order.paymentStatus}`]">
+                      {{ getPaymentStatusLabel(order.paymentStatus) }}
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="workload-card-body">
-                <div class="workload-progress-bar">
-                  <div
-                    class="workload-progress-fill"
-                    :class="{ 'progress-overload': item.workload.isOverloaded }"
-                    :style="{ width: Math.min(item.workload.overloadPercent, 100) + '%' }"
-                  ></div>
+              <div v-if="item.workload.orders.length > 0" class="workload-orders-summary">
+                <div class="summary-row">
+                  <span>订单数量：{{ item.workload.orderCount }} 单</span>
+                  <span>已完成：{{ item.workload.completedCount }} 单</span>
+                  <span>待执行：{{ item.workload.pendingCount }} 单</span>
                 </div>
-                <div class="workload-revenue-row">
-                  <span class="revenue-label">关联收入</span>
-                  <span class="revenue-value">¥{{ item.workload.totalRevenue.toLocaleString() }}</span>
-                  <span class="revenue-paid">(已收 ¥{{ item.workload.paidRevenue.toLocaleString() }})</span>
-                </div>
-                <div class="workload-expand-indicator">
-                  <n-icon :size="16" :class="{ 'icon-expanded': expandedWorkloadStaff === item.staff.id }">
-                    <chevron-down-outline />
-                  </n-icon>
-                  <span>{{ expandedWorkloadStaff === item.staff.id ? '收起订单' : '查看订单' }}</span>
-                </div>
-              </div>
-              <div v-if="expandedWorkloadStaff === item.staff.id" class="workload-orders">
-                <div v-if="item.workload.orders.length === 0" class="workload-empty">
-                  当月暂无排班订单
-                </div>
-                <div v-else class="workload-orders-list">
-                  <div
-                    v-for="order in item.workload.orders"
-                    :key="order.assignmentId"
-                    class="workload-order-item"
-                  >
-                    <div class="order-item-left">
-                      <div class="order-item-date">{{ formatDate(order.shootDate, 'MM-DD') }}</div>
-                      <n-tag
-                        :type="getAssignmentRoleType(order.assignmentRole)"
-                        size="tiny"
-                      >
-                        {{ getAssignmentRoleLabel(order.assignmentRole) }}
-                      </n-tag>
-                    </div>
-                    <div class="order-item-middle">
-                      <div class="order-item-customer">{{ getCustomerName(order.customerId) }}</div>
-                      <div class="order-item-package">{{ getPackageName(order.packageId) }}</div>
-                    </div>
-                    <div class="order-item-right">
-                      <div class="order-item-amount">¥{{ order.orderTotal.toLocaleString() }}</div>
-                      <div :class="['order-item-paystatus', `paystatus-${order.paymentStatus}`]">
-                        {{ getPaymentStatusLabel(order.paymentStatus) }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="item.workload.orders.length > 0" class="workload-orders-summary">
-                  <div class="summary-row">
-                    <span>订单数量：{{ item.workload.orders.length }} 单</span>
-                    <span>已完成：{{ item.workload.completedCount }} 单</span>
-                    <span>待执行：{{ item.workload.pendingCount }} 单</span>
-                  </div>
-                  <div class="summary-row summary-revenue">
-                    <span>订单总额：<strong>¥{{ item.workload.totalRevenue.toLocaleString() }}</strong></span>
-                    <span>已收款：<strong>¥{{ item.workload.paidRevenue.toLocaleString() }}</strong></span>
-                    <span>未收款：<strong>¥{{ item.workload.unpaidRevenue.toLocaleString() }}</strong></span>
-                  </div>
+                <div class="summary-row summary-revenue">
+                  <span>订单总额：<strong>¥{{ item.workload.totalRevenue.toLocaleString() }}</strong></span>
+                  <span>已收款：<strong>¥{{ item.workload.paidRevenue.toLocaleString() }}</strong></span>
+                  <span>未收款：<strong>¥{{ item.workload.unpaidRevenue.toLocaleString() }}</strong></span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </n-card>
+      </div>
+    </n-card>
 
+    <template v-if="activeTab === 'calendar'">
       <n-card>
         <div class="calendar-header">
           <n-button text size="small" @click="prevMonth">
@@ -319,6 +319,7 @@
           :bordered="false"
           size="medium"
           striped
+          :row-class-name="getStaffRowClassName"
         >
           <template #role="{ row }">
             <n-tag :type="getStaffRoleType(row.role)" size="small">
@@ -334,11 +335,16 @@
             <div v-if="row.active" class="workload-info">
               <div class="workload-bar">
                 <div
-                  class="workload-fill"
+                  :class="['workload-fill', { 'workload-fill-overload': isStaffOverloaded(row.id) }]"
                   :style="{ width: Math.min(getStaffWorkloadPercent(row.id), 100) + '%' }"
                 ></div>
               </div>
-              <span class="workload-text">{{ getStaffMonthWorkload(row.id) }}单/月</span>
+              <span :class="['workload-text', { 'workload-text-overload': isStaffOverloaded(row.id) }]">
+                {{ getStaffMonthWorkload(row.id) }}单/月
+                <n-tag v-if="isStaffOverloaded(row.id)" type="warning" size="tiny" round style="margin-left: 4px;">
+                  超负荷
+                </n-tag>
+              </span>
             </div>
             <span v-else class="text-muted">-</span>
           </template>
@@ -907,6 +913,15 @@ const staffMonthlyWorkload = computed(() => {
   return scheduleStore.getAllStaffMonthlyWorkload(currentYear.value, currentMonth.value, orderStore)
 })
 
+watch(staffMonthlyWorkload, (newVal) => {
+  if (!expandedWorkloadStaff.value) {
+    const overloaded = newVal.find(item => item.workload.isOverloaded)
+    if (overloaded) {
+      expandedWorkloadStaff.value = overloaded.staff.id
+    }
+  }
+}, { immediate: true })
+
 const staffColumns = [
   { title: '姓名', key: 'name', width: 120 },
   { title: '角色', key: 'role', width: 120 },
@@ -1043,6 +1058,20 @@ function getStaffWorkloadPercent(staffId) {
 
 function getPaymentStatusLabel(status) {
   return PAYMENT_STATUS[status]?.label || status
+}
+
+function isStaffOverloaded(staffId) {
+  const staff = scheduleStore.getStaffById(staffId)
+  if (!staff || !staff.active) return false
+  const workload = scheduleStore.getStaffMonthlyWorkloadWithOrders(staffId, currentYear.value, currentMonth.value, orderStore)
+  return workload.isOverloaded
+}
+
+function getStaffRowClassName(row) {
+  if (row.active && isStaffOverloaded(row.id)) {
+    return 'staff-row-overloaded'
+  }
+  return ''
 }
 
 function toggleWorkloadExpand(staffId) {
@@ -2222,6 +2251,23 @@ onMounted(() => {
 
 .summary-revenue strong {
   color: #D4A574;
+  font-weight: 600;
+}
+
+.staff-row-overloaded {
+  background: #fffbe6 !important;
+}
+
+.staff-row-overloaded:nth-child(odd) {
+  background: #fff8d6 !important;
+}
+
+.workload-fill-overload {
+  background: linear-gradient(90deg, #f0a020, #e88010) !important;
+}
+
+.workload-text-overload {
+  color: #f0a020 !important;
   font-weight: 600;
 }
 </style>

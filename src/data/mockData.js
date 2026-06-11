@@ -300,6 +300,118 @@ export const mockOrders = [
     dueDate: '2026-04-25',
     remark: '五一假期，客户加订了婚纱写真',
     createdAt: '2026-03-01T09:00:00.000Z'
+  },
+  {
+    id: 'ord_008',
+    customerId: 'cust_001',
+    packageId: 'pkg_002',
+    shootDate: '2026-06-06',
+    status: 'confirmed',
+    depositAmount: 5000,
+    finalAmount: 10888,
+    paidAmount: 5000,
+    paymentStatus: 'partial',
+    dueDate: '2026-06-01',
+    remark: '客户加拍的一套内景',
+    createdAt: '2026-04-10T10:00:00.000Z'
+  },
+  {
+    id: 'ord_009',
+    customerId: 'cust_003',
+    packageId: 'pkg_002',
+    shootDate: '2026-06-13',
+    status: 'confirmed',
+    depositAmount: 5000,
+    finalAmount: 10888,
+    paidAmount: 10888,
+    paymentStatus: 'paid',
+    dueDate: '2026-06-08',
+    remark: '客户推荐的朋友',
+    createdAt: '2026-04-15T11:00:00.000Z'
+  },
+  {
+    id: 'ord_010',
+    customerId: 'cust_005',
+    packageId: 'pkg_001',
+    shootDate: '2026-06-20',
+    status: 'confirmed',
+    depositAmount: 3000,
+    finalAmount: 5888,
+    paidAmount: 8888,
+    paymentStatus: 'paid',
+    dueDate: '2026-06-15',
+    remark: '老客户介绍，全款已付',
+    createdAt: '2026-05-02T09:30:00.000Z'
+  },
+  {
+    id: 'ord_011',
+    customerId: 'cust_002',
+    packageId: 'pkg_003',
+    shootDate: '2026-06-25',
+    status: 'pending',
+    depositAmount: 10000,
+    finalAmount: 18888,
+    paidAmount: 10000,
+    paymentStatus: 'partial',
+    dueDate: '2026-06-20',
+    remark: '朋友介绍，档期暂未最终确定',
+    createdAt: '2026-05-08T14:00:00.000Z'
+  },
+  {
+    id: 'ord_012',
+    customerId: 'cust_004',
+    packageId: 'pkg_001',
+    shootDate: '2026-06-09',
+    status: 'confirmed',
+    depositAmount: 3000,
+    finalAmount: 5888,
+    paidAmount: 3000,
+    paymentStatus: 'partial',
+    dueDate: '2026-06-05',
+    remark: '海景拍摄',
+    createdAt: '2026-05-10T10:00:00.000Z'
+  },
+  {
+    id: 'ord_013',
+    customerId: 'cust_001',
+    packageId: 'pkg_002',
+    shootDate: '2026-06-22',
+    status: 'confirmed',
+    depositAmount: 5000,
+    finalAmount: 10888,
+    paidAmount: 5000,
+    paymentStatus: 'partial',
+    dueDate: '2026-06-18',
+    remark: '闺蜜推荐的客户',
+    createdAt: '2026-05-12T11:00:00.000Z'
+  },
+  {
+    id: 'ord_014',
+    customerId: 'cust_003',
+    packageId: 'pkg_001',
+    shootDate: '2026-06-28',
+    status: 'pending',
+    depositAmount: 3000,
+    finalAmount: 5888,
+    paidAmount: 3000,
+    paymentStatus: 'partial',
+    dueDate: '2026-06-23',
+    remark: '老客户复购',
+    createdAt: '2026-05-15T09:00:00.000Z'
+  },
+  {
+    id: 'ord_015',
+    customerId: 'cust_005',
+    packageId: 'pkg_003',
+    shootDate: '2026-06-11',
+    status: 'shooting',
+    depositAmount: 10000,
+    finalAmount: 18888,
+    paidAmount: 28888,
+    paymentStatus: 'paid',
+    dueDate: '2026-06-06',
+    remark: '老客户，高端定制',
+    createdAt: '2026-04-20T10:00:00.000Z'
   }
 ]
 
@@ -751,6 +863,176 @@ export const mockAssignments = [
     status: 'confirmed',
     remark: '',
     createdAt: '2026-03-05T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_015',
+    orderId: 'ord_008',
+    staffId: 'staff_001',
+    date: '2026-06-06',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '客户加拍内景',
+    createdAt: '2026-04-10T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_016',
+    orderId: 'ord_008',
+    staffId: 'staff_004',
+    date: '2026-06-06',
+    role: 'makeup_artist',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-04-10T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_017',
+    orderId: 'ord_009',
+    staffId: 'staff_001',
+    date: '2026-06-13',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-04-15T11:00:00.000Z'
+  },
+  {
+    id: 'asgn_018',
+    orderId: 'ord_009',
+    staffId: 'staff_003',
+    date: '2026-06-13',
+    role: 'assistant',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-04-15T11:00:00.000Z'
+  },
+  {
+    id: 'asgn_019',
+    orderId: 'ord_009',
+    staffId: 'staff_004',
+    date: '2026-06-13',
+    role: 'makeup_artist',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-04-15T11:00:00.000Z'
+  },
+  {
+    id: 'asgn_020',
+    orderId: 'ord_010',
+    staffId: 'staff_001',
+    date: '2026-06-20',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '老客户介绍',
+    createdAt: '2026-05-02T09:30:00.000Z'
+  },
+  {
+    id: 'asgn_021',
+    orderId: 'ord_010',
+    staffId: 'staff_004',
+    date: '2026-06-20',
+    role: 'makeup_artist',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-05-02T09:30:00.000Z'
+  },
+  {
+    id: 'asgn_022',
+    orderId: 'ord_011',
+    staffId: 'staff_001',
+    date: '2026-06-25',
+    role: 'chief_photographer',
+    status: 'pending',
+    remark: '档期待确认',
+    createdAt: '2026-05-08T14:00:00.000Z'
+  },
+  {
+    id: 'asgn_023',
+    orderId: 'ord_011',
+    staffId: 'staff_005',
+    date: '2026-06-25',
+    role: 'videographer',
+    status: 'pending',
+    remark: '',
+    createdAt: '2026-05-08T14:00:00.000Z'
+  },
+  {
+    id: 'asgn_024',
+    orderId: 'ord_012',
+    staffId: 'staff_001',
+    date: '2026-06-09',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '海景拍摄',
+    createdAt: '2026-05-10T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_025',
+    orderId: 'ord_013',
+    staffId: 'staff_001',
+    date: '2026-06-22',
+    role: 'chief_photographer',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-05-12T11:00:00.000Z'
+  },
+  {
+    id: 'asgn_026',
+    orderId: 'ord_013',
+    staffId: 'staff_003',
+    date: '2026-06-22',
+    role: 'assistant',
+    status: 'confirmed',
+    remark: '',
+    createdAt: '2026-05-12T11:00:00.000Z'
+  },
+  {
+    id: 'asgn_027',
+    orderId: 'ord_014',
+    staffId: 'staff_001',
+    date: '2026-06-28',
+    role: 'chief_photographer',
+    status: 'pending',
+    remark: '老客户复购',
+    createdAt: '2026-05-15T09:00:00.000Z'
+  },
+  {
+    id: 'asgn_028',
+    orderId: 'ord_015',
+    staffId: 'staff_001',
+    date: '2026-06-11',
+    role: 'chief_photographer',
+    status: 'in_progress',
+    remark: '今日拍摄',
+    createdAt: '2026-04-20T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_029',
+    orderId: 'ord_015',
+    staffId: 'staff_003',
+    date: '2026-06-11',
+    role: 'assistant',
+    status: 'in_progress',
+    remark: '',
+    createdAt: '2026-04-20T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_030',
+    orderId: 'ord_015',
+    staffId: 'staff_004',
+    date: '2026-06-11',
+    role: 'makeup_artist',
+    status: 'in_progress',
+    remark: '',
+    createdAt: '2026-04-20T10:00:00.000Z'
+  },
+  {
+    id: 'asgn_031',
+    orderId: 'ord_015',
+    staffId: 'staff_005',
+    date: '2026-06-11',
+    role: 'videographer',
+    status: 'in_progress',
+    remark: '',
+    createdAt: '2026-04-20T10:00:00.000Z'
   }
 ]
 
