@@ -6,7 +6,25 @@ export const mockCustomers = [
     wechat: 'zhang_li_wedding',
     weddingDate: '2026-05-20',
     hotel: '上海外滩华尔道夫酒店',
+    source: 'official',
+    referralName: '',
     remark: '客户喜欢自然清新风格，外景想拍外滩和豫园',
+    followUpRecords: [
+      {
+        id: 'fur_c001',
+        type: 'wechat',
+        content: '官网咨询，初次沟通需求',
+        status: 'contacting',
+        createdAt: '2026-01-10T10:00:00.000Z'
+      },
+      {
+        id: 'fur_c002',
+        type: 'meeting',
+        content: '面谈，确定豪华套系，付定金5000元',
+        status: 'converted',
+        createdAt: '2026-01-15T10:30:00.000Z'
+      }
+    ],
     createdAt: '2026-01-15T10:30:00.000Z'
   },
   {
@@ -16,7 +34,32 @@ export const mockCustomers = [
     wechat: 'wangchen2026',
     weddingDate: '2026-06-18',
     hotel: '北京瑰丽酒店',
+    source: 'xiaohongshu',
+    referralName: '',
     remark: '预算充足，希望拍一套高端定制',
+    followUpRecords: [
+      {
+        id: 'fur_c003',
+        type: 'phone',
+        content: '小红书咨询，对尊享套系感兴趣',
+        status: 'contacting',
+        createdAt: '2026-01-25T14:00:00.000Z'
+      },
+      {
+        id: 'fur_c004',
+        type: 'wechat',
+        content: '微信沟通细节，发了客片作品集',
+        status: 'quoted',
+        createdAt: '2026-01-28T11:00:00.000Z'
+      },
+      {
+        id: 'fur_c005',
+        type: 'meeting',
+        content: '约见客户，确认尊享套系，付定金10000元',
+        status: 'converted',
+        createdAt: '2026-02-01T14:20:00.000Z'
+      }
+    ],
     createdAt: '2026-02-01T14:20:00.000Z'
   },
   {
@@ -26,7 +69,32 @@ export const mockCustomers = [
     wechat: 'liuzhou_love',
     weddingDate: '2026-04-25',
     hotel: '杭州西子湖四季酒店',
+    source: 'dianping',
+    referralName: '',
     remark: '喜欢复古风格，想要一套中式秀禾服造型',
+    followUpRecords: [
+      {
+        id: 'fur_c006',
+        type: 'wechat',
+        content: '大众点评咨询，问了价格',
+        status: 'contacting',
+        createdAt: '2026-01-15T09:00:00.000Z'
+      },
+      {
+        id: 'fur_c007',
+        type: 'phone',
+        content: '电话沟通，推荐豪华套系',
+        status: 'quoted',
+        createdAt: '2026-01-18T15:00:00.000Z'
+      },
+      {
+        id: 'fur_c008',
+        type: 'meeting',
+        content: '到店详谈，确认豪华套系，付定金5000元',
+        status: 'converted',
+        createdAt: '2026-01-20T09:15:00.000Z'
+      }
+    ],
     createdAt: '2026-01-20T09:15:00.000Z'
   },
   {
@@ -36,7 +104,25 @@ export const mockCustomers = [
     wechat: 'zhao_sun',
     weddingDate: '2026-07-10',
     hotel: '深圳湾安达仕酒店',
+    source: 'douyin',
+    referralName: '',
     remark: '海景拍摄，下午户外仪式',
+    followUpRecords: [
+      {
+        id: 'fur_c009',
+        type: 'wechat',
+        content: '抖音私信咨询',
+        status: 'contacting',
+        createdAt: '2026-02-05T16:00:00.000Z'
+      },
+      {
+        id: 'fur_c010',
+        type: 'phone',
+        content: '电话回访，客户对经典套系感兴趣',
+        status: 'quoted',
+        createdAt: '2026-02-08T10:00:00.000Z'
+      }
+    ],
     createdAt: '2026-02-10T16:45:00.000Z'
   },
   {
@@ -46,7 +132,25 @@ export const mockCustomers = [
     wechat: 'huang_wu',
     weddingDate: '2026-03-08',
     hotel: '广州四季酒店',
+    source: 'referral',
+    referralName: '李女士（老客户）',
     remark: '老客户介绍，已付定金',
+    followUpRecords: [
+      {
+        id: 'fur_c011',
+        type: 'phone',
+        content: '老客户李女士介绍，初次电话沟通',
+        status: 'contacting',
+        createdAt: '2025-12-15T10:00:00.000Z'
+      },
+      {
+        id: 'fur_c012',
+        type: 'meeting',
+        content: '见面详谈，经典套系，付定金3000元',
+        status: 'converted',
+        createdAt: '2025-12-20T11:00:00.000Z'
+      }
+    ],
     createdAt: '2025-12-20T11:00:00.000Z'
   }
 ]

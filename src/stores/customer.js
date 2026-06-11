@@ -3,6 +3,22 @@ import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
 
+export const sourceOptions = [
+  { value: 'xiaohongshu', label: '小红书' },
+  { value: 'dianping', label: '大众点评' },
+  { value: 'douyin', label: '抖音' },
+  { value: 'official', label: '官网' },
+  { value: 'referral', label: '转介绍' },
+  { value: 'other', label: '其他' }
+]
+
+export const followUpTypeOptions = [
+  { value: 'phone', label: '电话' },
+  { value: 'wechat', label: '微信' },
+  { value: 'meeting', label: '面谈' },
+  { value: 'other', label: '其他' }
+]
+
 export const useCustomerStore = defineStore('customer', () => {
   const customers = ref([])
 
@@ -15,6 +31,7 @@ export const useCustomerStore = defineStore('customer', () => {
     const newCustomer = {
       ...customer,
       id: generateId(),
+      followUpRecords: customer.followUpRecords || [],
       createdAt: new Date().toISOString()
     }
     customers.value.push(newCustomer)
@@ -46,7 +63,27 @@ export const useCustomerStore = defineStore('customer', () => {
     return customers.value.find(c => c.id === id) || null
   }
 
+  function addFollowUpRecord(customerId, record) {
+    const customer = getCustomerById(customerId)
+    if (!customer) return null
+
+    const newRecord = {
+      ...record,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    }
+
+    const followUpRecords = customer.followUpRecords || []
+    followUpRecords.unshift(newRecord)
+
+    return updateCustomer(customerId, { followUpRecords })
+  }
+
   const customerCount = computed(() => customers.value.length)
+
+  const referralCustomerCount = computed(() => 
+    customers.value.filter(c => c.source === 'referral').length
+  )
 
   function searchCustomers(keyword) {
     if (!keyword) return customers.value
@@ -54,19 +91,27 @@ export const useCustomerStore = defineStore('customer', () => {
     return customers.value.filter(c => 
       c.name.toLowerCase().includes(kw) ||
       c.phone.includes(kw) ||
-      c.wechat.toLowerCase().includes(kw) ||
+      (c.wechat && c.wechat.toLowerCase().includes(kw)) ||
       (c.hotel && c.hotel.toLowerCase().includes(kw))
     )
+  }
+
+  function getCustomersBySource(source) {
+    if (!source) return customers.value
+    return customers.value.filter(c => c.source === source)
   }
 
   return {
     customers,
     customerCount,
+    referralCustomerCount,
     fetchCustomers,
     addCustomer,
     updateCustomer,
     deleteCustomer,
     getCustomerById,
-    searchCustomers
+    addFollowUpRecord,
+    searchCustomers,
+    getCustomersBySource
   }
 })
