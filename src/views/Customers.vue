@@ -48,14 +48,6 @@
         size="medium"
         striped
       >
-        <template #source="{ row }">
-          <n-tag :type="getSourceTagType(row.source)" size="small">
-            {{ getSourceLabel(row.source) }}
-          </n-tag>
-          <span v-if="row.source === 'referral' && row.referralName" class="referral-name">
-            {{ row.referralName }}
-          </span>
-        </template>
         <template #actions="{ row }">
           <n-button text size="small" type="primary" style="margin-right: 8px;" @click="openDetailDrawer(row)">
             详情
@@ -254,7 +246,7 @@
 
 <script setup>
 import { ref, computed, reactive, h } from 'vue'
-import { useMessage, useDialog } from 'naive-ui'
+import { useMessage, useDialog, NTag } from 'naive-ui'
 import { SearchOutline, AddOutline } from '@vicons/ionicons5'
 import { useCustomerStore, sourceOptions, followUpTypeOptions } from '@/stores/customer'
 import { formatDate } from '@/utils/format'
@@ -303,11 +295,12 @@ const followUpRules = {
 }
 
 const sourceFilterOptions = [
-  { value: 'referral', label: '转介绍' },
+  { value: 'referral', label: '朋友介绍' },
   { value: 'xiaohongshu', label: '小红书' },
-  { value: 'dianping', label: '大众点评' },
   { value: 'douyin', label: '抖音' },
+  { value: 'dianping', label: '大众点评' },
   { value: 'official', label: '官网' },
+  { value: 'offline', label: '线下活动' },
   { value: 'other', label: '其他' }
 ]
 
@@ -344,15 +337,15 @@ const columns = [
     title: '线索来源',
     key: 'source',
     width: 200,
-    render: (row) => h('div', null, [
-      h('n-tag', {
-        type: getSourceTagType(row.source),
-        size: 'small'
-      }, () => getSourceLabel(row.source)),
-      row.source === 'referral' && row.referralName
-        ? h('span', { class: 'referral-name' }, row.referralName)
-        : null
-    ])
+    render: (row) => {
+      const children = [
+        h(NTag, { type: getSourceTagType(row.source), size: 'small' }, () => getSourceLabel(row.source))
+      ]
+      if (row.source === 'referral' && row.referralName) {
+        children.push(h('span', { class: 'referral-name' }, row.referralName))
+      }
+      return h('div', null, children)
+    }
   },
   {
     title: '婚期',
@@ -387,6 +380,7 @@ function getSourceTagType(source) {
     douyin: 'info',
     official: 'warning',
     referral: 'primary',
+    offline: 'warning',
     other: 'default'
   }
   return typeMap[source] || 'default'

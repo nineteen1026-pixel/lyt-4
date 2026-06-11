@@ -4,11 +4,12 @@ import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage
 import { ensureAllInitialized } from '@/utils/init'
 
 export const sourceOptions = [
+  { value: 'referral', label: '朋友介绍' },
   { value: 'xiaohongshu', label: '小红书' },
-  { value: 'dianping', label: '大众点评' },
   { value: 'douyin', label: '抖音' },
+  { value: 'dianping', label: '大众点评' },
   { value: 'official', label: '官网' },
-  { value: 'referral', label: '转介绍' },
+  { value: 'offline', label: '线下活动' },
   { value: 'other', label: '其他' }
 ]
 

@@ -112,6 +112,9 @@
             <n-select v-model:value="formData.status" :options="statusSelectOptions" placeholder="请选择状态" />
           </n-form-item>
         </n-grid>
+        <n-form-item v-if="formData.source === 'referral'" label="推荐人" path="referralName">
+          <n-input v-model:value="formData.referralName" placeholder="请输入推荐人姓名" />
+        </n-form-item>
         <n-grid :cols="2" :x-gap="16">
           <n-form-item label="婚期">
             <n-date-picker
@@ -220,7 +223,12 @@
               <n-descriptions-item label="客户姓名">{{ currentLead.name }}</n-descriptions-item>
               <n-descriptions-item label="联系电话">{{ currentLead.phone }}</n-descriptions-item>
               <n-descriptions-item label="微信号">{{ currentLead.wechat || '-' }}</n-descriptions-item>
-              <n-descriptions-item label="线索来源">{{ getSourceLabel(currentLead.source) }}</n-descriptions-item>
+              <n-descriptions-item label="线索来源">
+                {{ getSourceLabel(currentLead.source) }}
+                <span v-if="currentLead.source === 'referral' && currentLead.referralName" style="margin-left: 8px; color: #666; font-size: 12px;">
+                  推荐人：{{ currentLead.referralName }}
+                </span>
+              </n-descriptions-item>
               <n-descriptions-item label="当前状态">
                 <n-tag :type="getStatusType(currentLead.status)" size="small">
                   {{ getStatusLabel(currentLead.status) }}
@@ -335,6 +343,7 @@ const formData = reactive({
   phone: '',
   wechat: '',
   source: 'other',
+  referralName: '',
   status: 'new',
   weddingDate: null,
   hotel: '',
@@ -434,8 +443,16 @@ const columns = [
   {
     title: '来源',
     key: 'source',
-    width: 100,
-    render: (row) => getSourceLabel(row.source)
+    width: 140,
+    render: (row) => {
+      const children = [
+        h(NTag, { type: getSourceTagType(row.source), size: 'small' }, () => getSourceLabel(row.source))
+      ]
+      if (row.source === 'referral' && row.referralName) {
+        children.push(h('span', { style: 'margin-left: 6px; font-size: 12px; color: #999;' }, row.referralName))
+      }
+      return h('div', null, children)
+    }
   },
   {
     title: '状态',
@@ -483,6 +500,19 @@ function getSourceLabel(source) {
   return LEAD_SOURCE[source] || source
 }
 
+function getSourceTagType(source) {
+  const typeMap = {
+    xiaohongshu: 'error',
+    dianping: 'success',
+    douyin: 'info',
+    official: 'warning',
+    referral: 'primary',
+    offline: 'warning',
+    other: 'default'
+  }
+  return typeMap[source] || 'default'
+}
+
 function getFollowUpTypeLabel(type) {
   return FOLLOW_UP_TYPE[type] || type
 }
@@ -513,6 +543,7 @@ function openEditModal(row) {
     phone: row.phone,
     wechat: row.wechat || '',
     source: row.source,
+    referralName: row.referralName || '',
     status: row.status,
     weddingDate: row.weddingDate ? dayjs(row.weddingDate).valueOf() : null,
     hotel: row.hotel || '',
@@ -530,6 +561,7 @@ function resetForm() {
     phone: '',
     wechat: '',
     source: 'other',
+    referralName: '',
     status: 'new',
     weddingDate: null,
     hotel: '',
@@ -646,6 +678,9 @@ function handleConvert() {
         wechat: lead.wechat,
         weddingDate: lead.weddingDate,
         hotel: lead.hotel,
+        source: lead.source || 'other',
+        referralName: lead.referralName || '',
+        followUpRecords: (lead.followUpRecords || []).map(r => ({ ...r })),
         remark: lead.remark
       })
 

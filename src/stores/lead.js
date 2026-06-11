@@ -16,6 +16,7 @@ export const useLeadStore = defineStore('lead', () => {
     const newLead = {
       ...lead,
       id: generateId(),
+      referralName: lead.referralName || '',
       followUpRecords: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
