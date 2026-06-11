@@ -258,11 +258,198 @@ export const mockCosts = [
   }
 ]
 
+export const mockLeads = [
+  {
+    id: 'lead_001',
+    name: '林先生 & 何小姐',
+    phone: '13811138111',
+    wechat: 'linhe_wedding',
+    source: 'xiaohongshu',
+    status: 'new',
+    weddingDate: '2026-10-01',
+    hotel: '',
+    budget: 15000,
+    packageInterest: '',
+    remark: '小红书咨询，对复古风格感兴趣',
+    nextFollowUp: '2026-06-13',
+    followUpRecords: [],
+    customerId: null,
+    orderId: null,
+    createdAt: '2026-06-10T09:30:00.000Z',
+    updatedAt: '2026-06-10T09:30:00.000Z'
+  },
+  {
+    id: 'lead_002',
+    name: '陈先生 & 林女士',
+    phone: '13922239222',
+    wechat: 'chenlin2026',
+    source: 'referral',
+    status: 'contacting',
+    weddingDate: '2026-08-18',
+    hotel: '成都瑞吉酒店',
+    budget: 20000,
+    packageInterest: 'pkg_002',
+    remark: '老客户王女士介绍，预算充足',
+    nextFollowUp: '2026-06-12',
+    followUpRecords: [
+      {
+        id: 'fur_001',
+        type: 'phone',
+        content: '首次电话沟通，客户对豪华套系感兴趣，婚期定在8月18日，酒店已确定',
+        status: 'contacting',
+        nextFollowUp: '2026-06-12',
+        createdAt: '2026-06-08T14:00:00.000Z'
+      }
+    ],
+    customerId: null,
+    orderId: null,
+    createdAt: '2026-06-05T16:20:00.000Z',
+    updatedAt: '2026-06-08T14:00:00.000Z'
+  },
+  {
+    id: 'lead_003',
+    name: '吴先生 & 郑小姐',
+    phone: '13733337333',
+    wechat: 'wuzheng_love',
+    source: 'dianping',
+    status: 'quoted',
+    weddingDate: '2026-09-09',
+    hotel: '苏州金鸡湖大酒店',
+    budget: 12000,
+    packageInterest: 'pkg_001',
+    remark: '大众点评来的，价格比较敏感',
+    nextFollowUp: '2026-06-15',
+    followUpRecords: [
+      {
+        id: 'fur_002',
+        type: 'wechat',
+        content: '微信沟通，发了经典套系报价，客户说和家人商量一下',
+        status: 'quoted',
+        nextFollowUp: '2026-06-12',
+        createdAt: '2026-06-06T10:30:00.000Z'
+      },
+      {
+        id: 'fur_003',
+        type: 'phone',
+        content: '电话回访，客户表示预算有点超，问能不能优惠，说再考虑下',
+        status: 'quoted',
+        nextFollowUp: '2026-06-15',
+        createdAt: '2026-06-09T15:00:00.000Z'
+      }
+    ],
+    customerId: null,
+    orderId: null,
+    createdAt: '2026-06-03T11:15:00.000Z',
+    updatedAt: '2026-06-09T15:00:00.000Z'
+  },
+  {
+    id: 'lead_004',
+    name: '黄先生 & 徐女士',
+    phone: '13644446444',
+    wechat: 'huangxu',
+    source: 'douyin',
+    status: 'negotiating',
+    weddingDate: '2026-07-22',
+    hotel: '南京金陵饭店',
+    budget: 25000,
+    packageInterest: 'pkg_003',
+    remark: '抖音咨询，对尊享套系很感兴趣',
+    nextFollowUp: '2026-06-11',
+    followUpRecords: [
+      {
+        id: 'fur_004',
+        type: 'meeting',
+        content: '约了面谈，聊了2小时，客户很满意风格，预算也OK，就是婚期有点赶',
+        status: 'negotiating',
+        nextFollowUp: '2026-06-11',
+        createdAt: '2026-06-07T16:00:00.000Z'
+      }
+    ],
+    customerId: null,
+    orderId: null,
+    createdAt: '2026-06-01T08:45:00.000Z',
+    updatedAt: '2026-06-07T16:00:00.000Z'
+  },
+  {
+    id: 'lead_005',
+    name: '周先生 & 蔡小姐',
+    phone: '13555555555',
+    wechat: 'zhoucai',
+    source: 'official',
+    status: 'converted',
+    weddingDate: '2026-05-20',
+    hotel: '上海外滩华尔道夫酒店',
+    budget: 18000,
+    packageInterest: 'pkg_002',
+    remark: '官网咨询，已转化为客户',
+    nextFollowUp: null,
+    followUpRecords: [
+      {
+        id: 'fur_005',
+        type: 'wechat',
+        content: '初次沟通，了解需求',
+        status: 'contacting',
+        nextFollowUp: '2026-04-05',
+        createdAt: '2026-04-01T10:00:00.000Z'
+      },
+      {
+        id: 'fur_006',
+        type: 'phone',
+        content: '报价后确认订单，已付定金',
+        status: 'converted',
+        nextFollowUp: null,
+        createdAt: '2026-04-08T14:30:00.000Z'
+      }
+    ],
+    customerId: 'cust_001',
+    orderId: 'ord_003',
+    createdAt: '2026-04-01T10:00:00.000Z',
+    updatedAt: '2026-04-08T14:30:00.000Z'
+  },
+  {
+    id: 'lead_006',
+    name: '许先生 & 韩女士',
+    phone: '13466664666',
+    wechat: 'xuhan',
+    source: 'xiaohongshu',
+    status: 'lost',
+    weddingDate: '2026-06-01',
+    hotel: '',
+    budget: 8000,
+    packageInterest: '',
+    remark: '预算太低，选择了其他工作室',
+    nextFollowUp: null,
+    followUpRecords: [
+      {
+        id: 'fur_007',
+        type: 'wechat',
+        content: '简单沟通后报价，客户说价格高了再考虑',
+        status: 'quoted',
+        nextFollowUp: '2026-05-10',
+        createdAt: '2026-05-05T11:20:00.000Z'
+      },
+      {
+        id: 'fur_008',
+        type: 'phone',
+        content: '回访说已经定了别家，价格便宜一些',
+        status: 'lost',
+        nextFollowUp: null,
+        createdAt: '2026-05-12T09:30:00.000Z'
+      }
+    ],
+    customerId: null,
+    orderId: null,
+    createdAt: '2026-05-02T13:00:00.000Z',
+    updatedAt: '2026-05-12T09:30:00.000Z'
+  }
+]
+
 export function initMockData() {
   return {
     customers: mockCustomers,
     packages: mockPackages,
     orders: mockOrders,
-    costs: mockCosts
+    costs: mockCosts,
+    leads: mockLeads
   }
 }

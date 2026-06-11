@@ -74,6 +74,7 @@ import { createDiscreteApi, darkTheme } from 'naive-ui'
 import {
   BarChartOutline,
   PeopleOutline,
+  PersonAddOutline,
   CalendarOutline,
   PricetagsOutline,
   TimeOutline,
@@ -89,6 +90,7 @@ import { useCustomerStore } from '@/stores/customer'
 import { usePackageStore } from '@/stores/package'
 import { useOrderStore } from '@/stores/order'
 import { useCostStore } from '@/stores/cost'
+import { useLeadStore } from '@/stores/lead'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -101,6 +103,7 @@ const customerStore = useCustomerStore()
 const packageStore = usePackageStore()
 const orderStore = useOrderStore()
 const costStore = useCostStore()
+const leadStore = useLeadStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -123,6 +126,11 @@ const menuOptions = [
     label: '数据概览',
     key: 'Dashboard',
     icon: iconRender(BarChartOutline)
+  },
+  {
+    label: '客户线索',
+    key: 'Leads',
+    icon: iconRender(PersonAddOutline)
   },
   {
     label: '客户档案',
@@ -209,6 +217,7 @@ function reloadAllStores() {
   packageStore.fetchPackages()
   orderStore.fetchOrders()
   costStore.fetchCosts()
+  leadStore.fetchLeads()
 }
 
 onMounted(() => {
@@ -216,6 +225,7 @@ onMounted(() => {
   packageStore.fetchPackages()
   orderStore.fetchOrders()
   costStore.fetchCosts()
+  leadStore.fetchLeads()
 })
 </script>
 

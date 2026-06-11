@@ -49,6 +49,33 @@ export const COST_TYPES = {
   other: { label: '其他', color: 'default' }
 }
 
+export const LEAD_STATUS = {
+  new: { label: '新线索', color: 'info' },
+  contacting: { label: '跟进中', color: 'warning' },
+  quoted: { label: '已报价', color: 'primary' },
+  negotiating: { label: '协商中', color: 'warning' },
+  converted: { label: '已转化', color: 'success' },
+  lost: { label: '已流失', color: 'error' }
+}
+
+export const LEAD_SOURCE = {
+  referral: '朋友介绍',
+  xiaohongshu: '小红书',
+  douyin: '抖音',
+  dianping: '大众点评',
+  official: '官网',
+  offline: '线下活动',
+  other: '其他'
+}
+
+export const FOLLOW_UP_TYPE = {
+  wechat: '微信',
+  phone: '电话',
+  meeting: '面谈',
+  video: '视频',
+  other: '其他'
+}
+
 export function getDaysBetween(date1, date2) {
   return dayjs(date2).diff(dayjs(date1), 'day')
 }

@@ -5,6 +5,7 @@ export const storageKeys = {
   PACKAGES: 'packages',
   ORDERS: 'orders',
   COSTS: 'costs',
+  LEADS: 'leads',
   INITIALIZED: 'initialized'
 }
 
@@ -48,6 +49,7 @@ export function exportAllData() {
     packages: getStorage(storageKeys.PACKAGES) || [],
     orders: getStorage(storageKeys.ORDERS) || [],
     costs: getStorage(storageKeys.COSTS) || [],
+    leads: getStorage(storageKeys.LEADS) || [],
     exportAt: new Date().toISOString()
   }
   
@@ -70,6 +72,7 @@ export function importAllData(jsonData) {
     if (data.packages) setStorage(storageKeys.PACKAGES, data.packages)
     if (data.orders) setStorage(storageKeys.ORDERS, data.orders)
     if (data.costs) setStorage(storageKeys.COSTS, data.costs)
+    if (data.leads) setStorage(storageKeys.LEADS, data.leads)
     
     return true
   } catch (e) {

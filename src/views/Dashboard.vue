@@ -17,6 +17,15 @@
           <div class="stat-label">客户总数</div>
         </div>
       </n-card>
+      <n-card class="stat-card total-leads">
+        <div class="stat-icon">
+          <n-icon size="28"><person-add-outline /></n-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-number">{{ leadStore.leadCount }}</div>
+          <div class="stat-label">线索总数</div>
+        </div>
+      </n-card>
       <n-card class="stat-card total-orders">
         <div class="stat-icon">
           <n-icon size="28"><calendar-outline /></n-icon>
@@ -108,6 +117,37 @@
       </n-card>
     </div>
 
+    <n-card class="follow-up-card" style="margin-top: 20px;">
+      <template #header>
+        <div class="card-header">
+          <span>待跟进线索</span>
+          <n-tag type="warning" size="small">{{ leadStore.pendingFollowUps.length }}条待跟进</n-tag>
+        </div>
+      </template>
+      <div class="follow-up-list">
+        <div
+          v-for="lead in leadStore.pendingFollowUps.slice(0, 5)"
+          :key="lead.id"
+          class="follow-up-item"
+          @click="goToLeads"
+        >
+          <div class="follow-up-info">
+            <div class="follow-up-name">{{ lead.name }}</div>
+            <div class="follow-up-source">
+              <n-tag size="small">{{ getLeadSourceLabel(lead.source) }}</n-tag>
+              <span class="follow-up-date">下次跟进：{{ formatDate(lead.nextFollowUp) }}</span>
+            </div>
+          </div>
+          <n-tag :type="getLeadStatusType(lead.status)" size="small">
+            {{ getLeadStatusLabel(lead.status) }}
+          </n-tag>
+        </div>
+        <div v-if="leadStore.pendingFollowUps.length === 0" class="empty-list">
+          暂无待跟进线索
+        </div>
+      </div>
+    </n-card>
+
     <n-card style="margin-top: 20px;">
       <template #header>
         <div class="card-header">
@@ -124,6 +164,7 @@ import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   PeopleOutline,
+  PersonAddOutline,
   CalendarOutline,
   CashOutline,
   WalletOutline
@@ -132,13 +173,15 @@ import * as echarts from 'echarts'
 import { useCustomerStore } from '@/stores/customer'
 import { useOrderStore } from '@/stores/order'
 import { usePackageStore } from '@/stores/package'
-import { ORDER_STATUS, formatDate } from '@/utils/format'
+import { useLeadStore } from '@/stores/lead'
+import { ORDER_STATUS, LEAD_STATUS, LEAD_SOURCE, formatDate } from '@/utils/format'
 import dayjs from 'dayjs'
 
 const router = useRouter()
 const customerStore = useCustomerStore()
 const orderStore = useOrderStore()
 const packageStore = usePackageStore()
+const leadStore = useLeadStore()
 
 const chartRef = ref(null)
 let chartInstance = null
@@ -210,6 +253,22 @@ function goToSchedule() {
 
 function goToPayments() {
   router.push('/payments')
+}
+
+function goToLeads() {
+  router.push('/leads')
+}
+
+function getLeadStatusLabel(status) {
+  return LEAD_STATUS[status]?.label || status
+}
+
+function getLeadStatusType(status) {
+  return LEAD_STATUS[status]?.color || 'default'
+}
+
+function getLeadSourceLabel(source) {
+  return LEAD_SOURCE[source] || source
 }
 
 function initChart() {
@@ -350,7 +409,7 @@ onUnmounted(() => {
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -389,6 +448,11 @@ onUnmounted(() => {
 
 .pending-payments .stat-icon {
   background: linear-gradient(135deg, #43e97b, #38f9d7);
+  color: white;
+}
+
+.total-leads .stat-icon {
+  background: linear-gradient(135deg, #fa709a, #fee140);
   color: white;
 }
 
@@ -521,6 +585,51 @@ onUnmounted(() => {
   padding: 40px 0;
   color: #ccc;
   font-size: 13px;
+}
+
+.follow-up-list {
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.follow-up-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.follow-up-item:hover {
+  background: #fafafa;
+}
+
+.follow-up-item:last-child {
+  border-bottom: none;
+}
+
+.follow-up-info {
+  flex: 1;
+}
+
+.follow-up-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.follow-up-source {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.follow-up-date {
+  font-size: 12px;
+  color: #999;
 }
 
 .chart-container {

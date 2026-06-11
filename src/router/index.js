@@ -8,6 +8,12 @@ const routes = [
     meta: { title: '数据概览', icon: 'bar-chart' }
   },
   {
+    path: '/leads',
+    name: 'Leads',
+    component: () => import('@/views/Leads.vue'),
+    meta: { title: '客户线索', icon: 'people' }
+  },
+  {
     path: '/customers',
     name: 'Customers',
     component: () => import('@/views/Customers.vue'),
