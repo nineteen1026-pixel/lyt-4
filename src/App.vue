@@ -86,7 +86,8 @@ import {
   CloudUploadOutline,
   AlbumsOutline,
   ImagesOutline,
-  AirplaneOutline
+  AirplaneOutline,
+  ChatbubblesOutline
 } from '@vicons/ionicons5'
 import { exportAllData, importAllData } from '@/utils/storage'
 import { useCustomerStore } from '@/stores/customer'
@@ -98,6 +99,7 @@ import { useScheduleStore } from '@/stores/schedule'
 import { useRetouchStore } from '@/stores/retouch'
 import { useTravelShootStore } from '@/stores/travelShoot'
 import { usePaymentRecordStore } from '@/stores/paymentRecord'
+import { useCommunicationStore } from '@/stores/communication'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -115,6 +117,7 @@ const scheduleStore = useScheduleStore()
 const retouchStore = useRetouchStore()
 const travelShootStore = useTravelShootStore()
 const paymentRecordStore = usePaymentRecordStore()
+const communicationStore = useCommunicationStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -147,6 +150,11 @@ const menuOptions = [
     label: '客户档案',
     key: 'Customers',
     icon: iconRender(PeopleOutline)
+  },
+  {
+    label: '沟通记录',
+    key: 'Communications',
+    icon: iconRender(ChatbubblesOutline)
   },
   {
     label: '档期项目',
@@ -249,6 +257,7 @@ function reloadAllStores() {
   retouchStore.fetchBatches()
   travelShootStore.fetchAll()
   paymentRecordStore.fetchPaymentRecords()
+  communicationStore.fetchCommunications()
 }
 
 onMounted(() => {
@@ -262,6 +271,7 @@ onMounted(() => {
   retouchStore.fetchBatches()
   travelShootStore.fetchAll()
   paymentRecordStore.fetchPaymentRecords()
+  communicationStore.fetchCommunications()
 })
 </script>
 

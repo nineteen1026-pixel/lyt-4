@@ -72,6 +72,12 @@ const routes = [
     name: 'Reports',
     component: () => import('@/views/Reports.vue'),
     meta: { title: '收入报表', icon: 'stats' }
+  },
+  {
+    path: '/communications',
+    name: 'Communications',
+    component: () => import('@/views/Communications.vue'),
+    meta: { title: '沟通记录', icon: 'chatbubbles' }
   }
 ]
 

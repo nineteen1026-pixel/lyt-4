@@ -223,6 +223,40 @@ export const TRAVEL_ALLOWANCE_RATE = {
   other: { daily: 200, meal: 60, transport: 40 }
 }
 
+export const COMMUNICATION_CHANNEL = {
+  wechat: { label: '微信', color: 'success' },
+  phone: { label: '电话', color: 'info' },
+  meeting: { label: '面谈', color: 'warning' },
+  video: { label: '视频', color: 'primary' },
+  email: { label: '邮件', color: 'default' },
+  other: { label: '其他', color: 'default' }
+}
+
+export const FOLLOW_UP_NODE = {
+  initial_contact: { label: '初次接触', color: 'info' },
+  requirement_confirm: { label: '需求确认', color: 'primary' },
+  quotation_sent: { label: '已报价', color: 'warning' },
+  negotiation: { label: '协商中', color: 'warning' },
+  contract_signed: { label: '签单确认', color: 'success' },
+  deposit_paid: { label: '定金已收', color: 'success' },
+  lost: { label: '已流失', color: 'error' },
+  other: { label: '其他', color: 'default' }
+}
+
+export const TRANSFER_STATUS = {
+  pending: { label: '待转单', color: 'warning' },
+  transferred: { label: '已转单', color: 'success' },
+  cancelled: { label: '已取消', color: 'error' }
+}
+
+export const NOTE_CATEGORY = {
+  general: { label: '通用备注', color: 'default' },
+  preference: { label: '客户偏好', color: 'info' },
+  requirement: { label: '特殊需求', color: 'warning' },
+  complaint: { label: '投诉反馈', color: 'error' },
+  internal: { label: '内部备注', color: 'primary' }
+}
+
 export const PAYMENT_METHOD = {
   wechat: { label: '微信', color: 'success' },
   alipay: { label: '支付宝', color: 'info' },

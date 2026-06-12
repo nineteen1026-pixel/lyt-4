@@ -1557,6 +1557,281 @@ export const mockTravelShootExtraCosts = [
   }
 ]
 
+export const mockCommunications = [
+  {
+    id: 'comm_001',
+    customerId: 'cust_001',
+    category: 'follow_up',
+    type: 'wechat',
+    nodeType: 'initial_contact',
+    title: '官网首次咨询',
+    content: '客户通过官网填写咨询表单，婚期定在5月20日，酒店在华尔道夫，初步了解我们的套餐情况。',
+    summary: '首次触达，客户对豪华套系表现出兴趣',
+    operator: '销售A',
+    communicationTime: '2026-01-10T10:00:00.000Z',
+    nextFollowUpTime: '2026-01-12T10:00:00.000Z',
+    priority: 'high',
+    createdAt: '2026-01-10T10:15:00.000Z',
+    updatedAt: '2026-01-10T10:15:00.000Z'
+  },
+  {
+    id: 'comm_002',
+    customerId: 'cust_001',
+    category: 'follow_up',
+    type: 'phone',
+    nodeType: 'demand_confirm',
+    title: '电话需求确认',
+    content: '电话沟通确认细节：新人喜欢自然清新风格，外景想拍外滩和豫园，预算约1.5万，希望有微电影。',
+    summary: '确认需求：清新风格+外滩外景+微电影',
+    operator: '销售A',
+    communicationTime: '2026-01-12T10:30:00.000Z',
+    nextFollowUpTime: '2026-01-14T14:00:00.000Z',
+    priority: 'high',
+    createdAt: '2026-01-12T11:00:00.000Z',
+    updatedAt: '2026-01-12T11:00:00.000Z'
+  },
+  {
+    id: 'comm_003',
+    customerId: 'cust_001',
+    category: 'note',
+    noteCategory: 'preference',
+    title: '风格偏好记录',
+    content: '重点偏好：1. 外景：外滩夜景必拍，豫园中式元素；2. 色调：柔和暖调；3. 不喜欢过度摆拍，以纪实抓拍为主；4. 新娘：韩式简约妆容；新郎：黑色西装+领结。',
+    operator: '销售A',
+    createdAt: '2026-01-12T14:20:00.000Z',
+    updatedAt: '2026-01-12T14:20:00.000Z'
+  },
+  {
+    id: 'comm_004',
+    customerId: 'cust_001',
+    category: 'follow_up',
+    type: 'meeting',
+    nodeType: 'contract_sign',
+    title: '到店面谈签单',
+    content: '客户到店参观，看了客片作品集后非常满意。确定豪华套系(15888)，加拍1套内景，加10张精修，总价18888。付定金5000元。',
+    summary: '签订合同，豪华套系+内景加拍',
+    operator: '销售A',
+    communicationTime: '2026-01-15T10:00:00.000Z',
+    nextFollowUpTime: '2026-04-20T10:00:00.000Z',
+    priority: 'medium',
+    createdAt: '2026-01-15T12:00:00.000Z',
+    updatedAt: '2026-01-15T12:00:00.000Z'
+  },
+  {
+    id: 'comm_005',
+    customerId: 'cust_002',
+    category: 'follow_up',
+    type: 'wechat',
+    nodeType: 'quotation',
+    title: '微信发送报价',
+    content: '小红书来的客户，对尊享套系感兴趣。通过微信发送尊享套系报价单28888，包含创始人摄影师+200张精修+2分钟微电影。',
+    summary: '已发送尊享套系报价',
+    operator: '销售B',
+    communicationTime: '2026-01-28T11:00:00.000Z',
+    nextFollowUpTime: '2026-01-30T15:00:00.000Z',
+    priority: 'high',
+    createdAt: '2026-01-28T11:30:00.000Z',
+    updatedAt: '2026-01-28T11:30:00.000Z'
+  },
+  {
+    id: 'comm_006',
+    customerId: 'cust_002',
+    category: 'note',
+    noteCategory: 'budget',
+    title: '预算信息',
+    content: '客户预算约3万，可接受浮动。倾向尊享套系(28888)，如能包含48h抢先看+婚前MV，愿意立即签约。',
+    operator: '销售B',
+    createdAt: '2026-01-28T15:20:00.000Z',
+    updatedAt: '2026-01-28T15:20:00.000Z'
+  },
+  {
+    id: 'comm_007',
+    customerId: 'cust_002',
+    category: 'transfer',
+    transferFrom: '销售B',
+    transferTo: '销售总监',
+    transferReason: '客户希望升级为尊享定制服务，需要总监级别的沟通与协调档期',
+    handlerNote: '',
+    transferStatus: 'completed',
+    priority: 'high',
+    operator: '销售B',
+    createdAt: '2026-01-30T10:00:00.000Z',
+    updatedAt: '2026-01-30T16:00:00.000Z',
+    statusLogs: [
+      {
+        id: 'log_001',
+        fromStatus: 'pending',
+        toStatus: 'processing',
+        handlerNote: '已收到转单，安排下午沟通',
+        operatedAt: '2026-01-30T11:00:00.000Z'
+      },
+      {
+        id: 'log_002',
+        fromStatus: 'processing',
+        toStatus: 'completed',
+        handlerNote: '已与客户完成电话沟通，需求已明确',
+        operatedAt: '2026-01-30T16:00:00.000Z'
+      }
+    ]
+  },
+  {
+    id: 'comm_008',
+    customerId: 'cust_003',
+    category: 'follow_up',
+    type: 'phone',
+    nodeType: 'negotiation',
+    title: '价格谈判电话',
+    content: '大众点评客户，对豪华套系报价15888表示略超预算，希望能到14000。沟通后方案：保持价格不变，赠送30张精修+精美摆台一个，客户表示接受。',
+    summary: '价格谈判：赠送服务替代降价',
+    operator: '销售A',
+    communicationTime: '2026-01-18T15:00:00.000Z',
+    nextFollowUpTime: '2026-01-20T09:00:00.000Z',
+    priority: 'medium',
+    createdAt: '2026-01-18T16:30:00.000Z',
+    updatedAt: '2026-01-18T16:30:00.000Z'
+  },
+  {
+    id: 'comm_009',
+    customerId: 'cust_003',
+    category: 'note',
+    noteCategory: 'important',
+    title: '重要事项备忘',
+    content: '【重要】客户要求：1. 中式秀禾服造型必须有，已确认化妆师赵敏擅长此风格；2. 双方父母需到场拍摄全家福；3. 婚礼当天8点前必须到酒店。',
+    operator: '销售A',
+    createdAt: '2026-01-20T10:30:00.000Z',
+    updatedAt: '2026-01-20T10:30:00.000Z'
+  },
+  {
+    id: 'comm_010',
+    customerId: 'cust_005',
+    category: 'follow_up',
+    type: 'meeting',
+    nodeType: 'referral',
+    title: '老客户转介绍',
+    content: '老客户李女士推荐的黄先生&吴女士，初次面谈就非常信任。已确定经典套系8888，付定金3000元。李女士将获得转介绍红包888元。',
+    summary: '老客户转介绍成功，经典套系签约',
+    operator: '销售A',
+    communicationTime: '2025-12-20T11:00:00.000Z',
+    nextFollowUpTime: '2026-02-25T10:00:00.000Z',
+    priority: 'low',
+    createdAt: '2025-12-20T11:30:00.000Z',
+    updatedAt: '2025-12-20T11:30:00.000Z'
+  },
+  {
+    id: 'comm_011',
+    customerId: 'cust_004',
+    category: 'follow_up',
+    type: 'video',
+    nodeType: 'pre_wedding',
+    title: '婚前视频会议',
+    content: '视频会议沟通拍摄细节：海景拍摄时间安排、下午户外仪式流程、亲友团合影时间。已确认摄影师陈伟+化妆师赵敏档期。',
+    summary: '婚前细节沟通完毕，人员档期确认',
+    operator: '销售B',
+    communicationTime: '2026-06-05T14:00:00.000Z',
+    nextFollowUpTime: '2026-07-08T09:00:00.000Z',
+    priority: 'high',
+    createdAt: '2026-06-05T15:30:00.000Z',
+    updatedAt: '2026-06-05T15:30:00.000Z'
+  },
+  {
+    id: 'comm_012',
+    customerId: 'cust_004',
+    category: 'transfer',
+    transferFrom: '销售B',
+    transferTo: '摄影师陈伟',
+    transferReason: '客户海景拍摄有特殊需求，需要和摄影师直接沟通拍摄方案',
+    handlerNote: '客户希望拍日落剪影和无人机航拍',
+    transferStatus: 'processing',
+    priority: 'medium',
+    operator: '销售B',
+    createdAt: '2026-06-08T10:00:00.000Z',
+    updatedAt: '2026-06-08T14:30:00.000Z',
+    statusLogs: [
+      {
+        id: 'log_003',
+        fromStatus: 'pending',
+        toStatus: 'processing',
+        handlerNote: '摄影师已预约6月10日电话沟通',
+        operatedAt: '2026-06-08T14:30:00.000Z'
+      }
+    ]
+  },
+  {
+    id: 'comm_013',
+    customerId: 'cust_001',
+    category: 'follow_up',
+    type: 'wechat',
+    nodeType: 'select_photos',
+    title: '选片沟通',
+    content: '客户已完成在线选片，共选出130张精修（套系100张+加选30张），加选费用3000元已通过微信转账。特别标注：第42、78、115张需做相册跨页。',
+    summary: '选片完成，加选30张精修',
+    operator: '选片师小周',
+    communicationTime: '2026-05-25T10:00:00.000Z',
+    nextFollowUpTime: '2026-06-05T10:00:00.000Z',
+    priority: 'medium',
+    createdAt: '2026-05-25T16:00:00.000Z',
+    updatedAt: '2026-05-25T16:00:00.000Z'
+  },
+  {
+    id: 'comm_014',
+    customerId: 'cust_005',
+    category: 'follow_up',
+    type: 'sms',
+    nodeType: 'after_sales',
+    title: '售后回访短信',
+    content: '发送短信回访："黄先生您好，感谢选择我们！您的相册已顺丰寄出(单号SF123456789)，预计3天内送达。如有任何问题欢迎随时联系我们，祝您生活愉快～"',
+    summary: '产品交付，售后回访完成',
+    operator: '客服小郑',
+    communicationTime: '2026-03-20T09:30:00.000Z',
+    nextFollowUpTime: null,
+    priority: 'low',
+    createdAt: '2026-03-20T09:30:00.000Z',
+    updatedAt: '2026-03-20T09:30:00.000Z'
+  },
+  {
+    id: 'comm_015',
+    customerId: 'cust_002',
+    category: 'note',
+    noteCategory: 'family',
+    title: '家庭成员信息',
+    content: '新娘父亲：王总，北京某企业高管，婚礼当天会致辞；新娘母亲：喜欢拍照，要求多拍特写；新郎父母：从成都过来，要求安排接机；伴郎伴娘：各4人，伴郎团中有新娘弟弟。',
+    operator: '销售总监',
+    createdAt: '2026-02-01T15:20:00.000Z',
+    updatedAt: '2026-02-01T15:20:00.000Z'
+  },
+  {
+    id: 'comm_016',
+    customerId: 'cust_005',
+    category: 'transfer',
+    transferFrom: '销售A',
+    transferTo: '精修部',
+    transferReason: '客户对部分精修照片不满意，需要转精修部重新处理',
+    handlerNote: '共8张需重修：色调偏冷、脸型微修、背景杂物',
+    transferStatus: 'pending',
+    priority: 'high',
+    operator: '销售A',
+    createdAt: '2026-06-11T10:00:00.000Z',
+    updatedAt: '2026-06-11T10:00:00.000Z',
+    statusLogs: []
+  },
+  {
+    id: 'comm_017',
+    customerId: 'cust_003',
+    category: 'follow_up',
+    type: 'phone',
+    nodeType: 'retouch_feedback',
+    title: '精修反馈电话',
+    content: '电话回访精修意见：客户对第一版精修整体满意，提出3点修改意见：1. 第23张背景路人修掉；2. 第56张新娘手臂修细一点；3. 第89张色调调亮。预计3天内完成修改。',
+    summary: '精修反馈收集完成，3处待修改',
+    operator: '客服小郑',
+    communicationTime: '2026-05-10T11:00:00.000Z',
+    nextFollowUpTime: '2026-05-13T14:00:00.000Z',
+    priority: 'medium',
+    createdAt: '2026-05-10T12:00:00.000Z',
+    updatedAt: '2026-05-10T12:00:00.000Z'
+  }
+]
+
 export function initMockData() {
   return {
     customers: mockCustomers,
@@ -1571,6 +1846,7 @@ export function initMockData() {
     travelShootAccommodations: mockTravelShootAccommodations,
     travelShootStaffAssignments: mockTravelShootStaffAssignments,
     travelShootExtraCosts: mockTravelShootExtraCosts,
-    paymentRecords: mockPaymentRecords
+    paymentRecords: mockPaymentRecords,
+    communications: mockCommunications
   }
 }
