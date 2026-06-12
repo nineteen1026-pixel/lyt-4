@@ -914,20 +914,32 @@ const orderStatusWarning = computed(() => {
 const batchConflictWarning = computed(() => {
   if (!batchAssignOrder.value) return ''
   const conflicts = []
+  const staffUsedMap = {}
   batchRoleConfigs.value.forEach(config => {
     if (config.enabled && config.selectedStaff) {
+      if (staffUsedMap[config.selectedStaff]) {
+        const staffName = getStaffName(config.selectedStaff)
+        conflicts.push(`${staffName} 被分配了多个角色`)
+      }
+      staffUsedMap[config.selectedStaff] = true
       const hasConflict = scheduleStore.checkStaffConflict(
         config.selectedStaff,
         batchAssignOrder.value.shootDate,
-        config.role
+        config.role,
+        config.existingId || null
       )
       if (hasConflict) {
-        conflicts.push(`${getStaffName(config.selectedStaff)} (${config.label})`)
+        conflicts.push(`${getStaffName(config.selectedStaff)} (${config.label}) 已有排班`)
+      }
+      const travelConflicts = travelShootStore.checkScheduleStaffTravelConflict(config.selectedStaff, batchAssignOrder.value.shootDate)
+      if (travelConflicts.length > 0) {
+        const projectNames = travelConflicts.map(p => p.name).join('、')
+        conflicts.push(`${getStaffName(config.selectedStaff)} 有旅拍任务（${projectNames}）`)
       }
     }
   })
   if (conflicts.length > 0) {
-    return `以下人员存在档期冲突：${conflicts.join('、')}`
+    return `以下冲突需注意：${conflicts.join('；')}`
   }
   return ''
 })
@@ -1337,7 +1349,7 @@ function handleBatchAssignSubmit() {
     return
   }
 
-  const hasConflicts = selectedConfigs.some(config =>
+  const scheduleConflicts = selectedConfigs.some(config =>
     scheduleStore.checkStaffConflict(
       config.selectedStaff,
       batchAssignOrder.value.shootDate,
@@ -1346,15 +1358,27 @@ function handleBatchAssignSubmit() {
     )
   )
 
+  const travelConflicts = selectedConfigs.some(config => {
+    const list = travelShootStore.checkScheduleStaffTravelConflict(config.selectedStaff, batchAssignOrder.value.shootDate)
+    return list.length > 0
+  })
+
+  const hasConflicts = scheduleConflicts || travelConflicts
+
   const submit = () => {
+    const assignmentResults = []
     selectedConfigs.forEach(config => {
+      let result
       if (config.existingId) {
-        scheduleStore.updateAssignment(config.existingId, {
+        result = scheduleStore.updateAssignment(config.existingId, {
+          orderId: batchAssignOrder.value.id,
           staffId: config.selectedStaff,
-          role: config.role
+          date: batchAssignOrder.value.shootDate,
+          role: config.role,
+          status: 'confirmed'
         })
       } else {
-        scheduleStore.addAssignment({
+        result = scheduleStore.addAssignment({
           orderId: batchAssignOrder.value.id,
           staffId: config.selectedStaff,
           date: batchAssignOrder.value.shootDate,
@@ -1363,15 +1387,32 @@ function handleBatchAssignSubmit() {
           remark: ''
         })
       }
+      assignmentResults.push(result)
     })
-    message.success('批量排班成功')
+
+    const order = orderStore.getOrderById(batchAssignOrder.value.id)
+    if (order && (order.status === 'pending' || order.status === 'confirmed')) {
+      const shootDay = dayjs(order.shootDate)
+      const today = dayjs().startOf('day')
+      let newStatus = order.status
+      if (shootDay.isBefore(today, 'day') || shootDay.isSame(today, 'day')) {
+        newStatus = 'shooting'
+      } else if (order.status === 'pending') {
+        newStatus = 'confirmed'
+      }
+      if (newStatus !== order.status) {
+        orderStore.updateOrder(order.id, { status: newStatus })
+      }
+    }
+
+    message.success('批量排班成功，订单状态已更新')
     showBatchAssignModal.value = false
   }
 
   if (hasConflicts) {
     dialog.warning({
       title: '档期冲突',
-      content: '部分人员存在档期冲突，确定还要继续排班吗？',
+      content: batchConflictWarning.value || '部分人员存在档期冲突，确定还要继续排班吗？',
       positiveText: '继续排班',
       negativeText: '取消',
       onPositiveClick: submit

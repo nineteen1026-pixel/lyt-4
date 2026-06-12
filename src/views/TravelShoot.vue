@@ -323,6 +323,7 @@ const editProjectId = ref('')
 const editTransportId = ref('')
 const editAccommodationId = ref('')
 const editStaffId = ref('')
+const editStaffOriginalStaffId = ref('')
 const editExtraCostId = ref('')
 const selectedDestId = ref('')
 const travelDateRange = ref(null)
@@ -682,9 +683,11 @@ function openStaffModal(row = null) {
   isStaffEdit.value = !!row
   if (row) {
     editStaffId.value = row.id
+    editStaffOriginalStaffId.value = row.staffId || ''
     Object.assign(staffForm, JSON.parse(JSON.stringify(row)))
   } else {
     editStaffId.value = ''
+    editStaffOriginalStaffId.value = ''
     resetStaffForm()
     if (travelDaysCount.value > 0) staffForm.travelDays = travelDaysCount.value
   }
@@ -716,11 +719,15 @@ function handleStaffSubmit() {
     if (!errors) {
       const data = JSON.parse(JSON.stringify(staffForm))
       data.projectId = selectedProject.value.id
-      const conflictInfo = getConflictInfo(data.staffId)
-      if (conflictInfo.hasConflict && (!isStaffEdit.value || data.staffId !== (staffForm.staffId))) {
+      const isStaffChanged = isStaffEdit.value && (
+        data.staffId !== editStaffOriginalStaffId.value
+      )
+      const shouldCheckConflict = isStaffEdit.value || isStaffChanged
+      const conflictInfo = shouldCheckConflict ? getConflictInfo(data.staffId) : { hasConflict: false }
+      if (conflictInfo.hasConflict) {
         const conflictDesc = conflictInfo.scheduleConflict ? '该人员在此行程期间已有拍摄排班任务' : '该人员在此行程时间段内已被安排其他旅拍任务'
         dialog.warning({
-          title: '行程冲突', content: `${conflictDesc}，是否继续添加？`,
+          title: '行程冲突', content: `${conflictDesc}，是否继续${isStaffEdit.value ? '修改' : '添加'}？`,
           positiveText: '继续', negativeText: '取消',
           onPositiveClick: () => { submitStaffAssignment(data) }
         })

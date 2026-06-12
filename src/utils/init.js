@@ -1,5 +1,6 @@
 import { getStorage, setStorage, storageKeys } from './storage'
 import { initMockData } from '@/data/mockData'
+import { useTravelShootStore } from '@/stores/travelShoot'
 
 const DEFAULT_SOURCES = ['xiaohongshu', 'dianping', 'douyin', 'official', 'offline', 'other']
 
@@ -186,4 +187,5 @@ export function ensureAllInitialized() {
 
   ensureCustomerSourceFields()
   ensureLeadFields()
+  ensureTravelShootCostSync()
 }

@@ -91,6 +91,13 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     fetchAccommodations()
     fetchStaffAssignments()
     fetchExtraCosts()
+    try {
+      const costStore = useCostStore()
+      costStore.fetchCosts()
+      syncAllCostsToCostStore()
+    } catch (e) {
+      console.warn('补录旅拍成本到成本台账失败:', e)
+    }
   }
 
   function addProject(project) {
@@ -611,6 +618,62 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     return false
   }
 
+  function syncAllCostsToCostStore() {
+    const costStore = useCostStore()
+    const existingLinkedIds = new Set(
+      costStore.costs
+        .filter(c => c.travelShootLinkedId)
+        .map(c => c.travelShootLinkedId)
+    )
+
+    transports.value.forEach(t => {
+      if (existingLinkedIds.has(t.id)) return
+      const project = getProjectById(t.projectId)
+      syncToCostStore(
+        costStore, 'transport', t.totalCost || 0,
+        t.departDateTime ? dayjs(t.departDateTime).format('YYYY-MM-DD') : '',
+        project?.orderId || '', t.projectId, t.id,
+        `旅拍交通：${t.departFrom || ''}→${t.arriveTo || ''}${t.isRoundTrip ? '(往返)' : ''}`
+      )
+    })
+
+    accommodations.value.forEach(a => {
+      if (existingLinkedIds.has(a.id)) return
+      const project = getProjectById(a.projectId)
+      syncToCostStore(
+        costStore, 'accommodation', a.totalCost || 0,
+        a.checkIn || '',
+        project?.orderId || '', a.projectId, a.id,
+        `旅拍住宿：${a.hotelName || ''} ${a.roomCount || 0}间${a.nights || 0}晚`
+      )
+    })
+
+    staffAssignments.value.forEach(s => {
+      if (existingLinkedIds.has(s.id)) return
+      const project = getProjectById(s.projectId)
+      if (s.totalAllowance > 0) {
+        syncToCostStore(
+          costStore, 'other', s.totalAllowance || 0,
+          project?.travelDates?.departDate || '',
+          project?.orderId || '', s.projectId, s.id,
+          `旅拍人员补贴：${s.totalAllowance || 0}元`
+        )
+      }
+    })
+
+    extraCosts.value.forEach(c => {
+      if (existingLinkedIds.has(c.id)) return
+      const project = getProjectById(c.projectId)
+      const costType = EXTRA_COST_TO_COST_TYPE[c.category] || 'other'
+      syncToCostStore(
+        costStore, costType, c.amount || 0,
+        c.date || '',
+        project?.orderId || '', c.projectId, c.id,
+        `旅拍额外：${c.name || ''}`
+      )
+    })
+  }
+
   function getExtraCostsByProject(projectId) {
     return extraCosts.value.filter(c => c.projectId === projectId)
   }
@@ -897,6 +960,7 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     calculateStaffAllowance,
     syncToSchedule,
     getShootDateRange,
+    syncAllCostsToCostStore,
     checkStaffTravelConflict,
     checkScheduleStaffTravelConflict,
     addExtraCost,
