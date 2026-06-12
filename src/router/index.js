@@ -78,6 +78,12 @@ const routes = [
     name: 'Communications',
     component: () => import('@/views/Communications.vue'),
     meta: { title: '沟通记录', icon: 'chatbubbles' }
+  },
+  {
+    path: '/package-profit',
+    name: 'PackageProfit',
+    component: () => import('@/views/PackageProfit.vue'),
+    meta: { title: '套餐利润分析', icon: 'analytics' }
   }
 ]
 
