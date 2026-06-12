@@ -19,6 +19,25 @@
       </div>
     </div>
 
+    <n-alert
+      v-if="mismatchedOrders.length > 0"
+      type="warning"
+      closable
+      style="margin-bottom: 16px;"
+    >
+      <template #header>婚期与拍摄日不一致提醒</template>
+      以下订单的拍摄日期与客户婚期不一致，请核实避免排错档期：
+      <div style="margin-top: 6px;">
+        <span
+          v-for="item in mismatchedOrders"
+          :key="item.orderId"
+          style="margin-right: 16px; font-size: 13px;"
+        >
+          <strong>{{ item.customerName }}</strong>：婚期 {{ item.weddingDate }}，拍摄日 {{ item.shootDate }}
+        </span>
+      </div>
+    </n-alert>
+
     <n-card v-if="viewMode === 'calendar'">
       <div class="calendar-header">
         <n-button text size="small" @click="prevMonth">
@@ -149,6 +168,13 @@
             filterable
           />
         </n-form-item>
+        <n-alert
+          v-if="formDateMismatch"
+          type="warning"
+          style="margin-bottom: 12px;"
+        >
+          该客户婚期为 <strong>{{ formWeddingDate }}</strong>，与所选拍摄日期不一致，请确认是否排错档期
+        </n-alert>
         <n-form-item label="套餐" path="packageId">
           <n-select
             v-model:value="formData.packageId"
@@ -281,6 +307,20 @@ const statusOptions = [
   { label: '已完成', value: 'completed' }
 ]
 
+const formWeddingDate = computed(() => {
+  if (!formData.customerId) return ''
+  const customer = customerStore.getCustomerById(formData.customerId)
+  return customer?.weddingDate ? formatDate(customer.weddingDate) : ''
+})
+
+const formDateMismatch = computed(() => {
+  if (!formData.customerId || !formData.shootDate || !formWeddingDate.value) return false
+  const customer = customerStore.getCustomerById(formData.customerId)
+  if (!customer?.weddingDate) return false
+  const selectedShootDate = dayjs(formData.shootDate).format('YYYY-MM-DD')
+  return customer.weddingDate !== selectedShootDate
+})
+
 const customerOptions = computed(() =>
   customerStore.customers.map(c => ({
     label: c.name,
@@ -300,6 +340,25 @@ const pagination = {
   pageSize: 10,
   showSizePicker: false
 }
+
+const mismatchedOrders = computed(() => {
+  return orderStore.orders
+    .filter(o => o.status !== 'completed' && o.status !== 'cancelled')
+    .map(o => {
+      const customer = customerStore.getCustomerById(o.customerId)
+      if (!customer || !customer.weddingDate || !o.shootDate) return null
+      if (customer.weddingDate !== o.shootDate) {
+        return {
+          orderId: o.id,
+          customerName: customer.name,
+          weddingDate: customer.weddingDate,
+          shootDate: o.shootDate
+        }
+      }
+      return null
+    })
+    .filter(Boolean)
+})
 
 const sortedOrders = computed(() =>
   [...orderStore.orders].sort((a, b) => new Date(b.shootDate) - new Date(a.shootDate))
