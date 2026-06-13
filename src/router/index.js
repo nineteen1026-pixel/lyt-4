@@ -62,6 +62,12 @@ const routes = [
     meta: { title: '异地旅拍', icon: 'airplane' }
   },
   {
+    path: '/photo-selections',
+    name: 'PhotoSelections',
+    component: () => import('@/views/PhotoSelections.vue'),
+    meta: { title: '客户选片记录', icon: 'images' }
+  },
+  {
     path: '/retouch',
     name: 'RetouchBoard',
     component: () => import('@/views/RetouchBoard.vue'),

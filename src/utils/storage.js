@@ -22,6 +22,7 @@ export const storageKeys = {
   DELIVERY_ALBUMS: 'delivery_albums',
   DELIVERY_EXPRESS: 'delivery_express',
   DELIVERY_SIGNOFFS: 'delivery_signoffs',
+  PHOTO_SELECTIONS: 'photo_selections',
   INITIALIZED: 'initialized'
 }
 
@@ -82,6 +83,7 @@ export function exportAllData() {
     deliveryAlbums: getStorage(storageKeys.DELIVERY_ALBUMS) || [],
     deliveryExpress: getStorage(storageKeys.DELIVERY_EXPRESS) || [],
     deliverySignOffs: getStorage(storageKeys.DELIVERY_SIGNOFFS) || [],
+    photoSelections: getStorage(storageKeys.PHOTO_SELECTIONS) || [],
     exportAt: new Date().toISOString()
   }
   
@@ -121,6 +123,7 @@ export function importAllData(jsonData) {
     if (data.deliveryAlbums) setStorage(storageKeys.DELIVERY_ALBUMS, data.deliveryAlbums)
     if (data.deliveryExpress) setStorage(storageKeys.DELIVERY_EXPRESS, data.deliveryExpress)
     if (data.deliverySignOffs) setStorage(storageKeys.DELIVERY_SIGNOFFS, data.deliverySignOffs)
+    if (data.photoSelections) setStorage(storageKeys.PHOTO_SELECTIONS, data.photoSelections)
     
     return true
   } catch (e) {

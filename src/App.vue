@@ -90,7 +90,8 @@ import {
   ChatbubblesOutline,
   TrendingUpOutline,
   BriefcaseOutline,
-  ArchiveOutline
+  ArchiveOutline,
+  FilmOutline
 } from '@vicons/ionicons5'
 import { exportAllData, importAllData } from '@/utils/storage'
 import { useCustomerStore } from '@/stores/customer'
@@ -104,6 +105,7 @@ import { useTravelShootStore } from '@/stores/travelShoot'
 import { usePaymentRecordStore } from '@/stores/paymentRecord'
 import { useCommunicationStore } from '@/stores/communication'
 import { useDeliveryArchiveStore } from '@/stores/deliveryArchive'
+import { usePhotoSelectionStore } from '@/stores/photoSelection'
 
 const { message, dialog } = createDiscreteApi(['message', 'dialog'])
 
@@ -123,6 +125,7 @@ const travelShootStore = useTravelShootStore()
 const paymentRecordStore = usePaymentRecordStore()
 const communicationStore = useCommunicationStore()
 const deliveryArchiveStore = useDeliveryArchiveStore()
+const photoSelectionStore = usePhotoSelectionStore()
 
 const activeKey = computed(() => route.name || 'Dashboard')
 const currentPageTitle = computed(() => route.meta.title || '数据概览')
@@ -180,6 +183,11 @@ const menuOptions = [
     label: '拍摄进度',
     key: 'Progress',
     icon: iconRender(TimeOutline)
+  },
+  {
+    label: '客户选片记录',
+    key: 'PhotoSelections',
+    icon: iconRender(FilmOutline)
   },
   {
     label: '精修交付',
@@ -279,6 +287,7 @@ function reloadAllStores() {
   paymentRecordStore.fetchPaymentRecords()
   communicationStore.fetchCommunications()
   deliveryArchiveStore.fetchAll()
+  photoSelectionStore.fetchSelections()
 }
 
 onMounted(() => {
@@ -294,6 +303,7 @@ onMounted(() => {
   paymentRecordStore.fetchPaymentRecords()
   communicationStore.fetchCommunications()
   deliveryArchiveStore.fetchAll()
+  photoSelectionStore.fetchSelections()
 })
 </script>
 

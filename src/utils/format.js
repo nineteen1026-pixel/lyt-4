@@ -269,3 +269,33 @@ export function normalizePhone(phone) {
   if (!phone) return ''
   return String(phone).replace(/[\s\-()\u00A0\u200B]/g, '')
 }
+
+export const PHOTO_SELECTION_STATUS = {
+  pending: { label: '待选片', color: 'warning' },
+  selecting: { label: '选片中', color: 'primary' },
+  selected: { label: '已选片', color: 'info' },
+  confirmed: { label: '已确认', color: 'success' }
+}
+
+export const PHOTO_SELECTION_STEPS = [
+  { key: 'pending', label: '待选片', description: '等待客户选片' },
+  { key: 'selecting', label: '选片中', description: '客户正在选片' },
+  { key: 'selected', label: '已选片', description: '选片完成待确认' },
+  { key: 'confirmed', label: '已确认', description: '选片已确认付款' }
+]
+
+export const PRODUCTION_STATUS = {
+  waiting: { label: '待制作', color: 'default' },
+  retouching: { label: '精修中', color: 'primary' },
+  designing: { label: '设计中', color: 'info' },
+  producing: { label: '制作中', color: 'warning' },
+  completed: { label: '已完成', color: 'success' }
+}
+
+export const PRODUCTION_STEPS = [
+  { key: 'waiting', label: '待制作', description: '等待进入制作流程' },
+  { key: 'retouching', label: '精修中', description: '照片精修处理' },
+  { key: 'designing', label: '设计中', description: '相册排版设计' },
+  { key: 'producing', label: '制作中', description: '产品生产制作' },
+  { key: 'completed', label: '已完成', description: '制作全部完成' }
+]
