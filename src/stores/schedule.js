@@ -107,6 +107,18 @@ export const useScheduleStore = defineStore('schedule', () => {
     return orderAssignments
   }
 
+  function updateAssignmentsDateByOrder(orderId, oldDate, newDate) {
+    const orderAssignments = getAssignmentsByOrder(orderId).filter(a => a.date === oldDate)
+    orderAssignments.forEach(asn => {
+      const index = assignments.value.findIndex(a => a.id === asn.id)
+      if (index !== -1) {
+        assignments.value[index] = { ...assignments.value[index], date: newDate }
+      }
+    })
+    setStorage(storageKeys.ASSIGNMENTS, assignments.value)
+    return orderAssignments
+  }
+
   function deleteAssignment(id) {
     const index = assignments.value.findIndex(a => a.id === id)
     if (index !== -1) {
@@ -461,6 +473,7 @@ export const useScheduleStore = defineStore('schedule', () => {
     batchAddAssignment,
     updateAssignment,
     updateAssignmentsByOrder,
+    updateAssignmentsDateByOrder,
     deleteAssignment,
     deleteAssignmentsByOrder,
     getAssignmentsByOrder,

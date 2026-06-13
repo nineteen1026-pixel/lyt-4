@@ -128,6 +128,37 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     return null
   }
 
+  function updateProjectsDateByOrder(orderId, oldShootDate, newShootDate) {
+    const orderProjects = projects.value.filter(p => p.orderId === orderId)
+    const dayDiff = dayjs(newShootDate).diff(dayjs(oldShootDate), 'day')
+    
+    orderProjects.forEach(project => {
+      const index = projects.value.findIndex(p => p.id === project.id)
+      if (index !== -1 && project.travelDates) {
+        const newTravelDates = { ...project.travelDates }
+        if (project.travelDates.departDate) {
+          newTravelDates.departDate = dayjs(project.travelDates.departDate).add(dayDiff, 'day').format('YYYY-MM-DD')
+        }
+        if (project.travelDates.shootStartDate) {
+          newTravelDates.shootStartDate = dayjs(project.travelDates.shootStartDate).add(dayDiff, 'day').format('YYYY-MM-DD')
+        }
+        if (project.travelDates.shootEndDate) {
+          newTravelDates.shootEndDate = dayjs(project.travelDates.shootEndDate).add(dayDiff, 'day').format('YYYY-MM-DD')
+        }
+        if (project.travelDates.returnDate) {
+          newTravelDates.returnDate = dayjs(project.travelDates.returnDate).add(dayDiff, 'day').format('YYYY-MM-DD')
+        }
+        projects.value[index] = { ...projects.value[index], travelDates: newTravelDates }
+      }
+    })
+    
+    if (orderProjects.length > 0) {
+      setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, projects.value)
+    }
+    
+    return orderProjects
+  }
+
   function deleteProject(id) {
     const index = projects.value.findIndex(p => p.id === id)
     if (index !== -1) {
@@ -934,6 +965,7 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
     fetchAll,
     addProject,
     updateProject,
+    updateProjectsDateByOrder,
     deleteProject,
     getProjectById,
     getProjectsByStatus,

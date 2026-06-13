@@ -289,6 +289,7 @@ const dayOrders = ref([])
 const isEdit = ref(false)
 const editId = ref('')
 const formRef = ref(null)
+const originalShootDate = ref('')
 
 const weekdays = ['日', '一', '二', '三', '四', '五', '六']
 
@@ -511,6 +512,7 @@ function openAddModal() {
 function openEditModal(row) {
   isEdit.value = true
   editId.value = row.id
+  originalShootDate.value = row.shootDate || ''
   Object.assign(formData, {
     shootDate: row.shootDate ? dayjs(row.shootDate).valueOf() : null,
     customerId: row.customerId,
@@ -537,6 +539,7 @@ function resetForm() {
     dueDate: null,
     remark: ''
   })
+  originalShootDate.value = ''
   formRef.value?.restoreValidation()
 }
 
@@ -569,34 +572,48 @@ function handleSubmit() {
         paymentStatus: calculatePaymentStatus()
       }
 
-      if (isEdit.value) {
-        const result = orderStore.updateOrder(editId.value, data)
-        if (result.success) {
-          message.success('更新成功')
-          showModal.value = false
-        } else {
-          message.error(result.message)
-        }
-        return
-      } else {
-        if (orderStore.checkDateConflict(data.shootDate)) {
-          dialog.warning({
-            title: '日期冲突',
-            content: '该日期已有其他档期，确定还要添加吗？',
-            positiveText: '继续添加',
-            negativeText: '取消',
-            onPositiveClick: () => {
-              orderStore.addOrder(data)
-              message.success('添加成功')
-              showModal.value = false
-            }
-          })
+      const doUpdate = () => {
+        if (isEdit.value) {
+          const result = orderStore.updateOrder(editId.value, data)
+          if (result.success) {
+            message.success('更新成功')
+            showModal.value = false
+          } else {
+            message.error(result.message)
+          }
           return
+        } else {
+          if (orderStore.checkDateConflict(data.shootDate)) {
+            dialog.warning({
+              title: '日期冲突',
+              content: '该日期已有其他档期，确定还要添加吗？',
+              positiveText: '继续添加',
+              negativeText: '取消',
+              onPositiveClick: () => {
+                orderStore.addOrder(data)
+                message.success('添加成功')
+                showModal.value = false
+              }
+            })
+            return
+          }
+          orderStore.addOrder(data)
+          message.success('添加成功')
         }
-        orderStore.addOrder(data)
-        message.success('添加成功')
+        showModal.value = false
       }
-      showModal.value = false
+
+      if (isEdit.value && originalShootDate.value && data.shootDate !== originalShootDate.value) {
+        dialog.warning({
+          title: '拍摄日期变更',
+          content: `拍摄日期将从 ${originalShootDate.value} 变更为 ${data.shootDate}，系统将自动同步更新该订单关联的排班、交通成本和旅拍项目日期。确定要继续吗？`,
+          positiveText: '确认变更',
+          negativeText: '取消',
+          onPositiveClick: doUpdate
+        })
+      } else {
+        doUpdate()
+      }
     }
   })
 }

@@ -32,6 +32,18 @@ export const useCostStore = defineStore('cost', () => {
     return null
   }
 
+  function updateCostsDateByOrder(orderId, oldDate, newDate) {
+    const orderCosts = costs.value.filter(c => c.orderId === orderId && c.date === oldDate)
+    orderCosts.forEach(cost => {
+      const index = costs.value.findIndex(c => c.id === cost.id)
+      if (index !== -1) {
+        costs.value[index] = { ...costs.value[index], date: newDate }
+      }
+    })
+    setStorage(storageKeys.COSTS, costs.value)
+    return orderCosts
+  }
+
   function deleteCost(id) {
     const index = costs.value.findIndex(c => c.id === id)
     if (index !== -1) {
@@ -79,6 +91,7 @@ export const useCostStore = defineStore('cost', () => {
     fetchCosts,
     addCost,
     updateCost,
+    updateCostsDateByOrder,
     deleteCost,
     getCostsByOrderId,
     getCostsByDateRange,

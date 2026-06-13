@@ -44,6 +44,8 @@ export const useOrderStore = defineStore('order', () => {
     if (index !== -1) {
       const oldOrder = orders.value[index]
       const oldStatus = oldOrder.status
+      const oldShootDate = oldOrder.shootDate
+      const newShootDate = data.shootDate
 
       if (data.status && data.status === 'editing' && data.status !== oldStatus) {
         const mergedOrder = { ...oldOrder, ...data }
@@ -68,6 +70,41 @@ export const useOrderStore = defineStore('order', () => {
 
       orders.value[index] = { ...oldOrder, ...updatedData }
       setStorage(storageKeys.ORDERS, orders.value)
+
+      if (newShootDate && oldShootDate && newShootDate !== oldShootDate) {
+        try {
+          const scheduleStore = useScheduleStore()
+          scheduleStore.updateAssignmentsDateByOrder(id, oldShootDate, newShootDate)
+        } catch (e) {
+          console.warn('同步排班日期失败:', e)
+        }
+
+        try {
+          const costStore = useCostStore()
+          costStore.updateCostsDateByOrder(id, oldShootDate, newShootDate)
+        } catch (e) {
+          console.warn('同步成本日期失败:', e)
+        }
+
+        try {
+          const travelShootStore = useTravelShootStore()
+          travelShootStore.updateProjectsDateByOrder(id, oldShootDate, newShootDate)
+        } catch (e) {
+          console.warn('同步旅拍项目日期失败:', e)
+        }
+
+        try {
+          const customerStore = useCustomerStore()
+          customerStore.addProgressLog(oldOrder.customerId, {
+            content: `拍摄日期从「${oldShootDate}」变更为「${newShootDate}」，关联排班、成本、旅拍项目日期已同步更新`,
+            oldDate: oldShootDate,
+            newDate: newShootDate,
+            orderId: id
+          })
+        } catch (e) {
+          console.warn('记录日期变更日志失败:', e)
+        }
+      }
 
       if (data.status && data.status !== oldStatus) {
         try {
