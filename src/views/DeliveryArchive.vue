@@ -513,7 +513,7 @@
 
 <script setup>
 import { ref, computed, onMounted, h } from 'vue'
-import { createDiscreteApi } from 'naive-ui'
+import { createDiscreteApi, NTag, NProgress, NButton, NIcon } from 'naive-ui'
 import {
   ImagesOutline,
   VideocamOutline,
@@ -641,15 +641,15 @@ const orderOverviewColumns = [
   { title: '拍摄日期', key: 'shootDate', width: 110, render: (row) => formatDate(row.shootDate) },
   {
     title: '照片', key: 'photoStatus', width: 100,
-    render: (row) => h('n-tag', { type: row.photoCount > 0 ? 'success' : 'default', size: 'small' }, () => `${row.photoCount}份`)
+    render: (row) => h(NTag, { type: row.photoCount > 0 ? 'success' : 'default', size: 'small' }, { default: () => `${row.photoCount}份` })
   },
   {
     title: '视频', key: 'videoStatus', width: 100,
-    render: (row) => h('n-tag', { type: row.videoCount > 0 ? 'success' : 'default', size: 'small' }, () => `${row.videoCount}个`)
+    render: (row) => h(NTag, { type: row.videoCount > 0 ? 'success' : 'default', size: 'small' }, { default: () => `${row.videoCount}个` })
   },
   {
     title: '相册', key: 'albumStatus', width: 100,
-    render: (row) => h('n-tag', { type: row.albumCount > 0 ? 'success' : 'default', size: 'small' }, () => `${row.albumCount}本`)
+    render: (row) => h(NTag, { type: row.albumCount > 0 ? 'success' : 'default', size: 'small' }, { default: () => `${row.albumCount}本` })
   },
   {
     title: '快递', key: 'expressStatus', width: 100,
@@ -659,20 +659,20 @@ const orderOverviewColumns = [
       let type = 'default'
       if (pendingExpress > 0) type = 'warning'
       else if (hasDelivered) type = 'success'
-      return h('n-tag', { type, size: 'small' }, () => row.expressCount > 0 ? `${row.expressCount}单` : '未发货')
+      return h(NTag, { type, size: 'small' }, { default: () => row.expressCount > 0 ? `${row.expressCount}单` : '未发货' })
     }
   },
   {
     title: '签收', key: 'signStatus', width: 110,
     render: (row) => {
       const confirmed = row.signOffList.some(s => s.status === 'confirmed' || s.status === 'signed')
-      return h('n-tag', { type: confirmed ? 'success' : (row.signCount > 0 ? 'warning' : 'default'), size: 'small' },
-        () => confirmed ? '已确认' : (row.signCount > 0 ? '待确认' : '未签收')
+      return h(NTag, { type: confirmed ? 'success' : (row.signCount > 0 ? 'warning' : 'default'), size: 'small' },
+        { default: () => confirmed ? '已确认' : (row.signCount > 0 ? '待确认' : '未签收') }
       )
     }
   },
   {
-    title: '归档进度', key: 'progress', width: 140,
+    title: '归档进度', key: 'progress', width: 150,
     render: (row) => {
       const steps = ['照片', '视频', '相册', '发货', '签收']
       const completed = [
@@ -684,7 +684,7 @@ const orderOverviewColumns = [
       ].filter(Boolean).length
       const percent = Math.round((completed / steps.length) * 100)
       return h('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } }, [
-        h('n-progress', { type: 'line', percentage: percent, showIndicator: false, style: { flex: 1, width: '80px' } }),
+        h(NProgress, { type: 'line', percentage: percent, showIndicator: false, style: { flex: 1, minWidth: '70px' } }),
         h('span', { style: { fontSize: '12px', color: '#8c8c8c', whiteSpace: 'nowrap' } }, `${percent}%`)
       ])
     }
@@ -733,9 +733,9 @@ const photoColumns = [
   {
     title: '操作', key: 'actions', width: 160, fixed: 'right',
     render: (row) => h('div', { style: { display: 'flex', gap: '8px' } }, [
-      h('n-button', { size: 'small', quaternary: true, onClick: () => viewStorage(row.storageUrl) }, { icon: () => h(EyeOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => showPhotoModal(row) }, { icon: () => h(CreateOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => deletePhoto(row) }, { icon: () => h(TrashOutline) })
+      h(NButton, { size: 'small', quaternary: true, onClick: () => viewStorage(row.storageUrl) }, { icon: () => h(NIcon, null, { default: () => h(EyeOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => showPhotoModal(row) }, { icon: () => h(NIcon, null, { default: () => h(CreateOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => deletePhoto(row) }, { icon: () => h(NIcon, null, { default: () => h(TrashOutline) }) })
     ])
   }
 ]
@@ -751,9 +751,9 @@ const videoColumns = [
   {
     title: '操作', key: 'actions', width: 160, fixed: 'right',
     render: (row) => h('div', { style: { display: 'flex', gap: '8px' } }, [
-      h('n-button', { size: 'small', quaternary: true, onClick: () => viewStorage(row.storageUrl) }, { icon: () => h(EyeOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => showVideoModal(row) }, { icon: () => h(CreateOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => deleteVideo(row) }, { icon: () => h(TrashOutline) })
+      h(NButton, { size: 'small', quaternary: true, onClick: () => viewStorage(row.storageUrl) }, { icon: () => h(NIcon, null, { default: () => h(EyeOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => showVideoModal(row) }, { icon: () => h(NIcon, null, { default: () => h(CreateOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => deleteVideo(row) }, { icon: () => h(NIcon, null, { default: () => h(TrashOutline) }) })
     ])
   }
 ]
@@ -763,14 +763,14 @@ const albumColumns = [
   { title: '相册名称', key: 'name', width: 180 },
   { title: '规格', key: 'spec', width: 160 },
   { title: '入册数', key: 'photoCount', width: 90, align: 'right' },
-  { title: '设计状态', key: 'designStatus', width: 100, render: (row) => h('n-tag', { type: getStatusTagType(row.designStatus, designStatusOptions), size: 'small' }, () => getLabel(designStatusOptions, row.designStatus)) },
-  { title: '制作状态', key: 'printStatus', width: 100, render: (row) => h('n-tag', { type: getStatusTagType(row.printStatus, printStatusOptions), size: 'small' }, () => getLabel(printStatusOptions, row.printStatus)) },
+  { title: '设计状态', key: 'designStatus', width: 100, render: (row) => h(NTag, { type: getStatusTagType(row.designStatus, designStatusOptions), size: 'small' }, { default: () => getLabel(designStatusOptions, row.designStatus) }) },
+  { title: '制作状态', key: 'printStatus', width: 100, render: (row) => h(NTag, { type: getStatusTagType(row.printStatus, printStatusOptions), size: 'small' }, { default: () => getLabel(printStatusOptions, row.printStatus) }) },
   { title: '备注', key: 'remark', width: 140, ellipsis: { tooltip: true } },
   {
     title: '操作', key: 'actions', width: 110, fixed: 'right',
     render: (row) => h('div', { style: { display: 'flex', gap: '8px' } }, [
-      h('n-button', { size: 'small', quaternary: true, onClick: () => showAlbumModal(row) }, { icon: () => h(CreateOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => deleteAlbum(row) }, { icon: () => h(TrashOutline) })
+      h(NButton, { size: 'small', quaternary: true, onClick: () => showAlbumModal(row) }, { icon: () => h(NIcon, null, { default: () => h(CreateOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => deleteAlbum(row) }, { icon: () => h(NIcon, null, { default: () => h(TrashOutline) }) })
     ])
   }
 ]
@@ -782,13 +782,13 @@ const expressColumns = [
   { title: '收件人', key: 'receiver', width: 100 },
   { title: '物品', key: 'items', width: 160, ellipsis: { tooltip: true } },
   { title: '运费', key: 'cost', width: 90, align: 'right', render: (row) => row.cost != null ? '¥' + row.cost : '-' },
-  { title: '状态', key: 'status', width: 100, render: (row) => h('n-tag', { type: getStatusTagType(row.status, expressStatusOptions), size: 'small' }, () => getLabel(expressStatusOptions, row.status)) },
+  { title: '状态', key: 'status', width: 100, render: (row) => h(NTag, { type: getStatusTagType(row.status, expressStatusOptions), size: 'small' }, { default: () => getLabel(expressStatusOptions, row.status) }) },
   { title: '发货日期', key: 'shippedDate', width: 110, render: (row) => formatDate(row.shippedDate) },
   {
     title: '操作', key: 'actions', width: 110, fixed: 'right',
     render: (row) => h('div', { style: { display: 'flex', gap: '8px' } }, [
-      h('n-button', { size: 'small', quaternary: true, onClick: () => showExpressModal(row) }, { icon: () => h(CreateOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => deleteExpress(row) }, { icon: () => h(TrashOutline) })
+      h(NButton, { size: 'small', quaternary: true, onClick: () => showExpressModal(row) }, { icon: () => h(NIcon, null, { default: () => h(CreateOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => deleteExpress(row) }, { icon: () => h(NIcon, null, { default: () => h(TrashOutline) }) })
     ])
   }
 ]
@@ -796,7 +796,7 @@ const expressColumns = [
 const signOffColumns = [
   { title: '客户订单', key: 'orderInfo', width: 220, render: (row) => getOrderInfo(row.orderId).label },
   { title: '签收类型', key: 'type', width: 110, render: (row) => getLabel(signOffTypeOptions, row.type) },
-  { title: '状态', key: 'status', width: 100, render: (row) => h('n-tag', { type: getStatusTagType(row.status, signOffStatusOptions), size: 'small' }, () => getLabel(signOffStatusOptions, row.status)) },
+  { title: '状态', key: 'status', width: 100, render: (row) => h(NTag, { type: getStatusTagType(row.status, signOffStatusOptions), size: 'small' }, { default: () => getLabel(signOffStatusOptions, row.status) }) },
   { title: '签收人', key: 'signerName', width: 110, render: (row) => row.signerName || '-' },
   { title: '签收日期', key: 'signDate', width: 120, render: (row) => formatDate(row.signDate) },
   { title: '评分', key: 'rating', width: 120, render: (row) => renderRating(row.rating) },
@@ -804,8 +804,8 @@ const signOffColumns = [
   {
     title: '操作', key: 'actions', width: 110, fixed: 'right',
     render: (row) => h('div', { style: { display: 'flex', gap: '8px' } }, [
-      h('n-button', { size: 'small', quaternary: true, onClick: () => showSignOffModal(row) }, { icon: () => h(CreateOutline) }),
-      h('n-button', { size: 'small', quaternary: true, onClick: () => deleteSignOff(row) }, { icon: () => h(TrashOutline) })
+      h(NButton, { size: 'small', quaternary: true, onClick: () => showSignOffModal(row) }, { icon: () => h(NIcon, null, { default: () => h(CreateOutline) }) }),
+      h(NButton, { size: 'small', quaternary: true, onClick: () => deleteSignOff(row) }, { icon: () => h(NIcon, null, { default: () => h(TrashOutline) }) })
     ])
   }
 ]
