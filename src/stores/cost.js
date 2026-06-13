@@ -33,11 +33,13 @@ export const useCostStore = defineStore('cost', () => {
   }
 
   function updateCostsDateByOrder(orderId, oldDate, newDate) {
-    const orderCosts = costs.value.filter(c => c.orderId === orderId && c.date === oldDate)
+    const dayDiff = dayjs(newDate).diff(dayjs(oldDate), 'day')
+    const orderCosts = costs.value.filter(c => c.orderId === orderId)
     orderCosts.forEach(cost => {
       const index = costs.value.findIndex(c => c.id === cost.id)
-      if (index !== -1) {
-        costs.value[index] = { ...costs.value[index], date: newDate }
+      if (index !== -1 && costs.value[index].date) {
+        const shifted = dayjs(costs.value[index].date).add(dayDiff, 'day').format('YYYY-MM-DD')
+        costs.value[index] = { ...costs.value[index], date: shifted }
       }
     })
     setStorage(storageKeys.COSTS, costs.value)

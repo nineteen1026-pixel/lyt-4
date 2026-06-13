@@ -576,7 +576,17 @@ function handleSubmit() {
         if (isEdit.value) {
           const result = orderStore.updateOrder(editId.value, data)
           if (result.success) {
-            message.success('更新成功')
+            if (originalShootDate.value && data.shootDate !== originalShootDate.value) {
+              const verify = orderStore.verifyDateConsistency(editId.value)
+              if (verify.consistent) {
+                message.success('更新成功，排班/成本/旅拍日期已同步')
+              } else {
+                message.warning('更新成功但部分日期未同步，请检查排班和成本记录')
+                console.warn('[改期自检] 日期不一致:', verify.errors, verify.details)
+              }
+            } else {
+              message.success('更新成功')
+            }
             showModal.value = false
           } else {
             message.error(result.message)

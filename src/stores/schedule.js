@@ -108,11 +108,13 @@ export const useScheduleStore = defineStore('schedule', () => {
   }
 
   function updateAssignmentsDateByOrder(orderId, oldDate, newDate) {
-    const orderAssignments = getAssignmentsByOrder(orderId).filter(a => a.date === oldDate)
+    const dayDiff = dayjs(newDate).diff(dayjs(oldDate), 'day')
+    const orderAssignments = getAssignmentsByOrder(orderId)
     orderAssignments.forEach(asn => {
       const index = assignments.value.findIndex(a => a.id === asn.id)
-      if (index !== -1) {
-        assignments.value[index] = { ...assignments.value[index], date: newDate }
+      if (index !== -1 && assignments.value[index].date) {
+        const shifted = dayjs(assignments.value[index].date).add(dayDiff, 'day').format('YYYY-MM-DD')
+        assignments.value[index] = { ...assignments.value[index], date: shifted }
       }
     })
     setStorage(storageKeys.ASSIGNMENTS, assignments.value)

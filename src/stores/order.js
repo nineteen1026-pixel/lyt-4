@@ -3,6 +3,8 @@ import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
 import { useScheduleStore } from '@/stores/schedule'
+import { useCostStore } from '@/stores/cost'
+import { useTravelShootStore } from '@/stores/travelShoot'
 import { usePaymentRecordStore } from '@/stores/paymentRecord'
 import { useCustomerStore } from '@/stores/customer'
 import { usePackageStore } from '@/stores/package'
@@ -265,6 +267,45 @@ export const useOrderStore = defineStore('order', () => {
     return pkg ? pkg.price : 0
   }
 
+  function verifyDateConsistency(orderId) {
+    const order = getOrderById(orderId)
+    if (!order) return { consistent: false, errors: ['订单不存在'] }
+
+    const shootDate = order.shootDate
+    const errors = []
+    const details = { orderId, shootDate, assignments: [], costs: [], travelProjects: [] }
+
+    const scheduleStore = useScheduleStore()
+    const assignments = scheduleStore.getAssignmentsByOrder(orderId)
+    assignments.forEach(a => {
+      details.assignments.push({ id: a.id, date: a.date, role: a.role })
+      if (a.date !== shootDate) {
+        errors.push(`排班 ${a.id} 日期 ${a.date} ≠ 订单拍摄日 ${shootDate}`)
+      }
+    })
+
+    const costStore = useCostStore()
+    const costs = costStore.getCostsByOrderId(orderId)
+    costs.forEach(c => {
+      details.costs.push({ id: c.id, date: c.date, type: c.type, source: c.source || '' })
+      if (c.source !== 'travel_shoot' && c.date !== shootDate) {
+        errors.push(`成本 ${c.id} 日期 ${c.date} ≠ 订单拍摄日 ${shootDate}`)
+      }
+    })
+
+    const travelShootStore = useTravelShootStore()
+    const travelProjects = travelShootStore.projects.filter(p => p.orderId === orderId)
+    travelProjects.forEach(p => {
+      const projDetail = { id: p.id, name: p.name, travelDates: p.travelDates }
+      details.travelProjects.push(projDetail)
+      if (p.travelDates?.shootStartDate && p.travelDates.shootStartDate !== shootDate) {
+        errors.push(`旅拍项目 ${p.name} 拍摄开始日 ${p.travelDates.shootStartDate} ≠ 订单拍摄日 ${shootDate}`)
+      }
+    })
+
+    return { consistent: errors.length === 0, errors, details }
+  }
+
   return {
     orders,
     orderCount,
@@ -286,6 +327,7 @@ export const useOrderStore = defineStore('order', () => {
     isFinalPaymentPaid,
     getRemainingAmount,
     getOrderPackageName,
-    getOrderPackagePrice
+    getOrderPackagePrice,
+    verifyDateConsistency
   }
 })

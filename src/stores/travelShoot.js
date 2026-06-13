@@ -150,6 +150,70 @@ export const useTravelShootStore = defineStore('travelShoot', () => {
         }
         projects.value[index] = { ...projects.value[index], travelDates: newTravelDates }
       }
+
+      const projectTransports = transports.value.filter(t => t.projectId === project.id)
+      projectTransports.forEach(t => {
+        const tIndex = transports.value.findIndex(x => x.id === t.id)
+        if (tIndex !== -1) {
+          const updates = {}
+          if (t.departDateTime) {
+            updates.departDateTime = dayjs(t.departDateTime).add(dayDiff, 'day').format('YYYY-MM-DD HH:mm')
+          }
+          if (t.arriveDateTime) {
+            updates.arriveDateTime = dayjs(t.arriveDateTime).add(dayDiff, 'day').format('YYYY-MM-DD HH:mm')
+          }
+          if (Object.keys(updates).length > 0) {
+            transports.value[tIndex] = { ...transports.value[tIndex], ...updates }
+          }
+        }
+      })
+      if (projectTransports.length > 0) {
+        setStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS, transports.value)
+      }
+
+      const projectAccommodations = accommodations.value.filter(a => a.projectId === project.id)
+      projectAccommodations.forEach(a => {
+        const aIndex = accommodations.value.findIndex(x => x.id === a.id)
+        if (aIndex !== -1) {
+          const updates = {}
+          if (a.checkIn) {
+            updates.checkIn = dayjs(a.checkIn).add(dayDiff, 'day').format('YYYY-MM-DD')
+          }
+          if (a.checkOut) {
+            updates.checkOut = dayjs(a.checkOut).add(dayDiff, 'day').format('YYYY-MM-DD')
+          }
+          if (Object.keys(updates).length > 0) {
+            accommodations.value[aIndex] = { ...accommodations.value[aIndex], ...updates }
+          }
+        }
+      })
+      if (projectAccommodations.length > 0) {
+        setStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS, accommodations.value)
+      }
+
+      const projectExtraCosts = extraCosts.value.filter(c => c.projectId === project.id)
+      projectExtraCosts.forEach(c => {
+        const cIndex = extraCosts.value.findIndex(x => x.id === c.id)
+        if (cIndex !== -1 && c.date) {
+          extraCosts.value[cIndex] = {
+            ...extraCosts.value[cIndex],
+            date: dayjs(c.date).add(dayDiff, 'day').format('YYYY-MM-DD')
+          }
+        }
+      })
+      if (projectExtraCosts.length > 0) {
+        setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, extraCosts.value)
+      }
+
+      const costStore = useCostStore()
+      const linkedCosts = costStore.costs.filter(c => c.travelShootProjectId === project.id)
+      linkedCosts.forEach(lc => {
+        if (lc.date) {
+          costStore.updateCost(lc.id, {
+            date: dayjs(lc.date).add(dayDiff, 'day').format('YYYY-MM-DD')
+          })
+        }
+      })
     })
     
     if (orderProjects.length > 0) {
