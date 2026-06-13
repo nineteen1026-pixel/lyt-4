@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
+import { normalizePhone } from '@/utils/format'
 import dayjs from 'dayjs'
 
 export const useLeadStore = defineStore('lead', () => {
@@ -15,6 +16,7 @@ export const useLeadStore = defineStore('lead', () => {
   function addLead(lead) {
     const newLead = {
       ...lead,
+      phone: normalizePhone(lead.phone),
       id: generateId(),
       referralName: lead.referralName || '',
       followUpRecords: [],
@@ -29,9 +31,13 @@ export const useLeadStore = defineStore('lead', () => {
   function updateLead(id, data) {
     const index = leads.value.findIndex(l => l.id === id)
     if (index !== -1) {
+      const updateData = { ...data }
+      if (updateData.phone !== undefined) {
+        updateData.phone = normalizePhone(updateData.phone)
+      }
       leads.value[index] = { 
         ...leads.value[index], 
-        ...data,
+        ...updateData,
         updatedAt: new Date().toISOString()
       }
       setStorage(storageKeys.LEADS, leads.value)
@@ -129,8 +135,9 @@ export const useLeadStore = defineStore('lead', () => {
   }
 
   function findLeadByPhone(phone, excludeId = null) {
-    if (!phone) return null
-    return leads.value.find(l => l.phone === phone && l.id !== excludeId) || null
+    const normalizedPhone = normalizePhone(phone)
+    if (!normalizedPhone) return null
+    return leads.value.find(l => normalizePhone(l.phone) === normalizedPhone && l.id !== excludeId) || null
   }
 
   function mergeLeads(targetId, sourceData) {

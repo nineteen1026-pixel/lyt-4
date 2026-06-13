@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { getStorage, setStorage, generateId, storageKeys } from '@/utils/storage'
 import { ensureAllInitialized } from '@/utils/init'
+import { normalizePhone } from '@/utils/format'
 
 export const sourceOptions = [
   { value: 'referral', label: '朋友介绍' },
@@ -35,6 +36,7 @@ export const useCustomerStore = defineStore('customer', () => {
   function addCustomer(customer) {
     const newCustomer = {
       ...customer,
+      phone: normalizePhone(customer.phone),
       id: generateId(),
       followUpRecords: customer.followUpRecords || [],
       createdAt: new Date().toISOString()
@@ -47,7 +49,11 @@ export const useCustomerStore = defineStore('customer', () => {
   function updateCustomer(id, data) {
     const index = customers.value.findIndex(c => c.id === id)
     if (index !== -1) {
-      customers.value[index] = { ...customers.value[index], ...data }
+      const updateData = { ...data }
+      if (updateData.phone !== undefined) {
+        updateData.phone = normalizePhone(updateData.phone)
+      }
+      customers.value[index] = { ...customers.value[index], ...updateData }
       setStorage(storageKeys.CUSTOMERS, customers.value)
       return customers.value[index]
     }
@@ -125,9 +131,10 @@ export const useCustomerStore = defineStore('customer', () => {
     return customers.value.filter(c => c.source === source)
   }
 
-  function findCustomerByPhone(phone) {
-    if (!phone) return null
-    return customers.value.find(c => c.phone === phone) || null
+  function findCustomerByPhone(phone, excludeId = null) {
+    const normalizedPhone = normalizePhone(phone)
+    if (!normalizedPhone) return null
+    return customers.value.find(c => normalizePhone(c.phone) === normalizedPhone && c.id !== excludeId) || null
   }
 
   function mergeCustomerWithLead(targetId, leadData) {

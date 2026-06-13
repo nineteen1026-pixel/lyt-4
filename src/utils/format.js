@@ -264,3 +264,8 @@ export const PAYMENT_METHOD = {
   cash: { label: '现金', color: 'warning' },
   other: { label: '其他', color: 'default' }
 }
+
+export function normalizePhone(phone) {
+  if (!phone) return ''
+  return String(phone).replace(/[\s\-()\u00A0\u200B]/g, '')
+}
