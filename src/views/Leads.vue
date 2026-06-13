@@ -595,7 +595,14 @@ function doSubmit(data) {
   showModal.value = false
 }
 
-function showCustomerMergeDialog(existingCustomer, data) {
+function showCustomerMergeDialog(existingCustomer, data, isEditSelf = false, sourceLead = null) {
+  const sourceInfo = sourceLead ? {
+    hasRecords: (sourceLead.followUpRecords || []).length > 0,
+    hasRemark: !!sourceLead.remark
+  } : null
+
+  const finalMergeData = isEditSelf ? buildMergeData(sourceLead, data) : data
+
   dialog.warning({
     title: '手机号已存在',
     content: () => h('div', { style: 'line-height: 1.8;' }, [
@@ -606,19 +613,54 @@ function showCustomerMergeDialog(existingCustomer, data) {
         existingCustomer.wechat ? h('div', { style: 'margin-top: 4px;' }, `微信号：${existingCustomer.wechat}`) : null,
         existingCustomer.weddingDate ? h('div', { style: 'margin-top: 4px;' }, `婚期：${existingCustomer.weddingDate}`) : null
       ]),
-      h('div', { style: 'margin-top: 12px; color: #666;' }, '是否将新录入的线索信息合并到该客户档案中？')
+      isEditSelf && sourceInfo && (sourceInfo.hasRecords || sourceInfo.hasRemark)
+        ? h('div', { style: 'margin-top: 12px; padding: 10px; background: #fff7e6; border-radius: 6px; font-size: 13px; color: #ad6800;' }, [
+            h('div', null, `当前线索将被合并，包含：`),
+            sourceInfo.hasRecords ? h('div', null, `• ${(sourceLead.followUpRecords || []).length} 条跟进记录`) : null,
+            sourceInfo.hasRemark ? h('div', null, `• 历史备注信息`) : null
+          ])
+        : null,
+      h('div', { style: 'margin-top: 12px; color: #666;' }, 
+        isEditSelf ? '您正在编辑的线索手机号与客户档案重复，是否合并到客户档案并删除当前线索？'
+                   : '是否将新录入的线索信息合并到该客户档案中？')
     ]),
     positiveText: '合并到客户',
     negativeText: '取消',
     onPositiveClick: () => {
-      customerStore.mergeCustomerWithLead(existingCustomer.id, data)
+      customerStore.mergeCustomerWithLead(existingCustomer.id, finalMergeData)
+      if (isEditSelf) {
+        leadStore.deleteLead(editId.value)
+      }
       message.success('已合并到客户档案')
       showModal.value = false
     }
   })
 }
 
-function showLeadMergeDialog(existingLead, data, isEditSelf = false) {
+function buildMergeData(sourceLead, formData) {
+  const merged = { ...formData }
+
+  if (sourceLead) {
+    if (sourceLead.remark && formData.remark) {
+      merged.remark = sourceLead.remark + '\n\n[编辑补充] ' + formData.remark
+    } else if (sourceLead.remark) {
+      merged.remark = sourceLead.remark
+    }
+
+    const sourceRecords = sourceLead.followUpRecords || []
+    const formRecords = formData.followUpRecords || []
+    merged.followUpRecords = [...sourceRecords, ...formRecords]
+  }
+
+  return merged
+}
+
+function showLeadMergeDialog(existingLead, data, isEditSelf = false, sourceLead = null) {
+  const sourceInfo = sourceLead ? {
+    hasRecords: (sourceLead.followUpRecords || []).length > 0,
+    hasRemark: !!sourceLead.remark
+  } : null
+
   dialog.warning({
     title: '手机号已存在',
     content: () => h('div', { style: 'line-height: 1.8;' }, [
@@ -630,6 +672,13 @@ function showLeadMergeDialog(existingLead, data, isEditSelf = false) {
         h('div', { style: 'margin-top: 4px;' }, `当前状态：${getStatusLabel(existingLead.status)}`),
         existingLead.weddingDate ? h('div', { style: 'margin-top: 4px;' }, `婚期：${existingLead.weddingDate}`) : null
       ]),
+      isEditSelf && sourceInfo && (sourceInfo.hasRecords || sourceInfo.hasRemark)
+        ? h('div', { style: 'margin-top: 12px; padding: 10px; background: #fff7e6; border-radius: 6px; font-size: 13px; color: #ad6800;' }, [
+            h('div', null, `当前线索将被合并，包含：`),
+            sourceInfo.hasRecords ? h('div', null, `• ${(sourceLead.followUpRecords || []).length} 条跟进记录`) : null,
+            sourceInfo.hasRemark ? h('div', null, `• 历史备注信息`) : null
+          ])
+        : null,
       h('div', { style: 'margin-top: 12px; color: #666;' }, 
         isEditSelf ? '您正在编辑的线索手机号与另一条线索重复，是否合并两条线索？' 
                    : '是否将新录入的线索信息合并到已有线索中？')
@@ -637,7 +686,8 @@ function showLeadMergeDialog(existingLead, data, isEditSelf = false) {
     positiveText: '合并线索',
     negativeText: '取消',
     onPositiveClick: () => {
-      leadStore.mergeLeads(existingLead.id, data)
+      const finalMergeData = isEditSelf ? buildMergeData(sourceLead, data) : data
+      leadStore.mergeLeads(existingLead.id, finalMergeData)
       if (isEditSelf) {
         leadStore.deleteLead(editId.value)
       }
@@ -678,10 +728,11 @@ function handleSubmit() {
       const duplicate = checkDuplicatePhone(data, excludeLeadId)
 
       if (duplicate) {
+        const sourceLead = isEdit.value ? leadStore.getLeadById(editId.value) : null
         if (duplicate.type === 'customer') {
-          showCustomerMergeDialog(duplicate.record, data)
+          showCustomerMergeDialog(duplicate.record, data, isEdit.value, sourceLead)
         } else if (duplicate.type === 'lead') {
-          showLeadMergeDialog(duplicate.record, data, isEdit.value)
+          showLeadMergeDialog(duplicate.record, data, isEdit.value, sourceLead)
         }
         return
       }

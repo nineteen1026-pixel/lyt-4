@@ -143,18 +143,32 @@ export const useCustomerStore = defineStore('customer', () => {
 
     const mergedData = { ...target }
 
+    if (leadData.name && leadData.name !== target.name) {
+      mergedData.name = target.name + ' / ' + leadData.name
+    }
     if (leadData.wechat && !target.wechat) mergedData.wechat = leadData.wechat
+    if (leadData.source && !target.source) mergedData.source = leadData.source
+    if (leadData.referralName && !target.referralName) mergedData.referralName = leadData.referralName
     if (leadData.weddingDate && !target.weddingDate) mergedData.weddingDate = leadData.weddingDate
     if (leadData.hotel && !target.hotel) mergedData.hotel = leadData.hotel
+    if (leadData.budget && !target.budget) mergedData.budget = leadData.budget
+    if (leadData.packageInterest && !target.packageInterest) mergedData.packageInterest = leadData.packageInterest
     if (leadData.remark) {
-      mergedData.remark = target.remark 
-        ? target.remark + '\n\n[线索合并补充] ' + leadData.remark 
-        : leadData.remark
+      if (target.remark) {
+        if (!target.remark.includes(leadData.remark)) {
+          mergedData.remark = target.remark + '\n\n[线索合并补充] ' + leadData.remark
+        }
+      } else {
+        mergedData.remark = leadData.remark
+      }
     }
 
-    if (leadData.followUpRecords && leadData.followUpRecords.length > 0) {
+    const sourceRecords = leadData.followUpRecords || []
+    if (sourceRecords.length > 0) {
       const existingRecords = target.followUpRecords || []
-      mergedData.followUpRecords = [...existingRecords, ...leadData.followUpRecords]
+      const existingIds = new Set(existingRecords.map(r => r.id))
+      const uniqueSourceRecords = sourceRecords.filter(r => !existingIds.has(r.id))
+      mergedData.followUpRecords = [...existingRecords, ...uniqueSourceRecords]
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     }
 

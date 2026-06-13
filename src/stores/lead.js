@@ -146,6 +146,9 @@ export const useLeadStore = defineStore('lead', () => {
 
     const mergedData = { ...target }
 
+    if (sourceData.name && sourceData.name !== target.name) {
+      mergedData.name = target.name + ' / ' + sourceData.name
+    }
     if (sourceData.wechat && !target.wechat) mergedData.wechat = sourceData.wechat
     if (sourceData.source && !target.source) mergedData.source = sourceData.source
     if (sourceData.referralName && !target.referralName) mergedData.referralName = sourceData.referralName
@@ -155,15 +158,28 @@ export const useLeadStore = defineStore('lead', () => {
     if (sourceData.packageInterest && !target.packageInterest) mergedData.packageInterest = sourceData.packageInterest
     if (sourceData.nextFollowUp && !target.nextFollowUp) mergedData.nextFollowUp = sourceData.nextFollowUp
     if (sourceData.remark) {
-      mergedData.remark = target.remark 
-        ? target.remark + '\n\n[合并补充] ' + sourceData.remark 
-        : sourceData.remark
+      if (target.remark) {
+        if (!target.remark.includes(sourceData.remark)) {
+          mergedData.remark = target.remark + '\n\n[合并补充] ' + sourceData.remark
+        }
+      } else {
+        mergedData.remark = sourceData.remark
+      }
+    }
+    if (sourceData.customerId && !target.customerId) mergedData.customerId = sourceData.customerId
+    if (sourceData.orderId && !target.orderId) mergedData.orderId = sourceData.orderId
+
+    const sourceRecords = sourceData.followUpRecords || []
+    if (sourceRecords.length > 0) {
+      const existingRecords = target.followUpRecords || []
+      const existingIds = new Set(existingRecords.map(r => r.id))
+      const uniqueSourceRecords = sourceRecords.filter(r => !existingIds.has(r.id))
+      mergedData.followUpRecords = [...existingRecords, ...uniqueSourceRecords]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     }
 
-    if (sourceData.followUpRecords && sourceData.followUpRecords.length > 0) {
-      const existingRecords = target.followUpRecords || []
-      mergedData.followUpRecords = [...existingRecords, ...sourceData.followUpRecords]
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    if (sourceData.status && !mergedData.status) {
+      mergedData.status = sourceData.status
     }
 
     return updateLead(targetId, mergedData)
