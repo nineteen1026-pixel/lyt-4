@@ -572,6 +572,49 @@ function getMonday(d) {
   return d.add(diff, 'day').startOf('day')
 }
 
+function normalizeAndValidateAssignmentDate(rawDate, orderId, context = '排班') {
+  const warnings = []
+  if (rawDate == null || rawDate === '' || rawDate === undefined) {
+    return { dateStr: '', valid: false, warnings: ['未选择日期'] }
+  }
+
+  const d = dayjs(rawDate)
+  if (!d.isValid()) {
+    return { dateStr: '', valid: false, warnings: ['日期格式无效'] }
+  }
+
+  const dateStr = d.format('YYYY-MM-DD')
+  const roundTrip = dayjs(dateStr).format('YYYY-MM-DD')
+  if (roundTrip !== dateStr) {
+    warnings.push(`[${context}] 日期往返映射不一致：原始格式=${dateStr}，解析后=${roundTrip}`)
+    console.warn(...warnings)
+  }
+
+  const weekdayIdx = d.day()
+  if (weekdayIdx !== 0 && weekdayIdx !== 1 && weekdayIdx !== 2 &&
+      weekdayIdx !== 3 && weekdayIdx !== 4 && weekdayIdx !== 5 && weekdayIdx !== 6) {
+    warnings.push(`[${context}] 星期值异常：${weekdayIdx}`)
+  }
+
+  if (orderId) {
+    const order = orderStore.getOrderById(orderId)
+    if (order && order.shootDate) {
+      if (dateStr !== order.shootDate) {
+        warnings.push(`排班日期 ${dateStr} 与订单拍摄日期 ${order.shootDate} 不一致`)
+      }
+    }
+  }
+
+  return { dateStr, valid: true, warnings }
+}
+
+function validateQuickAssignDate(order, context = '快速分配') {
+  if (!order || !order.shootDate) {
+    return { dateStr: '', valid: false, warnings: ['订单拍摄日期缺失'] }
+  }
+  return normalizeAndValidateAssignmentDate(order.shootDate, order.id, context)
+}
+
 const weekStart = ref(getMonday(dayjs()))
 
 const showScheduleModal = ref(false)
@@ -766,9 +809,10 @@ const assignedOrders = computed(() => {
 function getStatsDateRange() {
   const now = dayjs()
   if (statsPeriod.value === 'week') {
+    const monday = getMonday(now)
     return {
-      start: now.startOf('week').format('YYYY-MM-DD'),
-      end: now.endOf('week').format('YYYY-MM-DD')
+      start: monday.format('YYYY-MM-DD'),
+      end: monday.add(6, 'day').format('YYYY-MM-DD')
     }
   } else if (statsPeriod.value === 'month') {
     return {
@@ -1015,34 +1059,66 @@ function editAssignment(asn) {
 function handleScheduleSubmit() {
   scheduleFormRef.value?.validate((errors) => {
     if (!errors) {
-      const dateStr = scheduleForm.date ? dayjs(scheduleForm.date).format('YYYY-MM-DD') : ''
+      const context = isEditSchedule.value ? '编辑排班' : '新增排班'
+      const dateCheck = normalizeAndValidateAssignmentDate(scheduleForm.date, scheduleForm.orderId, context)
+      if (!dateCheck.valid) {
+        message.error(dateCheck.warnings.join('；'))
+        return
+      }
+      const dateStr = dateCheck.dateStr
+
       const data = {
         ...scheduleForm,
         date: dateStr
       }
 
-      if (isEditSchedule.value) {
+      const nonConflictWarnings = dateCheck.warnings.filter(
+        w => !scheduleConflictWarning.value || !w.includes('已有排班')
+      )
+      const hasDateWarnings = nonConflictWarnings.length > 0
+      const hasConflict = !!scheduleConflictWarning.value
+
+      const finalizeUpdate = () => {
         scheduleStore.updateAssignment(editScheduleId.value, data)
         message.success('排班更新成功')
-      } else {
-        if (scheduleConflictWarning.value) {
-          dialog.warning({
-            title: '档期冲突',
-            content: scheduleConflictWarning.value + '，确定还要继续排班吗？',
-            positiveText: '继续排班',
-            negativeText: '取消',
-            onPositiveClick: () => {
-              scheduleStore.addAssignment(data)
-              message.success('排班添加成功')
-              showScheduleModal.value = false
-            }
-          })
-          return
-        }
+        showScheduleModal.value = false
+      }
+
+      const finalizeAdd = () => {
         scheduleStore.addAssignment(data)
         message.success('排班添加成功')
+        showScheduleModal.value = false
       }
-      showScheduleModal.value = false
+
+      if (isEditSchedule.value) {
+        if (hasDateWarnings) {
+          dialog.warning({
+            title: '日期校验提示',
+            content: nonConflictWarnings.join('；\n'),
+            positiveText: '仍要更新',
+            negativeText: '取消',
+            onPositiveClick: finalizeUpdate
+          })
+        } else {
+          finalizeUpdate()
+        }
+      } else {
+        const combined = []
+        if (hasConflict) combined.push(scheduleConflictWarning.value)
+        if (hasDateWarnings) combined.push(...nonConflictWarnings)
+
+        if (combined.length > 0) {
+          dialog.warning({
+            title: hasConflict ? '档期冲突' : '日期校验提示',
+            content: combined.join('；\n') + '，确定还要继续排班吗？',
+            positiveText: '继续排班',
+            negativeText: '取消',
+            onPositiveClick: finalizeAdd
+          })
+        } else {
+          finalizeAdd()
+        }
+      }
     }
   })
 }
@@ -1123,6 +1199,13 @@ function getRecommendedStaff(role) {
 function handleQuickAssignSubmit() {
   if (!quickAssignOrder.value) return
 
+  const dateCheck = validateQuickAssignDate(quickAssignOrder.value, '快速分配')
+  if (!dateCheck.valid) {
+    message.error(dateCheck.warnings.join('；'))
+    return
+  }
+  const dateStr = dateCheck.dateStr
+
   const selectedConfigs = quickRoleConfigs.value.filter(c => c.enabled && c.selectedStaff)
   if (selectedConfigs.length === 0) {
     message.warning('请至少选择一个人员')
@@ -1132,7 +1215,7 @@ function handleQuickAssignSubmit() {
   const hasConflicts = selectedConfigs.some(config =>
     scheduleStore.checkStaffConflict(
       config.selectedStaff,
-      quickAssignOrder.value.shootDate,
+      dateStr,
       config.role,
       config.existingId || null
     )
@@ -1144,7 +1227,7 @@ function handleQuickAssignSubmit() {
         scheduleStore.updateAssignment(config.existingId, {
           orderId: quickAssignOrder.value.id,
           staffId: config.selectedStaff,
-          date: quickAssignOrder.value.shootDate,
+          date: dateStr,
           role: config.role,
           status: 'confirmed'
         })
@@ -1152,7 +1235,7 @@ function handleQuickAssignSubmit() {
         scheduleStore.addAssignment({
           orderId: quickAssignOrder.value.id,
           staffId: config.selectedStaff,
-          date: quickAssignOrder.value.shootDate,
+          date: dateStr,
           role: config.role,
           status: 'confirmed',
           remark: ''
@@ -1162,7 +1245,7 @@ function handleQuickAssignSubmit() {
 
     const order = orderStore.getOrderById(quickAssignOrder.value.id)
     if (order && (order.status === 'pending' || order.status === 'confirmed')) {
-      const shootDay = dayjs(order.shootDate)
+      const shootDay = dayjs(dateStr)
       const today = dayjs().startOf('day')
       let newStatus = order.status
       if (shootDay.isBefore(today, 'day') || shootDay.isSame(today, 'day')) {
@@ -1179,10 +1262,14 @@ function handleQuickAssignSubmit() {
     showQuickAssignModal.value = false
   }
 
-  if (hasConflicts) {
+  const dialogWarnings = []
+  if (dateCheck.warnings.length > 0) dialogWarnings.push(...dateCheck.warnings)
+  if (hasConflicts) dialogWarnings.push(quickConflictWarning.value || '部分人员存在档期冲突')
+
+  if (dialogWarnings.length > 0) {
     dialog.warning({
-      title: '档期冲突',
-      content: quickConflictWarning.value || '部分人员存在档期冲突，确定还要继续排班吗？',
+      title: hasConflicts ? '档期冲突' : '日期校验提示',
+      content: dialogWarnings.join('；\n') + (hasConflicts ? '，确定还要继续排班吗？' : ''),
       positiveText: '继续排班',
       negativeText: '取消',
       onPositiveClick: submit
