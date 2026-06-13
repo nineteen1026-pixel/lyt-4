@@ -84,6 +84,12 @@ const routes = [
     name: 'PackageProfit',
     component: () => import('@/views/PackageProfit.vue'),
     meta: { title: '套餐利润分析', icon: 'analytics' }
+  },
+  {
+    path: '/team',
+    name: 'TeamManagement',
+    component: () => import('@/views/TeamManagement.vue'),
+    meta: { title: '团队成员管理', icon: 'people' }
   }
 ]
 

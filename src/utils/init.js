@@ -122,6 +122,32 @@ function ensureLeadFields() {
   }
 }
 
+function ensureTravelShootCostSync() {
+  const projects = getStorage(storageKeys.TRAVEL_SHOOT_PROJECTS)
+  if (!projects || projects.length === 0) return
+  const transports = getStorage(storageKeys.TRAVEL_SHOOT_TRANSPORTS) || []
+  const accommodations = getStorage(storageKeys.TRAVEL_SHOOT_ACCOMMODATIONS) || []
+  const extraCosts = getStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS) || []
+
+  let changed = false
+  const updatedProjects = projects.map(project => {
+    if (project.totalBudget == null) return project
+    const transportTotal = transports.filter(t => t.projectId === project.id).reduce((sum, t) => sum + (t.totalCost || 0), 0)
+    const accommodationTotal = accommodations.filter(a => a.projectId === project.id).reduce((sum, a) => sum + (a.totalCost || 0), 0)
+    const extraTotal = extraCosts.filter(e => e.projectId === project.id).reduce((sum, e) => sum + (e.amount || 0), 0)
+    const calculatedBudget = project.basePackagePrice + transportTotal + accommodationTotal + extraTotal
+    if (calculatedBudget !== project.totalBudget) {
+      changed = true
+      return { ...project, totalBudget: calculatedBudget }
+    }
+    return project
+  })
+
+  if (changed) {
+    setStorage(storageKeys.TRAVEL_SHOOT_PROJECTS, updatedProjects)
+  }
+}
+
 export function ensureAllInitialized() {
   const initialized = getStorage(storageKeys.INITIALIZED)
   if (!initialized) {

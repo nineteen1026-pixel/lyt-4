@@ -88,7 +88,8 @@ import {
   ImagesOutline,
   AirplaneOutline,
   ChatbubblesOutline,
-  TrendingUpOutline
+  TrendingUpOutline,
+  BriefcaseOutline
 } from '@vicons/ionicons5'
 import { exportAllData, importAllData } from '@/utils/storage'
 import { useCustomerStore } from '@/stores/customer'
@@ -206,6 +207,11 @@ const menuOptions = [
     label: '套餐利润分析',
     key: 'PackageProfit',
     icon: iconRender(TrendingUpOutline)
+  },
+  {
+    label: '团队成员管理',
+    key: 'TeamManagement',
+    icon: iconRender(BriefcaseOutline)
   }
 ]
 
