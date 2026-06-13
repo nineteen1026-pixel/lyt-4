@@ -136,7 +136,7 @@
                   </div>
                   <div class="order-item-middle">
                     <div class="order-item-customer">{{ getCustomerName(order.customerId) }}</div>
-                    <div class="order-item-package">{{ getPackageName(order.packageId) }}</div>
+                    <div class="order-item-package">{{ orderStore.getOrderPackageName(order) }}</div>
                   </div>
                   <div class="order-item-right">
                     <div class="order-item-amount">¥{{ order.orderTotal.toLocaleString() }}</div>
@@ -467,7 +467,7 @@
               </n-tag>
             </div>
             <div class="pending-sub">
-              {{ getPackageName(order.packageId) }}
+              {{ orderStore.getOrderPackageName(order) }}
             </div>
             <n-button size="small" type="primary" @click="openBatchAssignModal(order)">
               快速排班
@@ -488,7 +488,7 @@
               </n-tag>
             </div>
             <div class="order-sub">
-              {{ getPackageName(order.packageId) }} · ¥{{ (order.depositAmount + order.finalAmount).toLocaleString() }}
+              {{ orderStore.getOrderPackageName(order) }} · ¥{{ (order.depositAmount + order.finalAmount).toLocaleString() }}
             </div>
           </div>
         </div>
@@ -633,7 +633,7 @@
         <div class="batch-order-info">
           <div class="batch-order-customer">{{ getCustomerName(batchAssignOrder.customerId) }}</div>
           <div class="batch-order-detail">
-            {{ getPackageName(batchAssignOrder.packageId) }} · {{ formatDate(batchAssignOrder.shootDate) }}
+            {{ orderStore.getOrderPackageName(batchAssignOrder) }} · {{ formatDate(batchAssignOrder.shootDate) }}
           </div>
         </div>
         <n-tag :type="getOrderStatusType(batchAssignOrder.status)" size="small">
@@ -987,7 +987,7 @@ const staffColumns = [
 const pendingColumns = [
   { title: '拍摄日期', key: 'shootDate', width: 120, render: (row) => formatDate(row.shootDate) },
   { title: '客户', key: 'customerId', width: 180, render: (row) => getCustomerName(row.customerId) },
-  { title: '套餐', key: 'packageId', render: (row) => getPackageName(row.packageId) },
+  { title: '套餐', key: 'packageId', render: (row) => orderStore.getOrderPackageName(row) },
   { title: '订单状态', key: 'status', width: 100 },
   { title: '排班状态', key: 'staffingStatus', width: 200 },
   { title: '操作', key: 'actions', width: 160 }

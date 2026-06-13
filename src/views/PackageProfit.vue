@@ -405,7 +405,6 @@ const orderDetailList = computed(() => {
   return periodOrders.value
     .sort((a, b) => new Date(b.shootDate) - new Date(a.shootDate))
     .map(order => {
-      const pkg = packageStore.getPackageById(order.packageId)
       const customer = customerStore.getCustomerById(order.customerId)
       const orderCosts = costStore.getCostsByOrderId(order.id)
       const actualCost = orderCosts.reduce((sum, c) => sum + (c.amount || 0), 0)
@@ -416,8 +415,8 @@ const orderDetailList = computed(() => {
         customerId: order.customerId,
         customerName: customer?.name || '未知客户',
         packageId: order.packageId,
-        packageName: pkg?.name || '未知套餐',
-        packagePrice: pkg?.price || 0,
+        packageName: orderStore.getOrderPackageName(order),
+        packagePrice: orderStore.getOrderPackagePrice(order),
         actualRevenue: order.paidAmount || 0,
         actualCost,
         orderProfit: (order.paidAmount || 0) - actualCost,

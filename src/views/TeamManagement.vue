@@ -210,7 +210,7 @@
               </div>
               <div class="order-assign-info">
                 <span class="info-label">套餐</span>
-                <span class="info-value">{{ getPackageName(order.packageId) }}</span>
+                <span class="info-value">{{ orderStore.getOrderPackageName(order) }}</span>
               </div>
               <div class="order-assign-info">
                 <span class="info-label">金额</span>
@@ -473,7 +473,7 @@
         <div class="quick-assign-info">
           <div class="quick-assign-customer">{{ getCustomerName(quickAssignOrder.customerId) }}</div>
           <div class="quick-assign-detail">
-            {{ getPackageName(quickAssignOrder.packageId) }} · {{ formatDate(quickAssignOrder.shootDate) }} · ¥{{ ((quickAssignOrder.depositAmount || 0) + (quickAssignOrder.finalAmount || 0)).toLocaleString() }}
+            {{ orderStore.getOrderPackageName(quickAssignOrder) }} · {{ formatDate(quickAssignOrder.shootDate) }} · ¥{{ ((quickAssignOrder.depositAmount || 0) + (quickAssignOrder.finalAmount || 0)).toLocaleString() }}
           </div>
         </div>
         <n-tag :type="getOrderStatusType(quickAssignOrder.status)" size="small">
@@ -895,7 +895,7 @@ const assignmentColumns = [
 const assignedOrderColumns = [
   { title: '拍摄日期', key: 'shootDate', width: 110, render: (row) => formatDate(row.shootDate) },
   { title: '客户', key: 'customerId', width: 140, render: (row) => getCustomerName(row.customerId) },
-  { title: '套餐', key: 'packageId', render: (row) => getPackageName(row.packageId) },
+  { title: '套餐', key: 'packageId', render: (row) => orderStore.getOrderPackageName(row) },
   { title: '订单状态', key: 'status', width: 100 },
   { title: '人员安排', key: 'staffing', width: 280 },
   { title: '操作', key: 'assignActions', width: 80 }

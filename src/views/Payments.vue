@@ -575,7 +575,7 @@ const columns = [
   {
     title: '套餐',
     key: 'packageId',
-    render: () => '-'
+    render: (row) => orderStore.getOrderPackageName(row)
   },
   {
     title: '订单金额',

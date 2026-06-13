@@ -76,7 +76,7 @@
             </div>
             <div class="order-info">
               <div class="order-customer">{{ getCustomerName(order.customerId) }}</div>
-              <div class="order-package">{{ getPackageName(order.packageId) }}</div>
+              <div class="order-package">{{ orderStore.getOrderPackageName(order) }}</div>
             </div>
             <n-tag :type="getStatusType(order.status)" size="small">
               {{ getStatusLabel(order.status) }}

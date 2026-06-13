@@ -299,7 +299,7 @@ const orderDetailList = computed(() => {
       return {
         ...order,
         customerName: customerStore.getCustomerById(order.customerId)?.name || '未知',
-        packageName: packageStore.getPackageById(order.packageId)?.name || '未知',
+        packageName: orderStore.getOrderPackageName(order),
         revenue: order.paidAmount || 0,
         cost: totalCost,
         profit: (order.paidAmount || 0) - totalCost
@@ -515,8 +515,7 @@ function initPackageChart() {
   
   const packageMap = {}
   periodOrders.value.forEach(order => {
-    const pkg = packageStore.getPackageById(order.packageId)
-    const name = pkg ? pkg.name : '其他'
+    const name = orderStore.getOrderPackageName(order)
     if (!packageMap[name]) packageMap[name] = 0
     packageMap[name]++
   })

@@ -5,6 +5,7 @@ import { ensureAllInitialized } from '@/utils/init'
 import { useScheduleStore } from '@/stores/schedule'
 import { usePaymentRecordStore } from '@/stores/paymentRecord'
 import { useCustomerStore } from '@/stores/customer'
+import { usePackageStore } from '@/stores/package'
 import { ORDER_STATUS } from '@/utils/format'
 import dayjs from 'dayjs'
 
@@ -23,9 +24,14 @@ export const useOrderStore = defineStore('order', () => {
   }
 
   function addOrder(order) {
+    const packageStore = usePackageStore()
+    const pkg = packageStore.getPackageById(order.packageId)
+    
     const newOrder = {
       ...order,
       id: generateId(),
+      packageName: pkg?.name || '',
+      packagePrice: pkg?.price || 0,
       createdAt: new Date().toISOString()
     }
     orders.value.push(newOrder)
@@ -50,7 +56,17 @@ export const useOrderStore = defineStore('order', () => {
         }
       }
 
-      orders.value[index] = { ...oldOrder, ...data }
+      let updatedData = { ...data }
+      if (data.packageId && data.packageId !== oldOrder.packageId) {
+        const packageStore = usePackageStore()
+        const pkg = packageStore.getPackageById(data.packageId)
+        if (pkg) {
+          updatedData.packageName = pkg.name
+          updatedData.packagePrice = pkg.price
+        }
+      }
+
+      orders.value[index] = { ...oldOrder, ...updatedData }
       setStorage(storageKeys.ORDERS, orders.value)
 
       if (data.status && data.status !== oldStatus) {
@@ -194,6 +210,24 @@ export const useOrderStore = defineStore('order', () => {
     })
   }
 
+  function getOrderPackageName(order) {
+    if (order && order.packageName) {
+      return order.packageName
+    }
+    const packageStore = usePackageStore()
+    const pkg = packageStore.getPackageById(order?.packageId)
+    return pkg ? pkg.name : '未知套餐'
+  }
+
+  function getOrderPackagePrice(order) {
+    if (order && (order.packagePrice !== undefined && order.packagePrice !== null)) {
+      return order.packagePrice
+    }
+    const packageStore = usePackageStore()
+    const pkg = packageStore.getPackageById(order?.packageId)
+    return pkg ? pkg.price : 0
+  }
+
   return {
     orders,
     orderCount,
@@ -213,6 +247,8 @@ export const useOrderStore = defineStore('order', () => {
     getOrdersByDateRange,
     checkDateConflict,
     isFinalPaymentPaid,
-    getRemainingAmount
+    getRemainingAmount,
+    getOrderPackageName,
+    getOrderPackagePrice
   }
 })

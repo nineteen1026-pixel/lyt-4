@@ -46,7 +46,7 @@
               </div>
               <div class="order-info">
                 <n-icon size="14" style="margin-right: 4px;"><pricetags-outline /></n-icon>
-                <span>{{ getPackageName(order.packageId) }}</span>
+                <span>{{ orderStore.getOrderPackageName(order) }}</span>
               </div>
               <div v-if="step.key === 'selecting' && !orderStore.isFinalPaymentPaid(order)" class="order-info payment-warning">
                 <n-icon size="14" style="margin-right: 4px;"><alert-circle-outline /></n-icon>
@@ -96,7 +96,7 @@
         </div>
         <div class="detail-item">
           <span class="label">套餐：</span>
-          <span class="value">{{ getPackageName(currentOrder.packageId) }}</span>
+          <span class="value">{{ orderStore.getOrderPackageName(currentOrder) }}</span>
         </div>
         <div class="detail-item">
           <span class="label">拍摄日期：</span>

@@ -100,6 +100,14 @@
             {{ getPaymentLabel(row.paymentStatus) }}
           </n-tag>
         </template>
+        <template #package="{ row }">
+          <div class="package-cell">
+            <span>{{ orderStore.getOrderPackageName(row) }}</span>
+            <n-tag v-if="getPackageById(row.packageId)?.active === false" size="tiny" type="default" style="margin-left: 6px;">
+              已停用
+            </n-tag>
+          </div>
+        </template>
         <template #actions="{ row }">
           <n-button text size="small" type="primary" style="margin-right: 8px;" @click="openEditModal(row)">
             编辑
@@ -124,7 +132,12 @@
         <div v-for="order in dayOrders" :key="order.id" class="day-order-item">
           <div class="order-info">
             <div class="order-customer">{{ getCustomerName(order.customerId) }}</div>
-            <div class="order-package">{{ getPackageName(order.packageId) }}</div>
+            <div class="order-package">
+              {{ orderStore.getOrderPackageName(order) }}
+              <n-tag v-if="getPackageById(order.packageId)?.active === false" size="tiny" type="default" style="margin-left: 4px;">
+                已停用
+              </n-tag>
+            </div>
           </div>
           <n-tag :type="getStatusType(order.status)" size="small">
             {{ getStatusLabel(order.status) }}
@@ -328,13 +341,28 @@ const customerOptions = computed(() =>
   }))
 )
 
-const packageOptions = computed(() =>
-  packageStore.activePackages.map(p => ({
+const packageOptions = computed(() => {
+  const options = packageStore.activePackages.map(p => ({
     label: `${p.name} - ¥${p.price}`,
     value: p.id,
-    price: p.price
+    price: p.price,
+    disabled: false
   }))
-)
+  
+  if (isEdit.value && formData.packageId) {
+    const currentPkg = packageStore.getPackageById(formData.packageId)
+    if (currentPkg && !currentPkg.active) {
+      options.unshift({
+        label: `${currentPkg.name} - ¥${currentPkg.price} (已停用)`,
+        value: currentPkg.id,
+        price: currentPkg.price,
+        disabled: false
+      })
+    }
+  }
+  
+  return options
+})
 
 const pagination = {
   pageSize: 10,
@@ -380,7 +408,7 @@ const columns = [
   {
     title: '套餐',
     key: 'packageId',
-    render: (row) => getPackageName(row.packageId)
+    width: 200
   },
   { title: '状态', key: 'status', width: 100 },
   {
@@ -422,6 +450,10 @@ const calendarDays = computed(() => {
 function getCustomerName(id) {
   const customer = customerStore.getCustomerById(id)
   return customer ? customer.name : '未知客户'
+}
+
+function getPackageById(id) {
+  return packageStore.getPackageById(id)
 }
 
 function getPackageName(id) {
@@ -513,6 +545,13 @@ function handleModalClose() {
 }
 
 function handlePackageChange(value) {
+  if (isEdit.value && editId.value) {
+    const originalOrder = orderStore.getOrderById(editId.value)
+    if (originalOrder && value === originalOrder.packageId) {
+      return
+    }
+  }
+  
   const pkg = packageStore.getPackageById(value)
   if (pkg) {
     formData.depositAmount = Math.floor(pkg.price * 0.3)
