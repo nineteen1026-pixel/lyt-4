@@ -125,6 +125,35 @@ export const useCustomerStore = defineStore('customer', () => {
     return customers.value.filter(c => c.source === source)
   }
 
+  function findCustomerByPhone(phone) {
+    if (!phone) return null
+    return customers.value.find(c => c.phone === phone) || null
+  }
+
+  function mergeCustomerWithLead(targetId, leadData) {
+    const target = getCustomerById(targetId)
+    if (!target) return null
+
+    const mergedData = { ...target }
+
+    if (leadData.wechat && !target.wechat) mergedData.wechat = leadData.wechat
+    if (leadData.weddingDate && !target.weddingDate) mergedData.weddingDate = leadData.weddingDate
+    if (leadData.hotel && !target.hotel) mergedData.hotel = leadData.hotel
+    if (leadData.remark) {
+      mergedData.remark = target.remark 
+        ? target.remark + '\n\n[线索合并补充] ' + leadData.remark 
+        : leadData.remark
+    }
+
+    if (leadData.followUpRecords && leadData.followUpRecords.length > 0) {
+      const existingRecords = target.followUpRecords || []
+      mergedData.followUpRecords = [...existingRecords, ...leadData.followUpRecords]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
+
+    return updateCustomer(targetId, mergedData)
+  }
+
   return {
     customers,
     customerCount,
@@ -137,6 +166,8 @@ export const useCustomerStore = defineStore('customer', () => {
     addFollowUpRecord,
     addProgressLog,
     searchCustomers,
-    getCustomersBySource
+    getCustomersBySource,
+    findCustomerByPhone,
+    mergeCustomerWithLead
   }
 })

@@ -128,6 +128,40 @@ export const useLeadStore = defineStore('lead', () => {
     })
   }
 
+  function findLeadByPhone(phone, excludeId = null) {
+    if (!phone) return null
+    return leads.value.find(l => l.phone === phone && l.id !== excludeId) || null
+  }
+
+  function mergeLeads(targetId, sourceData) {
+    const target = getLeadById(targetId)
+    if (!target) return null
+
+    const mergedData = { ...target }
+
+    if (sourceData.wechat && !target.wechat) mergedData.wechat = sourceData.wechat
+    if (sourceData.source && !target.source) mergedData.source = sourceData.source
+    if (sourceData.referralName && !target.referralName) mergedData.referralName = sourceData.referralName
+    if (sourceData.weddingDate && !target.weddingDate) mergedData.weddingDate = sourceData.weddingDate
+    if (sourceData.hotel && !target.hotel) mergedData.hotel = sourceData.hotel
+    if (sourceData.budget && !target.budget) mergedData.budget = sourceData.budget
+    if (sourceData.packageInterest && !target.packageInterest) mergedData.packageInterest = sourceData.packageInterest
+    if (sourceData.nextFollowUp && !target.nextFollowUp) mergedData.nextFollowUp = sourceData.nextFollowUp
+    if (sourceData.remark) {
+      mergedData.remark = target.remark 
+        ? target.remark + '\n\n[合并补充] ' + sourceData.remark 
+        : sourceData.remark
+    }
+
+    if (sourceData.followUpRecords && sourceData.followUpRecords.length > 0) {
+      const existingRecords = target.followUpRecords || []
+      mergedData.followUpRecords = [...existingRecords, ...sourceData.followUpRecords]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    }
+
+    return updateLead(targetId, mergedData)
+  }
+
   return {
     leads,
     leadCount,
@@ -143,6 +177,8 @@ export const useLeadStore = defineStore('lead', () => {
     addFollowUpRecord,
     searchLeads,
     getLeadsByStatus,
-    markAsConverted
+    markAsConverted,
+    findLeadByPhone,
+    mergeLeads
   }
 })

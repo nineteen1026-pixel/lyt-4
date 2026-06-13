@@ -577,6 +577,17 @@ function handleModalClose() {
   resetForm()
 }
 
+function doSubmit(data) {
+  if (isEdit.value) {
+    leadStore.updateLead(editId.value, data)
+    message.success('更新成功')
+  } else {
+    leadStore.addLead(data)
+    message.success('添加成功')
+  }
+  showModal.value = false
+}
+
 function handleSubmit() {
   formRef.value?.validate((errors) => {
     if (!errors) {
@@ -585,15 +596,65 @@ function handleSubmit() {
         weddingDate: formData.weddingDate ? dayjs(formData.weddingDate).format('YYYY-MM-DD') : '',
         nextFollowUp: formData.nextFollowUp ? dayjs(formData.nextFollowUp).format('YYYY-MM-DD') : ''
       }
-      
+
       if (isEdit.value) {
-        leadStore.updateLead(editId.value, data)
-        message.success('更新成功')
-      } else {
-        leadStore.addLead(data)
-        message.success('添加成功')
+        doSubmit(data)
+        return
       }
-      showModal.value = false
+
+      const existingCustomer = customerStore.findCustomerByPhone(data.phone)
+      const existingLead = leadStore.findLeadByPhone(data.phone)
+
+      if (existingCustomer) {
+        dialog.warning({
+          title: '手机号已存在',
+          content: () => h('div', { style: 'line-height: 1.8;' }, [
+            h('div', null, `该手机号已存在客户档案中：`),
+            h('div', { style: 'margin-top: 8px; padding: 12px; background: #f5f5f5; border-radius: 6px;' }, [
+              h('div', null, `客户姓名：${existingCustomer.name}`),
+              h('div', { style: 'margin-top: 4px;' }, `联系电话：${existingCustomer.phone}`),
+              existingCustomer.wechat ? h('div', { style: 'margin-top: 4px;' }, `微信号：${existingCustomer.wechat}`) : null,
+              existingCustomer.weddingDate ? h('div', { style: 'margin-top: 4px;' }, `婚期：${existingCustomer.weddingDate}`) : null
+            ]),
+            h('div', { style: 'margin-top: 12px; color: #666;' }, '是否将新录入的线索信息合并到该客户档案中？')
+          ]),
+          positiveText: '合并到客户',
+          negativeText: '取消',
+          onPositiveClick: () => {
+            customerStore.mergeCustomerWithLead(existingCustomer.id, data)
+            message.success('已合并到客户档案')
+            showModal.value = false
+          }
+        })
+        return
+      }
+
+      if (existingLead) {
+        dialog.warning({
+          title: '手机号已存在',
+          content: () => h('div', { style: 'line-height: 1.8;' }, [
+            h('div', null, `该手机号已存在线索档案中：`),
+            h('div', { style: 'margin-top: 8px; padding: 12px; background: #f5f5f5; border-radius: 6px;' }, [
+              h('div', null, `客户姓名：${existingLead.name}`),
+              h('div', { style: 'margin-top: 4px;' }, `联系电话：${existingLead.phone}`),
+              existingLead.wechat ? h('div', { style: 'margin-top: 4px;' }, `微信号：${existingLead.wechat}`) : null,
+              h('div', { style: 'margin-top: 4px;' }, `当前状态：${getStatusLabel(existingLead.status)}`),
+              existingLead.weddingDate ? h('div', { style: 'margin-top: 4px;' }, `婚期：${existingLead.weddingDate}`) : null
+            ]),
+            h('div', { style: 'margin-top: 12px; color: #666;' }, '是否将新录入的线索信息合并到已有线索中？')
+          ]),
+          positiveText: '合并线索',
+          negativeText: '取消',
+          onPositiveClick: () => {
+            leadStore.mergeLeads(existingLead.id, data)
+            message.success('线索已合并')
+            showModal.value = false
+          }
+        })
+        return
+      }
+
+      doSubmit(data)
     }
   })
 }
