@@ -166,6 +166,11 @@ export function ensureAllInitialized() {
     setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, mockData.travelShootExtraCosts)
     setStorage(storageKeys.PAYMENT_RECORDS, mockData.paymentRecords)
     setStorage(storageKeys.COMMUNICATIONS, mockData.communications)
+    setStorage(storageKeys.DELIVERY_PHOTOS, mockData.deliveryPhotos)
+    setStorage(storageKeys.DELIVERY_VIDEOS, mockData.deliveryVideos)
+    setStorage(storageKeys.DELIVERY_ALBUMS, mockData.deliveryAlbums)
+    setStorage(storageKeys.DELIVERY_EXPRESS, mockData.deliveryExpress)
+    setStorage(storageKeys.DELIVERY_SIGNOFFS, mockData.deliverySignOffs)
     setStorage(storageKeys.INITIALIZED, true)
     return
   }
@@ -209,6 +214,36 @@ export function ensureAllInitialized() {
   if (!communications || communications.length === 0) {
     const mockData = initMockData()
     setStorage(storageKeys.COMMUNICATIONS, mockData.communications)
+  }
+
+  const deliveryPhotos = getStorage(storageKeys.DELIVERY_PHOTOS)
+  if (!deliveryPhotos || deliveryPhotos.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.DELIVERY_PHOTOS, mockData.deliveryPhotos)
+  }
+
+  const deliveryVideos = getStorage(storageKeys.DELIVERY_VIDEOS)
+  if (!deliveryVideos || deliveryVideos.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.DELIVERY_VIDEOS, mockData.deliveryVideos)
+  }
+
+  const deliveryAlbums = getStorage(storageKeys.DELIVERY_ALBUMS)
+  if (!deliveryAlbums || deliveryAlbums.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.DELIVERY_ALBUMS, mockData.deliveryAlbums)
+  }
+
+  const deliveryExpress = getStorage(storageKeys.DELIVERY_EXPRESS)
+  if (!deliveryExpress || deliveryExpress.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.DELIVERY_EXPRESS, mockData.deliveryExpress)
+  }
+
+  const deliverySignOffs = getStorage(storageKeys.DELIVERY_SIGNOFFS)
+  if (!deliverySignOffs || deliverySignOffs.length === 0) {
+    const mockData = initMockData()
+    setStorage(storageKeys.DELIVERY_SIGNOFFS, mockData.deliverySignOffs)
   }
 
   ensureCustomerSourceFields()

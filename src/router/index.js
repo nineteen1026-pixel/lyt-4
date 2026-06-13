@@ -90,6 +90,12 @@ const routes = [
     name: 'TeamManagement',
     component: () => import('@/views/TeamManagement.vue'),
     meta: { title: '团队成员管理', icon: 'people' }
+  },
+  {
+    path: '/delivery-archive',
+    name: 'DeliveryArchive',
+    component: () => import('@/views/DeliveryArchive.vue'),
+    meta: { title: '交付资料归档', icon: 'archive' }
   }
 ]
 

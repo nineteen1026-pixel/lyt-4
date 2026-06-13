@@ -17,6 +17,11 @@ export const storageKeys = {
   TRAVEL_SHOOT_EXTRA_COSTS: 'travel_shoot_extra_costs',
   PAYMENT_RECORDS: 'payment_records',
   COMMUNICATIONS: 'communications',
+  DELIVERY_PHOTOS: 'delivery_photos',
+  DELIVERY_VIDEOS: 'delivery_videos',
+  DELIVERY_ALBUMS: 'delivery_albums',
+  DELIVERY_EXPRESS: 'delivery_express',
+  DELIVERY_SIGNOFFS: 'delivery_signoffs',
   INITIALIZED: 'initialized'
 }
 
@@ -72,6 +77,11 @@ export function exportAllData() {
     travelShootExtraCosts: getStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS) || [],
     paymentRecords: getStorage(storageKeys.PAYMENT_RECORDS) || [],
     communications: getStorage(storageKeys.COMMUNICATIONS) || [],
+    deliveryPhotos: getStorage(storageKeys.DELIVERY_PHOTOS) || [],
+    deliveryVideos: getStorage(storageKeys.DELIVERY_VIDEOS) || [],
+    deliveryAlbums: getStorage(storageKeys.DELIVERY_ALBUMS) || [],
+    deliveryExpress: getStorage(storageKeys.DELIVERY_EXPRESS) || [],
+    deliverySignOffs: getStorage(storageKeys.DELIVERY_SIGNOFFS) || [],
     exportAt: new Date().toISOString()
   }
   
@@ -106,6 +116,11 @@ export function importAllData(jsonData) {
     if (data.travelShootExtraCosts) setStorage(storageKeys.TRAVEL_SHOOT_EXTRA_COSTS, data.travelShootExtraCosts)
     if (data.paymentRecords) setStorage(storageKeys.PAYMENT_RECORDS, data.paymentRecords)
     if (data.communications) setStorage(storageKeys.COMMUNICATIONS, data.communications)
+    if (data.deliveryPhotos) setStorage(storageKeys.DELIVERY_PHOTOS, data.deliveryPhotos)
+    if (data.deliveryVideos) setStorage(storageKeys.DELIVERY_VIDEOS, data.deliveryVideos)
+    if (data.deliveryAlbums) setStorage(storageKeys.DELIVERY_ALBUMS, data.deliveryAlbums)
+    if (data.deliveryExpress) setStorage(storageKeys.DELIVERY_EXPRESS, data.deliveryExpress)
+    if (data.deliverySignOffs) setStorage(storageKeys.DELIVERY_SIGNOFFS, data.deliverySignOffs)
     
     return true
   } catch (e) {

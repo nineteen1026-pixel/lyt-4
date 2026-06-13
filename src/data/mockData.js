@@ -1862,6 +1862,329 @@ export const mockCommunications = [
   }
 ]
 
+export const mockDeliveryPhotos = [
+  {
+    id: 'photo_001',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    type: 'original',
+    fileName: '黄先生&吴女士_原片.zip',
+    photoCount: 586,
+    storageUrl: 'https://example.com/photos/ord_001/original.zip',
+    deliveredDate: '2026-03-10',
+    remark: '已通过百度网盘分享给客户',
+    createdAt: '2026-03-10T10:00:00.000Z'
+  },
+  {
+    id: 'photo_002',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    type: 'refined',
+    fileName: '黄先生&吴女士_精修50张.zip',
+    photoCount: 50,
+    storageUrl: 'https://example.com/photos/ord_001/refined.zip',
+    deliveredDate: '2026-03-25',
+    remark: '精修完成，客户满意',
+    createdAt: '2026-03-25T14:00:00.000Z'
+  },
+  {
+    id: 'photo_003',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    type: 'preview',
+    fileName: '黄先生&吴女士_预告9张.jpg',
+    photoCount: 9,
+    storageUrl: 'https://example.com/photos/ord_001/preview.zip',
+    deliveredDate: '2026-03-09',
+    remark: '婚礼当天晚上发给客户的预告图',
+    createdAt: '2026-03-09T22:00:00.000Z'
+  },
+  {
+    id: 'photo_004',
+    orderId: 'ord_006',
+    customerId: 'cust_001',
+    type: 'refined',
+    fileName: '张先生&李女士_补拍精修.zip',
+    photoCount: 30,
+    storageUrl: 'https://example.com/photos/ord_006/refined.zip',
+    deliveredDate: '2026-03-15',
+    remark: '登记照补拍精修',
+    createdAt: '2026-03-15T11:00:00.000Z'
+  },
+  {
+    id: 'photo_005',
+    orderId: 'ord_002',
+    customerId: 'cust_003',
+    type: 'original',
+    fileName: '刘先生&周女士_原片.zip',
+    photoCount: 820,
+    storageUrl: 'https://example.com/photos/ord_002/original.zip',
+    deliveredDate: '2026-04-28',
+    remark: '含中式外景和西式内景',
+    createdAt: '2026-04-28T09:00:00.000Z'
+  },
+  {
+    id: 'photo_006',
+    orderId: 'ord_002',
+    customerId: 'cust_003',
+    type: 'refined',
+    fileName: '刘先生&周女士_精修100张+加选30张.zip',
+    photoCount: 130,
+    storageUrl: 'https://example.com/photos/ord_002/refined.zip',
+    deliveredDate: null,
+    remark: '精修中，客户加选了30张',
+    createdAt: '2026-05-05T15:00:00.000Z'
+  }
+]
+
+export const mockDeliveryVideos = [
+  {
+    id: 'video_001',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    type: 'highlight',
+    fileName: '黄先生&吴女士_花絮快剪.mp4',
+    duration: '00:45',
+    fileSize: 524,
+    storageUrl: 'https://example.com/videos/ord_001/highlight.mp4',
+    deliveredDate: '2026-03-09',
+    remark: '婚礼当天发布的朋友圈短视频',
+    createdAt: '2026-03-09T23:00:00.000Z'
+  },
+  {
+    id: 'video_002',
+    orderId: 'ord_002',
+    customerId: 'cust_003',
+    type: 'full',
+    fileName: '刘先生&周女士_全程录像.mp4',
+    duration: '02:30:00',
+    fileSize: 8192,
+    storageUrl: 'https://example.com/videos/ord_002/full.mp4',
+    deliveredDate: null,
+    remark: '剪辑中，预计6月中旬完成',
+    createdAt: '2026-04-26T10:00:00.000Z'
+  },
+  {
+    id: 'video_003',
+    orderId: 'ord_003',
+    customerId: 'cust_001',
+    type: 'micro',
+    fileName: '张先生&李女士_爱情微电影.mp4',
+    duration: '00:02:30',
+    fileSize: 1024,
+    storageUrl: 'https://example.com/videos/ord_003/micro.mp4',
+    deliveredDate: null,
+    remark: '待拍摄完成后制作',
+    createdAt: '2026-05-15T10:00:00.000Z'
+  },
+  {
+    id: 'video_004',
+    orderId: 'ord_004',
+    customerId: 'cust_002',
+    type: 'prewedding',
+    fileName: '王先生&陈小姐_婚前MV.mp4',
+    duration: '00:03:00',
+    fileSize: 1536,
+    storageUrl: 'https://example.com/videos/ord_004/prewedding.mp4',
+    deliveredDate: null,
+    remark: '尊享套系包含，待制作',
+    createdAt: '2026-05-20T10:00:00.000Z'
+  }
+]
+
+export const mockDeliveryAlbums = [
+  {
+    id: 'album_001',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    name: '经典皮质相册',
+    spec: '12寸横版 · 30页',
+    photoCount: 50,
+    coverPhotoUrl: 'https://example.com/albums/ord_001/cover.jpg',
+    designStatus: 'completed',
+    printStatus: 'completed',
+    remark: '客户已确认设计稿',
+    createdAt: '2026-03-18T10:00:00.000Z'
+  },
+  {
+    id: 'album_002',
+    orderId: 'ord_002',
+    customerId: 'cust_003',
+    name: '豪华水晶相册',
+    spec: '14寸方版 · 40页',
+    photoCount: 100,
+    coverPhotoUrl: 'https://example.com/albums/ord_002/cover.jpg',
+    designStatus: 'designing',
+    printStatus: 'pending',
+    remark: '设计初稿中，预计6月10日给客户确认',
+    createdAt: '2026-05-08T10:00:00.000Z'
+  },
+  {
+    id: 'album_003',
+    orderId: 'ord_004',
+    customerId: 'cust_002',
+    name: '尊享豪华皮质相册（两本）',
+    spec: '16寸竖版 · 50页 × 2',
+    photoCount: 200,
+    coverPhotoUrl: null,
+    designStatus: 'pending',
+    printStatus: 'pending',
+    remark: '客户指定要复古风格设计',
+    createdAt: '2026-05-25T10:00:00.000Z'
+  },
+  {
+    id: 'album_004',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    name: '精美摆台',
+    spec: '10寸水晶摆台',
+    photoCount: 1,
+    coverPhotoUrl: 'https://example.com/albums/ord_001/stand.jpg',
+    designStatus: 'completed',
+    printStatus: 'completed',
+    remark: '赠品，随主相册一起寄出',
+    createdAt: '2026-03-18T10:00:00.000Z'
+  }
+]
+
+export const mockDeliveryExpress = [
+  {
+    id: 'express_001',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    company: 'sf',
+    trackingNo: 'SF1234567890123',
+    sender: '婚礼摄影工作室',
+    senderPhone: '021-88888888',
+    senderAddress: '上海市静安区南京西路1000号',
+    receiver: '黄先生',
+    receiverPhone: '13500135005',
+    receiverAddress: '广州市天河区珠江新城花城大道88号',
+    items: '经典皮质相册1本、精美摆台1个、U盘1个',
+    weight: 2.5,
+    cost: 35,
+    status: 'delivered',
+    shippedDate: '2026-03-28',
+    deliveredDate: '2026-03-30',
+    remark: '客户已签收，确认无误',
+    createdAt: '2026-03-28T09:00:00.000Z'
+  },
+  {
+    id: 'express_002',
+    orderId: 'ord_006',
+    customerId: 'cust_001',
+    company: 'sf',
+    trackingNo: 'SF9988776655443',
+    sender: '婚礼摄影工作室',
+    senderPhone: '021-88888888',
+    senderAddress: '上海市静安区南京西路1000号',
+    receiver: '张先生',
+    receiverPhone: '13800138001',
+    receiverAddress: '上海市黄浦区外滩中山东一路2号',
+    items: '补拍精修照片打印版10张',
+    weight: 0.5,
+    cost: 18,
+    status: 'delivered',
+    shippedDate: '2026-03-18',
+    deliveredDate: '2026-03-19',
+    remark: '同城次日达',
+    createdAt: '2026-03-18T14:00:00.000Z'
+  },
+  {
+    id: 'express_003',
+    orderId: 'ord_002',
+    customerId: 'cust_003',
+    company: 'sf',
+    trackingNo: '',
+    sender: '婚礼摄影工作室',
+    senderPhone: '021-88888888',
+    senderAddress: '上海市静安区南京西路1000号',
+    receiver: '刘先生',
+    receiverPhone: '13700137003',
+    receiverAddress: '杭州市西湖区龙井路1号',
+    items: '豪华水晶相册1本、U盘1个',
+    weight: 3.2,
+    cost: null,
+    status: 'pending',
+    shippedDate: null,
+    deliveredDate: null,
+    remark: '待相册制作完成后寄出',
+    createdAt: '2026-05-10T10:00:00.000Z'
+  },
+  {
+    id: 'express_004',
+    orderId: 'ord_003',
+    customerId: 'cust_001',
+    company: 'sf',
+    trackingNo: 'SF5566778899001',
+    sender: '婚礼摄影工作室',
+    senderPhone: '021-88888888',
+    senderAddress: '上海市静安区南京西路1000号',
+    receiver: '张先生',
+    receiverPhone: '13800138001',
+    receiverAddress: '上海市黄浦区外滩中山东一路2号',
+    items: '预告照片打印版6张',
+    weight: 0.3,
+    cost: 15,
+    status: 'in_transit',
+    shippedDate: '2026-06-12',
+    deliveredDate: null,
+    remark: '预告照片抢先寄出',
+    createdAt: '2026-06-12T16:00:00.000Z'
+  }
+]
+
+export const mockDeliverySignOffs = [
+  {
+    id: 'signoff_001',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    type: 'product',
+    status: 'confirmed',
+    signerName: '黄先生',
+    signDate: '2026-03-30',
+    feedback: '相册质量很好，包装很仔细，非常满意！',
+    rating: 5,
+    createdAt: '2026-03-30T18:00:00.000Z'
+  },
+  {
+    id: 'signoff_002',
+    orderId: 'ord_006',
+    customerId: 'cust_001',
+    type: 'photo',
+    status: 'confirmed',
+    signerName: '张先生',
+    signDate: '2026-03-19',
+    feedback: '照片效果不错，补拍的登记照很自然。',
+    rating: 4,
+    createdAt: '2026-03-19T20:00:00.000Z'
+  },
+  {
+    id: 'signoff_003',
+    orderId: 'ord_001',
+    customerId: 'cust_005',
+    type: 'photo',
+    status: 'confirmed',
+    signerName: '吴女士',
+    signDate: '2026-03-25',
+    feedback: '精修照片很自然，保留了我们的特点，化妆师和摄影师都很专业！',
+    rating: 5,
+    createdAt: '2026-03-25T21:00:00.000Z'
+  },
+  {
+    id: 'signoff_004',
+    orderId: 'ord_002',
+    customerId: 'cust_003',
+    type: 'photo',
+    status: 'pending',
+    signerName: null,
+    signDate: null,
+    feedback: null,
+    rating: null,
+    createdAt: '2026-05-05T16:00:00.000Z'
+  }
+]
+
 export function initMockData() {
   return {
     customers: mockCustomers,
@@ -1877,6 +2200,11 @@ export function initMockData() {
     travelShootStaffAssignments: mockTravelShootStaffAssignments,
     travelShootExtraCosts: mockTravelShootExtraCosts,
     paymentRecords: mockPaymentRecords,
-    communications: mockCommunications
+    communications: mockCommunications,
+    deliveryPhotos: mockDeliveryPhotos,
+    deliveryVideos: mockDeliveryVideos,
+    deliveryAlbums: mockDeliveryAlbums,
+    deliveryExpress: mockDeliveryExpress,
+    deliverySignOffs: mockDeliverySignOffs
   }
 }
