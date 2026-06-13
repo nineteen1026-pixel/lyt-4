@@ -566,7 +566,13 @@ const assignOrderFilter = ref('all')
 const statsPeriod = ref('month')
 const statsRoleFilter = ref('all')
 
-const weekStart = ref(dayjs().startOf('week'))
+function getMonday(d) {
+  const day = d.day()
+  const diff = day === 0 ? -6 : 1 - day
+  return d.add(diff, 'day').startOf('day')
+}
+
+const weekStart = ref(getMonday(dayjs()))
 
 const showScheduleModal = ref(false)
 const isEditSchedule = ref(false)
@@ -608,15 +614,21 @@ const assignFilterOptions = [
 const weekDays = computed(() => {
   const days = []
   const weekdayLabels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+  const dayOfWeekMap = { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4, 6: 5, 0: 6 }
   for (let i = 0; i < 7; i++) {
     const d = weekStart.value.add(i, 'day')
     const dateStr = d.format('YYYY-MM-DD')
+    const jsDay = d.day()
+    const expectedIndex = dayOfWeekMap[jsDay]
+    if (expectedIndex !== i) {
+      console.warn(`[排班日期校验] 日期${dateStr}的星期(${weekdayLabels[expectedIndex]})与列位置(${weekdayLabels[i]})不匹配`)
+    }
     days.push({
       dateStr,
       dateLabel: d.format('MM/DD'),
       weekday: weekdayLabels[i],
       isToday: d.isSame(dayjs(), 'day'),
-      isWeekend: i >= 5
+      isWeekend: jsDay === 0 || jsDay === 6
     })
   }
   return days
@@ -936,7 +948,7 @@ function nextWeek() {
 }
 
 function goCurrentWeek() {
-  weekStart.value = dayjs().startOf('week')
+  weekStart.value = getMonday(dayjs())
 }
 
 function openScheduleModal(preStaffId, preDate, preOrderId) {
